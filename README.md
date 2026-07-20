@@ -92,6 +92,21 @@ cleaned/merged_cleaned.jsonl
 
 The default training config already uses this merged file.
 
+## Variable Name Robustness
+
+To make the model handle weak names like `a`, `b`, `x`, `f`, and stronger names
+like `count`, `result`, or `is_valid`, generate variable-renaming augmentation:
+
+```bash
+uv run python scripts/augment_identifiers.py \
+  --input cleaned/merged_cleaned.jsonl \
+  --output cleaned/augmented_merged_cleaned.jsonl
+```
+
+To protect Kaggle's limited `/kaggle/working` disk, the notebook does not write
+the full augmented dataset by default. It enables in-pipeline augmentation and
+stores Hugging Face dataset cache under `/kaggle/temp/hf-datasets`.
+
 ## Training
 
 Single GPU:

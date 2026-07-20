@@ -7,6 +7,7 @@ from typing import Any
 from datasets import Dataset, DatasetDict, load_dataset
 
 from qwen_cpp_review.config import DataConfig
+from qwen_cpp_review.identifier_augmentation import augment_row
 from qwen_cpp_review.prompt import format_prompt
 
 
@@ -35,6 +36,9 @@ def load_review_dataset(config: DataConfig) -> DatasetDict:
 
 
 def prepare_sft_dataset(dataset: DatasetDict, config: DataConfig, tokenizer: Any) -> DatasetDict:
+    if config.identifier_augmentation:
+        dataset = _augment_training_split(dataset, config)
+
     def render(example: dict[str, Any]) -> dict[str, str]:
         return {
             "text": format_prompt(
@@ -52,6 +56,19 @@ def prepare_sft_dataset(dataset: DatasetDict, config: DataConfig, tokenizer: Any
         num_proc=config.preprocessing_num_proc,
         desc="Rendering prompts",
     )
+
+
+def _augment_training_split(dataset: DatasetDict, config: DataConfig) -> DatasetDict:
+    import random
+
+    rows: list[dict[str, Any]] = []
+    for index, row in enumerate(dataset["train"]):
+        rng = random.Random(config.identifier_augmentation_copies + index)
+        variants = augment_row(dict(row), rng=rng)
+        rows.append(variants[0])
+        rows.extend(variants[1 : 1 + config.identifier_augmentation_copies])
+    dataset["train"] = Dataset.from_list(rows)
+    return dataset
 
 
 def _resolve_data_files(patterns: list[str]) -> list[str]:

@@ -16,6 +16,8 @@ data:
   cache_dir: .cache/hf-datasets
   train_on_inputs: true
   prompt_style: chat
+  identifier_augmentation: false
+  identifier_augmentation_copies: 1
   output_fields:
     - comments
     - explanation
@@ -37,7 +39,7 @@ training:
   logging_steps: 10
   eval_steps: 100
   save_steps: 100
-  save_total_limit: 3
+  save_total_limit: 2
   eval_strategy: steps
   save_strategy: steps
   load_best_model_at_end: true

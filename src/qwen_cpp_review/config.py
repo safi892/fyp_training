@@ -32,6 +32,8 @@ class DataConfig:
     cache_dir: str | None = ".cache/hf-datasets"
     train_on_inputs: bool = True
     prompt_style: str = "chat"
+    identifier_augmentation: bool = False
+    identifier_augmentation_copies: int = 1
     output_fields: list[str] = field(
         default_factory=lambda: ["comments", "explanation", "improved_code", "complexity_analysis"]
     )
