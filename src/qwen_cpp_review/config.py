@@ -62,7 +62,9 @@ class TrainingConfig:
     gradient_checkpointing: bool = True
     bf16: bool | str = "auto"
     fp16: bool | str = "auto"
-    packing: bool = True
+    packing: bool = False
+    gradient_checkpointing_use_reentrant: bool = False
+    ddp_find_unused_parameters: bool = False
     report_to: list[str] = field(default_factory=lambda: ["tensorboard"])
     seed: int = 42
     resume_from_checkpoint: str | None = None

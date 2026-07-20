@@ -57,6 +57,10 @@ def build_sft_config(config: AppConfig) -> SFTConfig:
         metric_for_best_model=config.training.metric_for_best_model,
         greater_is_better=config.training.greater_is_better,
         gradient_checkpointing=config.training.gradient_checkpointing,
+        gradient_checkpointing_kwargs={
+            "use_reentrant": config.training.gradient_checkpointing_use_reentrant
+        },
+        ddp_find_unused_parameters=config.training.ddp_find_unused_parameters,
         bf16=bf16,
         fp16=fp16,
         packing=config.training.packing,

@@ -46,7 +46,9 @@ training:
   gradient_checkpointing: true
   bf16: auto
   fp16: auto
-  packing: true
+  packing: false
+  gradient_checkpointing_use_reentrant: false
+  ddp_find_unused_parameters: false
   report_to:
     - tensorboard
   seed: 42

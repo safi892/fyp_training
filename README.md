@@ -204,6 +204,8 @@ Important defaults:
 - TRL `SFTTrainer` with `SFTConfig`.
 - `paged_adamw_8bit`, cosine scheduler, gradient clipping, warmup, and
   gradient checkpointing.
+- Non-reentrant gradient checkpointing and
+  `ddp_find_unused_parameters: false` for stable multi-GPU DDP training.
 - TensorBoard logging, best-model loading, early stopping, automatic checkpoint
   discovery, and final adapter save.
 - Chat-template prompt formatting by default.
@@ -221,7 +223,8 @@ Approximate starting points for `Qwen2.5-Coder-1.5B-Instruct` QLoRA:
 | 80 GB | 8192+ | 2-4 | 8 | true |
 
 If training runs out of memory, reduce `data.max_seq_length` first, then
-`per_device_train_batch_size`. Keep `packing: true` for better throughput.
+`per_device_train_batch_size`. Keep `packing: false` on Kaggle T4 unless you
+install and enable a supported flash-attention implementation.
 
 ## Common Issues
 
