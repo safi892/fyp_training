@@ -1,0 +1,18 @@
+# Python-generated files
+__pycache__/
+*.py[oc]
+build/
+dist/
+wheels/
+*.egg-info
+
+# Virtual environments
+.venv
+
+
+
+cleaned/llm_annotated_cleaned.jsonl
+cleaned/llm_annotated_part2_cleaned.jsonl
+cleaned/merged_cleaned.jsonl
+cleaned/results_0_cleaned.jsonl
+cleaned/results_1_cleaned.jsonl

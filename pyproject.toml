@@ -1,0 +1,55 @@
+[project]
+name = "fyp8th-clean"
+version = "0.1.0"
+description = "QLoRA fine-tuning pipeline for a Qwen2.5 C++ code review assistant."
+readme = "README.md"
+requires-python = ">=3.10,<3.13"
+dependencies = [
+    "datasets==4.4.1",
+    "pyyaml==6.0.3",
+    "rich==14.2.0",
+    "safetensors==0.7.0",
+    "transformers==4.57.3",
+]
+
+[project.optional-dependencies]
+gpu = [
+    "accelerate==1.12.0",
+    "bitsandbytes==0.48.2",
+    "peft==0.18.0",
+    "tensorboard==2.20.0",
+    "torch==2.9.1",
+    "trl==0.25.0",
+]
+dev = [
+    "pytest==9.0.2",
+    "ruff==0.14.8",
+]
+wandb = [
+    "wandb==0.23.1",
+]
+export = [
+    "onnx==1.19.1",
+]
+
+[project.scripts]
+qwen-review-train = "qwen_cpp_review.cli:train_main"
+qwen-review-eval = "qwen_cpp_review.cli:evaluate_main"
+qwen-review-infer = "qwen_cpp_review.cli:inference_main"
+qwen-review-merge = "qwen_cpp_review.cli:merge_main"
+qwen-review-export-onnx = "qwen_cpp_review.cli:export_onnx_main"
+
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[tool.hatch.build.targets.wheel]
+packages = ["src/qwen_cpp_review"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+pythonpath = ["src"]
+
+[tool.ruff]
+line-length = 100
+target-version = "py310"
