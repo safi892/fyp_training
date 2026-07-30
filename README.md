@@ -183,6 +183,23 @@ uv run python inference.py --config configs/train_qlora.yaml \
   --batch-jsonl cleaned/results_0_cleaned.jsonl
 ```
 
+## Test a Trained Model
+
+Smoke-test the best adapter on built-in easy, medium, and hard C++ examples:
+
+```bash
+uv run python scripts/test_model.py
+```
+
+The script has its test configuration embedded and also tests renamed-variable
+versions by default.
+
+On Kaggle:
+
+```bash
+UV_PROJECT_ENVIRONMENT=/kaggle/temp/project-venv uv run python scripts/test_model.py
+```
+
 ## Merge LoRA Adapter
 
 ```bash

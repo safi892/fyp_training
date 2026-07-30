@@ -4,6 +4,7 @@ import logging
 from pathlib import Path
 
 import torch
+from peft import PeftModel
 from transformers import EarlyStoppingCallback, PreTrainedTokenizerBase
 from trl import SFTConfig, SFTTrainer
 
@@ -76,7 +77,10 @@ def build_trainer(config: AppConfig, tokenizer: PreTrainedTokenizerBase) -> SFTT
     raw_dataset = load_review_dataset(config.data)
     sft_dataset = prepare_sft_dataset(raw_dataset, config.data, tokenizer)
     model = load_model_for_qlora(config.model, config.training.gradient_checkpointing)
-    peft_config = create_lora_config(config.lora)
+    peft_config = None if config.training.initial_adapter_path else create_lora_config(config.lora)
+    if config.training.initial_adapter_path:
+        LOGGER.info("loading initial adapter weights: %s", config.training.initial_adapter_path)
+        model = PeftModel.from_pretrained(model, config.training.initial_adapter_path, is_trainable=True)
     callbacks = [ThroughputAndMemoryCallback()]
     if config.training.early_stopping_patience and "validation" in sft_dataset:
         callbacks.append(EarlyStoppingCallback(config.training.early_stopping_patience))
@@ -100,9 +104,13 @@ def train(config: AppConfig, tokenizer: PreTrainedTokenizerBase) -> None:
     config.save(output_dir / "training_config.yaml")
 
     trainer = build_trainer(config, tokenizer)
-    resume = config.training.resume_from_checkpoint or find_latest_checkpoint(output_dir)
+    resume = None
+    if not config.training.initial_adapter_path:
+        resume = config.training.resume_from_checkpoint or find_latest_checkpoint(output_dir)
     if resume:
         LOGGER.info("resuming from checkpoint: %s", resume)
+    elif config.training.initial_adapter_path:
+        LOGGER.info("continuing from adapter weights without optimizer-state resume")
     trainer.train(resume_from_checkpoint=resume)
 
     latest_checkpoint = find_latest_checkpoint(output_dir)

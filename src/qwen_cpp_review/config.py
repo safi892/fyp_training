@@ -70,6 +70,7 @@ class TrainingConfig:
     report_to: list[str] = field(default_factory=lambda: ["tensorboard"])
     seed: int = 42
     resume_from_checkpoint: str | None = None
+    initial_adapter_path: str | None = None
     early_stopping_patience: int | None = 5
 
 
