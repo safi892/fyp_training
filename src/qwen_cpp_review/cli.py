@@ -18,6 +18,14 @@ from qwen_cpp_review.logging_utils import configure_logging
 from qwen_cpp_review.metrics import perplexity
 from qwen_cpp_review.model import create_bnb_config, load_model_for_qlora
 from qwen_cpp_review.prompt import format_prompt_without_response
+from qwen_cpp_review.resume import (
+    MODE_SCRATCH,
+    VALID_MODES,
+    check_lora_compatibility,
+    inspect_checkpoint,
+    list_checkpoints,
+    resolve_resume_plan,
+)
 from qwen_cpp_review.tokenizer import load_tokenizer
 from qwen_cpp_review.trainer import build_sft_config, build_trainer, train
 
@@ -27,11 +35,64 @@ LOGGER = logging.getLogger(__name__)
 def train_main() -> None:
     parser = argparse.ArgumentParser(description="Fine-tune Qwen2.5-Coder with QLoRA.")
     parser.add_argument("--config", default="configs/train_qlora.yaml")
+    parser.add_argument(
+        "--resume-mode",
+        choices=VALID_MODES,
+        default=None,
+        help=(
+            "Override training.resume_mode. auto=strongest mode the checkpoint supports, "
+            "exact=require full optimizer state, state=keep step/LR but reset the optimizer, "
+            "adapter=weights only, scratch=start at step 0."
+        ),
+    )
+    parser.add_argument(
+        "--resume-from",
+        default=None,
+        help="Checkpoint directory to continue from (default: newest under output_dir).",
+    )
+    parser.add_argument(
+        "--fresh",
+        action="store_true",
+        help="Start from step 0 and archive anything already in output_dir.",
+    )
     args = parser.parse_args()
     configure_logging()
     config = AppConfig.from_yaml(args.config)
+    if args.resume_mode:
+        config.training.resume_mode = args.resume_mode
+    if args.resume_from:
+        config.training.resume_from_checkpoint = args.resume_from
+    if args.fresh:
+        config.training.resume_mode = MODE_SCRATCH
+        config.training.resume_from_checkpoint = None
+        config.training.initial_adapter_path = None
+        config.training.overwrite_output_dir = True
     tokenizer = load_tokenizer(config.model)
     train(config, tokenizer)
+
+
+def resume_status_main() -> None:
+    """Print the resume decision without loading a model or touching a GPU."""
+    parser = argparse.ArgumentParser(description="Show how the next run would resume.")
+    parser.add_argument("--config", default="configs/train_qlora.yaml")
+    args = parser.parse_args()
+    configure_logging()
+    config = AppConfig.from_yaml(args.config)
+
+    output_dir = Path(config.training.output_dir)
+    checkpoints = list_checkpoints(output_dir)
+    print(f"Output dir : {output_dir}")
+    print(f"Checkpoints: {[path.name for path in checkpoints] or 'none'}")
+    for path in checkpoints:
+        info = inspect_checkpoint(path)
+        print(
+            f"  {path.name:>18}  step={info.resume_step:<6} adapter={info.has_adapter} "
+            f"state={info.has_trainer_state} optim={info.has_optimizer} "
+            f"sched={info.has_scheduler} written_with_optim={info.optim}"
+        )
+    plan = resolve_resume_plan(config, dry_run=True)
+    check_lora_compatibility(plan, config.lora)
+    print(plan.banner())
 
 
 def evaluate_main() -> None:

@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import gc
 import logging
 from pathlib import Path
 
@@ -8,7 +9,12 @@ from peft import PeftModel
 from transformers import EarlyStoppingCallback, PreTrainedTokenizerBase
 from trl import SFTConfig, SFTTrainer
 
-from qwen_cpp_review.callbacks import ThroughputAndMemoryCallback
+from qwen_cpp_review.callbacks import (
+    LrSchedulerRestoreCallback,
+    ResumeManifestCallback,
+    ThroughputAndMemoryCallback,
+    TrainingProgressGuard,
+)
 from qwen_cpp_review.checkpoint import (
     convert_adapter_checkpoint_to_pth,
     copy_checkpoint_dir,
@@ -18,6 +24,15 @@ from qwen_cpp_review.checkpoint import (
 from qwen_cpp_review.config import AppConfig
 from qwen_cpp_review.dataset import load_review_dataset, prepare_sft_dataset
 from qwen_cpp_review.model import create_lora_config, load_model_for_qlora, log_parameter_summary
+from qwen_cpp_review.resume import (
+    MODE_SCRATCH,
+    ResumePlan,
+    archive_existing_checkpoints,
+    check_dataset_drift,
+    check_lora_compatibility,
+    degraded_plan,
+    resolve_resume_plan,
+)
 from qwen_cpp_review.seed import seed_everything
 
 LOGGER = logging.getLogger(__name__)
@@ -72,22 +87,41 @@ def build_sft_config(config: AppConfig) -> SFTConfig:
     )
 
 
-def build_trainer(config: AppConfig, tokenizer: PreTrainedTokenizerBase) -> SFTTrainer:
+def build_trainer(
+    config: AppConfig,
+    tokenizer: PreTrainedTokenizerBase,
+    plan: ResumePlan | None = None,
+) -> SFTTrainer:
+    """Assemble the trainer for ``plan``.
+
+    Only ``adapter`` mode preloads weights here. ``exact`` and ``state`` hand
+    the checkpoint to ``Trainer.train(resume_from_checkpoint=...)``, which
+    loads the adapter itself alongside the rest of the run state.
+    """
     seed_everything(config.training.seed)
     raw_dataset = load_review_dataset(config.data)
     sft_dataset = prepare_sft_dataset(raw_dataset, config.data, tokenizer)
     model = load_model_for_qlora(config.model, config.training.gradient_checkpointing)
-    peft_config = None if config.training.initial_adapter_path else create_lora_config(config.lora)
-    if config.training.initial_adapter_path:
-        LOGGER.info("loading initial adapter weights: %s", config.training.initial_adapter_path)
-        model = PeftModel.from_pretrained(model, config.training.initial_adapter_path, is_trainable=True)
-    callbacks = [ThroughputAndMemoryCallback()]
+
+    adapter_path = plan.adapter_path if plan else config.training.initial_adapter_path
+    peft_config = None if adapter_path else create_lora_config(config.lora)
+    if adapter_path:
+        LOGGER.info("loading adapter weights into the base model: %s", adapter_path)
+        model = PeftModel.from_pretrained(model, adapter_path, is_trainable=True)
+
+    sft_config = build_sft_config(config)
+    if plan is not None:
+        _report_resume_context(plan, config, sft_config, sft_dataset["train"])
+
+    callbacks = [ThroughputAndMemoryCallback(), ResumeManifestCallback(_dataset_info(sft_dataset))]
+    if plan is not None and plan.scheduler_state_path is not None:
+        callbacks.append(LrSchedulerRestoreCallback(plan.scheduler_state_path, plan.start_step))
     if config.training.early_stopping_patience and "validation" in sft_dataset:
         callbacks.append(EarlyStoppingCallback(config.training.early_stopping_patience))
 
     trainer = SFTTrainer(
         model=model,
-        args=build_sft_config(config),
+        args=sft_config,
         train_dataset=sft_dataset["train"],
         eval_dataset=sft_dataset.get("validation"),
         processing_class=tokenizer,
@@ -101,18 +135,71 @@ def build_trainer(config: AppConfig, tokenizer: PreTrainedTokenizerBase) -> SFTT
 def train(config: AppConfig, tokenizer: PreTrainedTokenizerBase) -> None:
     output_dir = Path(config.training.output_dir)
     output_dir.mkdir(parents=True, exist_ok=True)
+
+    if config.training.resume_mode == MODE_SCRATCH and config.training.overwrite_output_dir:
+        archive_existing_checkpoints(output_dir)
+
     config.save(output_dir / "training_config.yaml")
 
-    trainer = build_trainer(config, tokenizer)
-    resume = None
-    if not config.training.initial_adapter_path:
-        resume = config.training.resume_from_checkpoint or find_latest_checkpoint(output_dir)
-    if resume:
-        LOGGER.info("resuming from checkpoint: %s", resume)
-    elif config.training.initial_adapter_path:
-        LOGGER.info("continuing from adapter weights without optimizer-state resume")
-    trainer.train(resume_from_checkpoint=resume)
+    plan = resolve_resume_plan(config)
+    check_lora_compatibility(plan, config.lora)
+    plan.log()
 
+    trainer = _run_with_fallback(config, tokenizer, plan)
+    _save_artifacts(config, tokenizer, trainer, output_dir)
+
+
+def _run_with_fallback(
+    config: AppConfig,
+    tokenizer: PreTrainedTokenizerBase,
+    plan: ResumePlan,
+) -> SFTTrainer:
+    """Train, degrading the resume mode if resuming fails before the first step.
+
+    The predictable incompatibilities are already rejected while planning, so
+    this only covers the rest: a truncated optimizer file, a bitsandbytes state
+    that fails to deserialize, a PEFT version that cannot read the adapter. A
+    failure after any optimizer step is a training failure and propagates
+    untouched - retrying it would just burn hours and hide the real error.
+    """
+    attempt = plan
+    while True:
+        trainer = build_trainer(config, tokenizer, attempt)
+        guard = TrainingProgressGuard()
+        trainer.add_callback(guard)
+        try:
+            trainer.train(resume_from_checkpoint=attempt.resume_from_checkpoint)
+            return trainer
+        except Exception as exc:
+            retryable = not guard.progressed and _is_resume_failure(exc)
+            fallback = degraded_plan(attempt, config) if retryable else None
+            if fallback is None or not config.training.resume_auto_fallback:
+                raise
+            LOGGER.error("%s resume failed before the first step: %s", attempt.mode, exc)
+            LOGGER.error("retrying with %s resume", fallback.mode)
+            _release(trainer)
+            attempt = fallback
+            attempt.log()
+
+
+def _is_resume_failure(exc: BaseException) -> bool:
+    """Whether ``exc`` is worth retrying with a weaker resume mode.
+
+    Running out of memory is a capacity problem, not a resume problem: a retry
+    would reload the base model and fail identically, so it propagates.
+    """
+    oom = getattr(torch, "OutOfMemoryError", None) or getattr(torch.cuda, "OutOfMemoryError", None)
+    if oom is not None and isinstance(exc, oom):
+        return False
+    return not isinstance(exc, (MemoryError, KeyboardInterrupt))
+
+
+def _save_artifacts(
+    config: AppConfig,
+    tokenizer: PreTrainedTokenizerBase,
+    trainer: SFTTrainer,
+    output_dir: Path,
+) -> None:
     latest_checkpoint = find_latest_checkpoint(output_dir)
     if latest_checkpoint:
         copy_checkpoint_dir(latest_checkpoint, output_dir / "last_adapter")
@@ -120,13 +207,70 @@ def train(config: AppConfig, tokenizer: PreTrainedTokenizerBase) -> None:
         LOGGER.info("saved last adapter checkpoint and pth from %s", latest_checkpoint)
 
     best_checkpoint = trainer.state.best_model_checkpoint
-    if best_checkpoint:
+    if best_checkpoint and Path(best_checkpoint).is_dir():
         copy_checkpoint_dir(best_checkpoint, output_dir / "best_adapter")
         convert_adapter_checkpoint_to_pth(best_checkpoint, output_dir / "best_adapter.pth")
         LOGGER.info("saved best adapter checkpoint and pth from %s", best_checkpoint)
+    elif best_checkpoint:
+        LOGGER.warning(
+            "best checkpoint %s was rotated away before it could be copied; "
+            "raise save_total_limit to keep it",
+            best_checkpoint,
+        )
 
     trainer.save_model(output_dir / "final_adapter")
     tokenizer.save_pretrained(output_dir / "final_adapter")
     config.save(output_dir / "final_adapter" / "training_config.yaml")
     save_current_adapter_pth(trainer.model, output_dir / "final_adapter.pth")
     LOGGER.info("saved final adapter to %s", output_dir / "final_adapter")
+
+
+def _report_resume_context(
+    plan: ResumePlan,
+    config: AppConfig,
+    sft_config: SFTConfig,
+    train_dataset,
+) -> None:
+    """Log what this run will do in step terms, and flag dataset drift."""
+    effective_batch = (
+        sft_config.per_device_train_batch_size
+        * sft_config.gradient_accumulation_steps
+        * max(sft_config.world_size, 1)
+    )
+    rows = len(train_dataset)
+    steps_per_epoch = max(rows // effective_batch, 1)
+    total_steps = int(steps_per_epoch * config.training.num_train_epochs)
+    LOGGER.info(
+        "training plan: %s rows, effective batch %s, ~%s steps/epoch, ~%s total steps, "
+        "starting at step %s",
+        rows,
+        effective_batch,
+        steps_per_epoch,
+        total_steps,
+        plan.start_step,
+    )
+    check_dataset_drift(plan, rows, effective_batch)
+
+
+def _dataset_info(sft_dataset) -> dict[str, object]:
+    train_split = sft_dataset["train"]
+    validation = sft_dataset.get("validation")
+    return {
+        "train_dataset_rows": len(train_split),
+        "eval_dataset_rows": len(validation) if validation is not None else 0,
+        "train_dataset_fingerprint": getattr(train_split, "_fingerprint", None),
+    }
+
+
+def _release(trainer: SFTTrainer) -> None:
+    """Drop a failed trainer's GPU memory before rebuilding one.
+
+    The retry loads a second copy of the quantized base model, so the first
+    one has to let go of its VRAM first.
+    """
+    for attribute in ("model", "model_wrapped", "optimizer", "lr_scheduler"):
+        if hasattr(trainer, attribute):
+            setattr(trainer, attribute, None)
+    gc.collect()
+    if torch.cuda.is_available():
+        torch.cuda.empty_cache()

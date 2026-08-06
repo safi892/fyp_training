@@ -7,16 +7,17 @@ import torch
 from peft import get_peft_model_state_dict
 from safetensors.torch import load_file
 
+from qwen_cpp_review.resume import MODE_ADAPTER
+from qwen_cpp_review.resume import find_latest_checkpoint as _find_latest_checkpoint
 
-def find_latest_checkpoint(output_dir: str | Path) -> str | None:
-    root = Path(output_dir)
-    if not root.exists():
-        return None
-    checkpoints = [path for path in root.glob("checkpoint-*") if path.is_dir()]
-    if not checkpoints:
-        return None
-    checkpoints.sort(key=lambda path: int(path.name.split("-")[-1]))
-    return str(checkpoints[-1])
+
+def find_latest_checkpoint(output_dir: str | Path, tier: str = MODE_ADAPTER) -> str | None:
+    """Newest checkpoint that is complete enough to be used for ``tier``.
+
+    Skips directories left half-written by an interrupted save, which is how a
+    preempted session normally ends.
+    """
+    return _find_latest_checkpoint(output_dir, tier=tier)
 
 
 def save_current_adapter_pth(model, path: str | Path) -> None:

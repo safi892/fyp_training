@@ -132,9 +132,7 @@ Outputs are written to:
 outputs/qwen2.5-coder-1.5b-cpp-review-qlora/
 ```
 
-The final adapter is saved under `final_adapter/`. Checkpoints are resumed
-automatically from the latest `checkpoint-*` directory unless
-`training.resume_from_checkpoint` is set.
+The final adapter is saved under `final_adapter/`.
 
 Training saves:
 
@@ -145,6 +143,74 @@ Training saves:
 `best_adapter` comes from `trainer.state.best_model_checkpoint`.
 `last_adapter` comes from the newest checkpoint. `final_adapter` is the model
 state held by the trainer after training finishes.
+
+## Resuming
+
+Re-running `train.py` continues from the newest usable checkpoint in
+`output_dir`. Nothing needs to be set: `training.resume_mode: auto` picks the
+strongest continuation the checkpoint supports.
+
+| Mode | Restores | Use when |
+| --- | --- | --- |
+| `exact` | adapter, optimizer moments, LR schedule, step, epoch, RNG | default; a true continuation |
+| `state` | adapter, LR schedule, step, epoch | the saved optimizer state is unusable |
+| `adapter` | adapter weights only | only adapter files survived |
+| `scratch` | nothing | deliberately restarting |
+
+Preview the decision before spending GPU time — this reads the checkpoints and
+writes nothing:
+
+```bash
+uv run qwen-review-resume-status --config configs/train_qlora.yaml
+```
+
+Every run prints a `RESUME MODE:` banner naming the starting step and whether
+the optimizer, LR schedule and step counter were restored.
+
+Overrides:
+
+```bash
+uv run python train.py --resume-from outputs/.../checkpoint-750  # specific checkpoint
+uv run python train.py --resume-mode exact                       # fail if not exact
+uv run python train.py --fresh                                   # archive and restart at 0
+```
+
+`--fresh` moves the existing run to `output_dir/archive/run-<timestamp>/`
+rather than deleting it.
+
+### Why exact resume can fail, and what happens instead
+
+The optimizer state in a checkpoint can only be read back by the same
+optimizer. Changing `training.optim` between runs — for example from
+`paged_adamw_8bit` to `adamw_torch` — leaves a `optimizer.pt` full of
+bitsandbytes 8-bit moment tensors that a `torch.optim.AdamW` cannot use; the
+load appears to succeed and then dies on the first step. **Keep `optim` fixed
+for the lifetime of a run.**
+
+When a mismatch is detected the run does not crash and does not silently reset.
+It degrades to `state`: the adapter, the step counter, the epoch, the data
+position and the LR schedule position are all restored, and only the Adam
+moment estimates start fresh — a few dozen steps of warm-up rather than the
+hundreds of steps a full restart throws away. The unusable file is renamed to
+`optimizer.pt.unusable`, so an exact resume is still possible later by
+restoring the original `optim`.
+
+Also handled automatically:
+
+- A checkpoint directory left half-written by a killed session is skipped in
+  favour of the previous complete one, instead of raising
+  `Can't find a valid checkpoint at ...`.
+- A checkpoint mounted read-only (a Kaggle input dataset) is staged into
+  `output_dir` so the resumed run can keep saving.
+- A `best_model_checkpoint` path from a dead session is remapped if the
+  directory exists locally, and otherwise cleared so `load_best_model_at_end`
+  tracks a reachable checkpoint.
+- A training set that changed size since the checkpoint is reported, because
+  the step counter no longer refers to the same point in the schedule.
+
+Each checkpoint carries a `resume_manifest.json` recording the optimizer, the
+step accounting, the dataset fingerprint and library versions, which is what
+makes these checks possible before a resume is attempted.
 
 ## Evaluation
 

@@ -50,7 +50,11 @@ class TrainingConfig:
     weight_decay: float = 0.0
     warmup_ratio: float = 0.03
     lr_scheduler_type: str = "cosine"
-    optim: str = "paged_adamw_8bit"
+    #: Must stay fixed for the lifetime of a run: the optimizer state saved in a
+    #: checkpoint is only loadable by the same optimizer. paged_adamw_8bit is
+    #: the memory-lean alternative, at the cost of a bitsandbytes state that
+    #: does not reliably survive a reload.
+    optim: str = "adamw_torch"
     max_grad_norm: float = 0.3
     logging_steps: int = 10
     eval_steps: int = 100
@@ -69,9 +73,23 @@ class TrainingConfig:
     ddp_find_unused_parameters: bool = False
     report_to: list[str] = field(default_factory=lambda: ["tensorboard"])
     seed: int = 42
-    resume_from_checkpoint: str | None = None
-    initial_adapter_path: str | None = None
     early_stopping_patience: int | None = 5
+
+    # --- resume ---------------------------------------------------------- #
+    # "auto"    pick the strongest mode the checkpoint supports (default)
+    # "exact"   require optimizer + scheduler + trainer state, else fail loudly
+    # "state"   keep step/epoch/LR position, start the optimizer fresh
+    # "adapter" load adapter weights only, restart the step counter at 0
+    # "scratch" ignore checkpoints entirely and train from step 0
+    resume_mode: str = "auto"
+    #: Checkpoint to continue from. Empty means "newest under output_dir".
+    resume_from_checkpoint: str | None = None
+    #: Deprecated alias for resume_from_checkpoint, kept for old configs.
+    initial_adapter_path: str | None = None
+    #: Retry with a weaker resume mode if resuming fails before the first step.
+    resume_auto_fallback: bool = True
+    #: Archive an existing run instead of refusing to start a scratch run.
+    overwrite_output_dir: bool = False
 
 
 @dataclass

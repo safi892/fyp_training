@@ -35,6 +35,7 @@ export = [
 
 [project.scripts]
 qwen-review-train = "qwen_cpp_review.cli:train_main"
+qwen-review-resume-status = "qwen_cpp_review.cli:resume_status_main"
 qwen-review-eval = "qwen_cpp_review.cli:evaluate_main"
 qwen-review-infer = "qwen_cpp_review.cli:inference_main"
 qwen-review-merge = "qwen_cpp_review.cli:merge_main"

@@ -34,7 +34,11 @@ training:
   weight_decay: 0.0
   warmup_ratio: 0.03
   lr_scheduler_type: cosine
-  optim: paged_adamw_8bit
+  # adamw_torch keeps fp32 moments (~600 MB for r=64 LoRA), which serialize and
+  # reload cleanly. paged_adamw_8bit saves that memory but its bitsandbytes
+  # state is what made optimizer-state resume fail on Kaggle; only switch back
+  # if VRAM forces it, and keep the value fixed for the whole run.
+  optim: adamw_torch
   max_grad_norm: 0.3
   logging_steps: 10
   eval_steps: 100
@@ -54,8 +58,18 @@ training:
   report_to:
     - tensorboard
   seed: 42
-  resume_from_checkpoint:
   early_stopping_patience: 5
+
+  # Resume: auto picks the strongest mode the newest checkpoint supports.
+  #   auto | exact | state | adapter | scratch
+  # Leave this on auto. Re-running the training cell after a session dies then
+  # continues at the exact step it stopped at. Use `train.py --fresh` (or
+  # resume_mode: scratch + overwrite_output_dir: true) to deliberately restart.
+  resume_mode: auto
+  resume_from_checkpoint:
+  initial_adapter_path:
+  resume_auto_fallback: true
+  overwrite_output_dir: false
 
 lora:
   r: 64

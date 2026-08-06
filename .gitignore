@@ -18,3 +18,11 @@ cleaned/llm_annotated_part2_cleaned.jsonl
 cleaned/merged_cleaned.jsonl
 cleaned/results_0_cleaned.jsonl
 cleaned/results_1_cleaned.jsonl
+
+# Derived datasets - rebuild with scripts/build_line_anchored.py
+cleaned/line_anchored.jsonl
+cleaned/line_anchored_rejected.jsonl
+
+# Regenerable archives
+*.zip
+outputs/
