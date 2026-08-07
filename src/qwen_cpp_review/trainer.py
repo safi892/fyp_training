@@ -84,6 +84,13 @@ def build_sft_config(config: AppConfig) -> SFTConfig:
         report_to=config.training.report_to,
         seed=config.training.seed,
         dataset_text_field="text",
+        # Populates state.num_input_tokens_seen, which ThroughputAndMemoryCallback
+        # turns into a real tokens/sec rather than one inferred from batch shape.
+        include_num_input_tokens_seen=True,
+        # Kaggle pipes the training cell through tee, where a redrawing bar
+        # becomes thousands of near-identical lines. The callback prints one
+        # complete line per logging step instead.
+        disable_tqdm=config.training.disable_tqdm,
     )
 
 
