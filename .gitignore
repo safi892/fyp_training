@@ -20,8 +20,10 @@ cleaned/results_0_cleaned.jsonl
 cleaned/results_1_cleaned.jsonl
 
 # Derived datasets - rebuild with scripts/build_line_anchored.py
+# then scripts/build_task_mixture.py
 cleaned/line_anchored.jsonl
 cleaned/line_anchored_rejected.jsonl
+cleaned/task_mixture.jsonl
 
 # Regenerable archives
 *.zip

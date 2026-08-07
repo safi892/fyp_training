@@ -7,10 +7,24 @@ model:
   use_cache: false
 
 data:
+  # Task-tagged mixture built by scripts/build_task_mixture.py from the
+  # line-anchored dataset. Each row carries a `task` key that prompt.py
+  # resolves into an output-field list, so one adapter learns all four tasks.
+  # Rebuild after changing max_seq_length: the builder drops rows that would
+  # otherwise be truncated, and it needs the same limit.
   data_files:
-    - cleaned/merged_cleaned.jsonl
+    - cleaned/task_mixture.jsonl
   validation_split_ratio: 0.05
   test_split_ratio: 0.0
+  # Measured against the Qwen tokenizer over the 66,103-row mixture:
+  #   limit   rows dropped   worst task
+  #   512     17.0%          line_comments 45.4%
+  #   1024     1.2%          line_comments  3.6%
+  #   2048     0.06%         improve        0.12%
+  # The vram-profiles kaggle-t4 profile specifies 1024; this run keeps 2048,
+  # which costs memory but preserves the long line_comments targets. Drop to
+  # 1024 if the smoke run reports tight peak memory, and rebuild the mixture
+  # with --max-tokens 1024.
   max_seq_length: 2048
   preprocessing_num_proc: 2
   cache_dir: .cache/hf-datasets
@@ -18,8 +32,10 @@ data:
   prompt_style: chat
   identifier_augmentation: false
   identifier_augmentation_copies: 1
+  # Fallback only: every row in the mixture names its own task. This list is
+  # what a row without a `task` key gets, which is the inference default.
   output_fields:
-    - comments
+    - line_comments
     - explanation
     - improved_code
     - complexity_analysis

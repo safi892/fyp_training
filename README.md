@@ -76,21 +76,66 @@ uv pip install --system -r requirements.txt
 uv pip install --system -e .
 ```
 
-## Dataset Merge
+## Dataset Pipeline
 
-The four cleaned JSONL shards are merged into one file:
+Three stages, each writing a new file and leaving its input untouched:
 
 ```bash
-uv run python scripts/merge_datasets.py
+uv run python scripts/merge_datasets.py        # shards      -> merged_cleaned.jsonl
+uv run python scripts/build_line_anchored.py   # merged      -> line_anchored.jsonl
+uv run python scripts/build_task_mixture.py    # anchored    -> task_mixture.jsonl
 ```
 
-Current merged output:
+The default training config uses `cleaned/task_mixture.jsonl`.
 
-```text
-cleaned/merged_cleaned.jsonl
+### Stage 2 — line anchoring
+
+The raw `comments` field holds a *rewritten* copy of the source with inline
+comments. That copy drifts from the input: it adds includes, reformats
+statements, and rewrites expressions. `build_line_anchored.py` realigns those
+comments onto the original lines and emits records that can be checked against
+the input:
+
+```json
+{"line": 14, "code": "s /= 10;", "comment": "drop the lowest digit"}
 ```
 
-The default training config already uses this merged file.
+Rows whose annotated copy drifted too far are written to
+`cleaned/line_anchored_rejected.jsonl` with a `rejection_reason` rather than
+discarded, so thresholds can be retuned without re-running the alignment.
+
+Current output: 13,087 of 19,033 rows kept, carrying 80,703 anchors, none of
+which mismatch its source line. 2,729 comments that sat on lines absent from
+the input were dropped.
+
+Rows also gain a `quality_flags` list. Complexity labels flagged
+`low_complexity_confidence` or `suspect_time_complexity` are excluded from the
+complexity target by the next stage.
+
+### Stage 3 — task mixture
+
+One source row can serve several tasks, so it is emitted once per task it can
+supply a target for, tagged with a `task` key:
+
+| Task | Output field | Rows |
+| --- | --- | ---: |
+| `line_comments` | `line_comments` | 13,569 |
+| `explanation` | `explanation` | 18,939 |
+| `complexity` | `complexity_analysis` | 14,660 |
+| `improve` | `improved_code` | 18,935 |
+
+66,103 training rows from 19,033 source rows. Splitting this way recovers the
+rows the anchoring pass rejected: they have no usable line comments, but almost
+all still carry a usable explanation.
+
+`prompt.py` resolves `task` into an output-field list, so the trainer needs no
+change to gain a task. Rows without a `task` key fall back to
+`data.output_fields`, which keeps existing single-task configs working.
+
+Rows whose rendered prompt would exceed `data.max_seq_length` are dropped
+rather than truncated, because a truncated target teaches the model to emit
+JSON that never closes. Pass `--max-tokens` to match a changed
+`max_seq_length`.
 
 ## Variable Name Robustness
 

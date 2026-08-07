@@ -140,6 +140,32 @@ def make_mapping(names: Iterable[str], pool: list[str], rng: random.Random) -> d
     return dict(items)
 
 
+def apply_mapping_to_row(row: dict, mapping: dict[str, str]) -> dict:
+    """Rename identifiers everywhere the row repeats the source code.
+
+    Renaming only ``code`` would leave every other code-bearing field spelling
+    the original identifiers. For ``line_comments`` that is not cosmetic: an
+    anchor's ``code`` must stay equal to the line it points at, or the anchor
+    stops being verifiable, which is the whole point of the field.
+    """
+    clone = dict(row)
+    clone["code"] = rename_identifiers(row["code"], mapping)
+
+    improved = row.get("improved_code")
+    if isinstance(improved, str) and improved.strip():
+        clone["improved_code"] = rename_identifiers(improved, mapping)
+
+    anchors = row.get("line_comments")
+    if isinstance(anchors, list):
+        clone["line_comments"] = [
+            {**anchor, "code": rename_identifiers(anchor["code"], mapping)}
+            if isinstance(anchor, dict) and isinstance(anchor.get("code"), str)
+            else anchor
+            for anchor in anchors
+        ]
+    return clone
+
+
 def augment_row(row: dict, rng: random.Random) -> list[dict]:
     code = row.get("code")
     if not isinstance(code, str) or not code.strip():
@@ -150,8 +176,7 @@ def augment_row(row: dict, rng: random.Random) -> list[dict]:
 
     variants = [row]
     for label, pool in [("bad_variable_names", BAD_NAMES), ("descriptive_variable_names", GOOD_NAMES)]:
-        clone = dict(row)
-        clone["code"] = rename_identifiers(code, make_mapping(names, pool, rng))
+        clone = apply_mapping_to_row(row, make_mapping(names, pool, rng))
         clone["augmentation"] = label
         variants.append(clone)
     return variants

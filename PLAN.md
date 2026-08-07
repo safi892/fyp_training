@@ -140,37 +140,69 @@ FYP; 3–5 are the substance; 6 is optional.
 
 ---
 
-### Phase 1 — Two-task dataset, wired into training
+### Phase 1 — Task mixture, wired into training ✅ CODE COMPLETE
 
 **Goal.** Make both annotation styles trainable and get one clean Kaggle run.
 
-**Why now.** Everything downstream trains on this. It also recovers the 4,445
-rejected rows instead of discarding a quarter of the corpus.
+**Delivered**
 
-**Steps**
+1. `scripts/build_task_mixture.py` emits one tagged row per task a source row
+   can supply, turning 19,033 source rows into **66,103 training rows**:
 
-1. Emit a task-tagged mixture:
-   - `line_comments` task ← **13,087** anchored rows.
-   - `explanation` task ← **18,942** rows (anchored + header-style); 14,587 rows
-     serve both tasks and appear once per task, not once overall.
-   - Add an explicit task field to the instruction so the model can tell them apart.
-2. Add `line_comments` to `FIELD_TITLES` in `src/qwen_cpp_review/prompt.py`.
-   `build_response` already composes generically from `data.output_fields`, so no
-   trainer change is required.
-3. Add `line_comments` to `data.output_fields` in `configs/train_qlora.yaml`.
-4. Filter on `quality_flags` at load time — exclude `low_complexity_confidence`
-   and `suspect_time_complexity` from the complexity target while keeping the
-   row's other fields.
-5. Re-zip `cleaned/` for Kaggle.
-6. One training run; save the adapter **off** Kaggle this time.
+   | Task | Field | Rows |
+   | --- | --- | ---: |
+   | `line_comments` | `line_comments` | 13,569 |
+   | `explanation` | `explanation` | 18,939 |
+   | `complexity` | `complexity_analysis` | 14,660 |
+   | `improve` | `improved_code` | 18,935 |
 
-**Deliverables.** Task-tagged JSONL, updated prompt/config, one trained adapter
-retrieved locally.
+2. `prompt.py` gained a `TASKS` registry and `resolve_output_fields`, so a row's
+   `task` key selects its output fields. The trainer is untouched, per the
+   `prompt-schema` invariant. Rows with no `task` fall back to
+   `data.output_fields`, keeping existing configs working.
+3. `configs/train_qlora.yaml` points at `cleaned/task_mixture.jsonl`.
+4. Complexity targets carrying `low_complexity_confidence`,
+   `suspect_time_complexity`, `incomplete_complexity` or `missing_complexity`
+   are excluded — 4,373 rows' complexity dropped, their other fields kept.
+5. Kaggle bundle and notebook updated; the notebook now asserts the uploaded
+   file is actually task-tagged.
 
-**Acceptance.** Training completes; eval loss decreases; the model emits parseable
-`line_comments` whose anchors validate against held-out inputs at >90%.
+**Two bugs found and fixed while wiring this up**
 
-**Effort.** 2 days + one training run. **Risk:** low.
+- **Schema unification.** `datasets` unifies columns across a mixed-task JSONL
+  and fills absent keys with `None`, so every `explanation` row carried
+  `line_comments: None`. Unfixed, this would have trained the model to emit
+  `"line_comments": null` on every explanation. `has_field` now treats `None`
+  as absent.
+- **Augmentation broke the anchors.** `augment_row` renamed identifiers in
+  `code` only, leaving `line_comments[*].code` and `improved_code` spelling the
+  original names — silently destroying the anchor guarantee, with
+  `identifier_augmentation` enabled in the notebook. `apply_mapping_to_row` now
+  renames every code-bearing field. Verified on real data: **0 broken anchors
+  across 7,980 augmented variants.**
+
+**Sequence-length budget.** Measured with the real Qwen tokenizer over the
+mixture; rows that would exceed the limit are dropped, never truncated, because
+a truncated target teaches unterminated JSON:
+
+| `max_seq_length` | rows dropped | worst task |
+| ---: | ---: | --- |
+| 512 | 17.0% | `line_comments` 45.4% |
+| 1024 | 1.2% | `line_comments` 3.6% |
+| 2048 | 0.06% | `improve` 0.12% |
+
+The `vram-profiles` kaggle-t4 profile specifies 1024. The config keeps 2048;
+drop to 1024 and rebuild with `--max-tokens 1024` if the smoke run reports tight
+peak memory.
+
+**Remaining.** Upload the two bundles, one training run, retrieve the adapter
+**off** Kaggle this time.
+
+**Acceptance.** Training completes; eval loss decreases; the model emits
+parseable `line_comments` whose anchors validate against held-out inputs at
+>90%.
+
+**Tests.** 57 passing (up from 38).
 
 ---
 

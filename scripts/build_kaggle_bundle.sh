@@ -10,7 +10,10 @@ set -euo pipefail
 
 cd "$(dirname "$0")/.."
 DIST=dist
-DATASET=cleaned/merged_cleaned.jsonl
+# The task-tagged mixture the training config points at. Rebuild it with
+# scripts/build_line_anchored.py then scripts/build_task_mixture.py before
+# bundling, or Kaggle trains on a stale copy.
+DATASET=${DATASET:-cleaned/task_mixture.jsonl}
 
 rm -rf "$DIST"
 mkdir -p "$DIST"
