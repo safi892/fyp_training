@@ -74,11 +74,10 @@ training:
   load_best_model_at_end: true
   metric_for_best_model: eval_loss
   greater_is_better: false
-  # Measured on the first real run: peak allocated was 6.36 GB of the T4's
-  # 15.8 GB at seq 1024 / batch 2, so checkpointing was buying memory that was
-  # not needed and costing roughly 30-40% throughput. Turn it back on if the
-  # GPU MEM line in the log approaches the limit.
-  gradient_checkpointing: false
+  # Keep this on. Run 1 peaked at 6.36 GB of the T4's 15.8 GB *because* this was
+  # enabled; turning it off OOMs at batch 2 / seq 1024, in the cross-entropy
+  # logits (2 x 1024 x 151936). The headroom was the effect, not spare capacity.
+  gradient_checkpointing: true
   bf16: auto
   fp16: auto
   # Stays false on the T4. TRL 0.25.0's default 'bfd' packing strategy
@@ -91,6 +90,13 @@ training:
   packing: false
   gradient_checkpointing_use_reentrant: false
   ddp_find_unused_parameters: false
+  # The mixture spans a 29-token complexity target and a ~700-token
+  # line_comments one, so a random batch pads everything up to its longest
+  # member. Measured over the real mixture at 4 sequences per forward batch:
+  # 35.2% of compute went into padding, and grouping removes essentially all of
+  # it. This is the throughput fix that gradient_checkpointing: false was
+  # wrongly asked to provide.
+  group_by_length: true
   report_to:
     - tensorboard
   seed: 42

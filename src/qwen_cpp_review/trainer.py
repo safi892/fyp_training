@@ -83,6 +83,7 @@ def build_sft_config(config: AppConfig) -> SFTConfig:
         max_length=config.data.max_seq_length,
         report_to=config.training.report_to,
         seed=config.training.seed,
+        group_by_length=config.training.group_by_length,
         # Verified against the installed TRL 0.25.0: completion_only_loss is
         # "supported only for prompt-completion datasets", and a language
         # modeling dataset (one text column) is supervised over the whole
