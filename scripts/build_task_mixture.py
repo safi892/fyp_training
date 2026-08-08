@@ -17,6 +17,7 @@ from __future__ import annotations
 
 import argparse
 import json
+import random
 from collections import Counter
 from pathlib import Path
 from typing import Any, Iterator
@@ -122,7 +123,20 @@ def main() -> None:
         help="Drop rows whose rendered prompt exceeds this. Match data.max_seq_length. 0 disables.",
     )
     parser.add_argument("--tokenizer", default="Qwen/Qwen2.5-Coder-1.5B-Instruct")
+    parser.add_argument(
+        "--fraction",
+        type=float,
+        default=1.0,
+        help=(
+            "Keep this share of each task, sampled deterministically. Task proportions are "
+            "preserved, so 0.5 is half of every task rather than half the file."
+        ),
+    )
+    parser.add_argument("--seed", type=int, default=42, help="Seed for --fraction sampling.")
     args = parser.parse_args()
+
+    if not 0 < args.fraction <= 1:
+        raise SystemExit(f"--fraction must be in (0, 1]; got {args.fraction}")
 
     wanted = set(args.tasks) if args.tasks else None
     if wanted and not wanted <= set(TASKS):
@@ -133,7 +147,27 @@ def main() -> None:
 
     fits = load_length_filter(args.tokenizer, args.max_tokens) if args.max_tokens else None
 
+    # Sample per task rather than per file: the tasks are not evenly distributed
+    # across the inputs, so truncating the file would drop whole task/annotation
+    # styles. A seeded counter keeps this reproducible without holding the
+    # mixture in memory.
+    rng = random.Random(args.seed)
+    # One accumulator per task, started at a random phase so the tasks do not
+    # all keep the same positions. Adding `fraction` and taking whole units out
+    # keeps exactly that share, evenly spread through the file.
+    budget = {task: rng.random() for task in TASKS}
+
+    def keep(task: str) -> bool:
+        if args.fraction >= 1.0:
+            return True
+        budget[task] += args.fraction
+        if budget[task] >= 1.0:
+            budget[task] -= 1.0
+            return True
+        return False
+
     counts: Counter[str] = Counter()
+    sampled_out: Counter[str] = Counter()
     too_long: Counter[str] = Counter()
     source_rows = 0
     written = 0
@@ -145,6 +179,9 @@ def main() -> None:
                 for tagged in emit_tasks(row, min_anchors=args.min_anchors):
                     if wanted and tagged["task"] not in wanted:
                         continue
+                    if not keep(tagged["task"]):
+                        sampled_out[tagged["task"]] += 1
+                        continue
                     if fits and not fits(tagged):
                         too_long[tagged["task"]] += 1
                         continue
@@ -155,8 +192,15 @@ def main() -> None:
     print(f"source rows   {source_rows}")
     print(f"training rows {written} ({written / source_rows:.2f} per source row)")
     for task, count in counts.most_common():
-        dropped = f"  (+{too_long[task]} over {args.max_tokens} tokens, dropped)" if too_long[task] else ""
-        print(f"  {task:<16} {count}{dropped}")
+        notes = []
+        if sampled_out[task]:
+            notes.append(f"{sampled_out[task]} not sampled")
+        if too_long[task]:
+            notes.append(f"{too_long[task]} over {args.max_tokens} tokens")
+        suffix = f"   (dropped: {', '.join(notes)})" if notes else ""
+        print(f"  {task:<16} {count}{suffix}")
+    if args.fraction < 1.0:
+        print(f"\nfraction {args.fraction}: kept {written} of {written + sum(sampled_out.values())} rows")
     print(f"\nwrote {output_path}")
 
 
