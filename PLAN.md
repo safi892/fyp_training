@@ -195,8 +195,34 @@ The `vram-profiles` kaggle-t4 profile specifies 1024. The config keeps 2048;
 drop to 1024 and rebuild with `--max-tokens 1024` if the smoke run reports tight
 peak memory.
 
-**Remaining.** Upload the two bundles, one training run, retrieve the adapter
-**off** Kaggle this time.
+**Run 1 (2026-08-07/08) — aborted at 43%, and what it taught us.** 12 h produced
+`checkpoint-250` of 1,023 steps. Training itself was healthy (loss 1.6965 →
+0.4422, token accuracy 68.1% → 87.9%), but three findings changed the plan:
+
+1. **Loss masking was never applied.** `train_on_inputs` was declared in
+   `config.py` and read nowhere, and TRL supervises the whole sequence for a
+   single-text-column dataset. Roughly half of every sequence is instruction and
+   input code, so half the gradient signal taught the model to reproduce prompts,
+   and `eval_loss 0.46` / perplexity 1.59 largely measured that. Fixed: the
+   dataset now renders `prompt`/`completion` columns with
+   `completion_only_loss=True`, `check_supervision_setup` refuses a mismatch, and
+   `scripts/verify_loss_masking.py` decodes a real batch and asserts the
+   supervised span is the target only. Verified: 311 prompt tokens masked, 443
+   target tokens supervised.
+2. **Throughput was 318 tok/s per GPU**, flat from step 50 to 440 — so ~27 h for
+   one epoch, not the 3.7 h estimated. Kaggle allocated 2 GPUs, making effective
+   batch 64. Peak memory was 6.36 GB of 15.8 GB, so `gradient_checkpointing` was
+   buying unneeded memory at ~30-40% of throughput; now off.
+3. **Packing is unusable on the T4.** TRL 0.25.0's default `bfd` strategy
+   force-enables padding-free batching, documented as FlashAttention 2/3 only,
+   and Turing has neither; `wrapped` crosses document boundaries. Stated
+   explicitly as the `loss-masking-verify` skill requires: packing stays off,
+   deviating from the `vram-profiles` kaggle-t4 profile. `build_trainer` refuses
+   the combination.
+
+**Remaining.** Re-upload both bundles, run the masking verification cell, then
+one training run; retrieve the adapter **off** Kaggle this time. Start fresh
+rather than resuming `checkpoint-250` — it was trained on a different objective.
 
 **Acceptance.** Training completes; eval loss decreases; the model emits
 parseable `line_comments` whose anchors validate against held-out inputs at

@@ -28,3 +28,6 @@ cleaned/task_mixture.jsonl
 # Regenerable archives
 *.zip
 outputs/
+
+# Downloaded Kaggle run artefacts
+kaggle_output/

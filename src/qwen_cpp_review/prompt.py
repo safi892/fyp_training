@@ -177,6 +177,44 @@ def format_prompt(
     )
 
 
+def build_prompt_completion(
+    example: dict[str, Any],
+    output_fields: list[str],
+    *,
+    style: str,
+    tokenizer: ChatTemplateTokenizer | None = None,
+    indent: int | None = 2,
+) -> tuple[str, str]:
+    """Split one example into ``(prompt, completion)``.
+
+    TRL computes completion-only loss for prompt-completion datasets and
+    full-sequence loss for language-modeling ones, so this split is what makes
+    the instruction and the input code unsupervised. The prompt ends where
+    generation begins, and the completion is the target alone.
+    """
+    fields = resolve_output_fields(example, output_fields)
+    code = example.get("code", "")
+    language = example.get("language") or "cpp"
+    completion = build_response(example, fields, indent=indent)
+
+    if style == "instruction":
+        instruction = build_instruction(example, fields)
+        return (
+            f"### Instruction\n\n{instruction}\n\n### Code\n\n{code}\n\n### Response\n\n",
+            completion,
+        )
+    if style != "chat":
+        raise ValueError(f"Unsupported prompt style: {style}")
+    prompt = format_prompt_without_response(
+        code,
+        fields,
+        style=style,
+        tokenizer=tokenizer,
+        language=language,
+    )
+    return prompt, completion
+
+
 def format_prompt_without_response(
     code: str,
     output_fields: list[str],

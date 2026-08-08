@@ -418,6 +418,7 @@ dependencies = [
 
 [package.optional-dependencies]
 dev = [
+    { name = "jinja2" },
     { name = "pytest" },
     { name = "ruff" },
 ]
@@ -441,6 +442,7 @@ requires-dist = [
     { name = "accelerate", marker = "extra == 'gpu'", specifier = "==1.12.0" },
     { name = "bitsandbytes", marker = "extra == 'gpu'", specifier = "==0.48.2" },
     { name = "datasets", specifier = "==4.4.1" },
+    { name = "jinja2", marker = "extra == 'dev'", specifier = "==3.1.6" },
     { name = "onnx", marker = "extra == 'export'", specifier = "==1.19.1" },
     { name = "peft", marker = "extra == 'gpu'", specifier = "==0.18.0" },
     { name = "pytest", marker = "extra == 'dev'", specifier = "==9.0.2" },

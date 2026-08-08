@@ -28,7 +28,16 @@ data:
   max_seq_length: 2048
   preprocessing_num_proc: 2
   cache_dir: .cache/hf-datasets
-  train_on_inputs: true
+  # false = completion-only loss. The dataset is rendered into prompt/completion
+  # columns and only the target is supervised. TRL applies completion-only loss
+  # for prompt-completion datasets and full-sequence loss for a single text
+  # column, so this setting picks the dataset shape too - see dataset.py.
+  #
+  # This was true for the first run, and nothing read it: roughly half of every
+  # sequence is instruction and input code, so half the gradient signal went
+  # into learning to reproduce the prompt, and eval_loss 0.46 / perplexity 1.59
+  # mostly measured that. Verify with scripts/verify_loss_masking.py.
+  train_on_inputs: false
   prompt_style: chat
   identifier_augmentation: false
   identifier_augmentation_copies: 1
@@ -65,9 +74,20 @@ training:
   load_best_model_at_end: true
   metric_for_best_model: eval_loss
   greater_is_better: false
-  gradient_checkpointing: true
+  # Measured on the first real run: peak allocated was 6.36 GB of the T4's
+  # 15.8 GB at seq 1024 / batch 2, so checkpointing was buying memory that was
+  # not needed and costing roughly 30-40% throughput. Turn it back on if the
+  # GPU MEM line in the log approaches the limit.
+  gradient_checkpointing: false
   bf16: auto
   fp16: auto
+  # Stays false on the T4. TRL 0.25.0's default 'bfd' packing strategy
+  # force-enables padding-free batching, documented as supported only with
+  # FlashAttention 2/3, and the T4 is Turing so it has neither. The 'wrapped'
+  # strategy concatenates across document boundaries instead. Rather than accept
+  # attention crossing examples, keep packing off - build_trainer refuses the
+  # combination outright. This deviates from the vram-profiles kaggle-t4 profile
+  # deliberately, as the loss-masking-verify skill requires stating.
   packing: false
   gradient_checkpointing_use_reentrant: false
   ddp_find_unused_parameters: false

@@ -8,7 +8,7 @@ from datasets import Dataset, DatasetDict, load_dataset
 
 from qwen_cpp_review.config import DataConfig
 from qwen_cpp_review.identifier_augmentation import augment_row
-from qwen_cpp_review.prompt import format_prompt
+from qwen_cpp_review.prompt import build_prompt_completion, format_prompt
 
 
 def load_review_dataset(config: DataConfig) -> DatasetDict:
@@ -36,10 +36,26 @@ def load_review_dataset(config: DataConfig) -> DatasetDict:
 
 
 def prepare_sft_dataset(dataset: DatasetDict, config: DataConfig, tokenizer: Any) -> DatasetDict:
+    """Render the dataset into the columns TRL expects.
+
+    With ``train_on_inputs`` false the output carries ``prompt`` and
+    ``completion`` columns, which is the only shape for which TRL applies
+    completion-only loss: a language-modeling dataset with a single text column
+    is supervised over the whole sequence, instruction and input code included.
+    """
     if config.identifier_augmentation:
         dataset = _augment_training_split(dataset, config)
 
-    def render(example: dict[str, Any]) -> dict[str, str]:
+    def render_prompt_completion(example: dict[str, Any]) -> dict[str, str]:
+        prompt, completion = build_prompt_completion(
+            example,
+            config.output_fields,
+            style=config.prompt_style,
+            tokenizer=tokenizer,
+        )
+        return {"prompt": prompt, "completion": completion}
+
+    def render_text(example: dict[str, Any]) -> dict[str, str]:
         return {
             "text": format_prompt(
                 example,
@@ -49,6 +65,7 @@ def prepare_sft_dataset(dataset: DatasetDict, config: DataConfig, tokenizer: Any
             )
         }
 
+    render = render_text if config.train_on_inputs else render_prompt_completion
     columns = dataset["train"].column_names
     return dataset.map(
         render,
