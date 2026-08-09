@@ -23,6 +23,7 @@ from typing import Any
 import torch
 from transformers import AutoModelForCausalLM, AutoTokenizer
 
+from qwen_cpp_review.line_anchoring import repair_anchors
 from qwen_cpp_review.prompt import TASKS, format_prompt_without_response
 
 SYSTEM_SAMPLES: list[dict[str, Any]] = [
@@ -124,6 +125,7 @@ def main() -> None:
     print(f"=== {label} ===\n")
 
     anchors_valid = anchors_total = 0
+    repaired_kept = repaired_total = dropped_total = 0
     json_ok = json_total = 0
 
     for sample in SYSTEM_SAMPLES[: args.samples]:
@@ -162,11 +164,23 @@ def main() -> None:
                 valid, total, problems = check_anchors(sample["code"], found)
                 anchors_valid += valid
                 anchors_total += total
-                print(f"  anchors: {valid}/{total} valid")
+                print(f"  anchors as generated: {valid}/{total} valid")
                 for problem in problems[:5]:
                     print(f"    ! {problem}")
-                for anchor in found[:4]:
-                    print(f"    line {anchor.get('line'):>3}: {str(anchor.get('comment'))[:70]}")
+
+                # The quoted code is the reliable half of an anchor; the number
+                # is not. Relocating by the quote separates a miscount from a
+                # genuine invention.
+                report = repair_anchors(sample["code"], found)
+                repaired_kept += report.exact + report.repaired
+                repaired_total += report.total
+                dropped_total += report.dropped
+                print(
+                    f"  after repair        : {report.exact + report.repaired}/{report.total} "
+                    f"(exact {report.exact}, relocated {report.repaired}, hallucinated {report.dropped})"
+                )
+                for anchor in report.anchors[:4]:
+                    print(f"    line {anchor.line:>3}: {anchor.comment[:66]}")
             else:
                 print(f"  {json.dumps(parsed, ensure_ascii=False)[:300]}")
             print()
@@ -174,8 +188,14 @@ def main() -> None:
     print("=" * 68)
     print(f"parseable JSON : {json_ok}/{json_total}")
     if anchors_total:
-        print(f"anchor validity: {anchors_valid}/{anchors_total} = {anchors_valid / anchors_total:.1%}")
-        print("  (Phase A acceptance target is >90%)")
+        print(f"anchor validity, as generated : {anchors_valid}/{anchors_total} = "
+              f"{anchors_valid / anchors_total:.1%}")
+        print(f"anchor validity, after repair : {repaired_kept}/{repaired_total} = "
+              f"{repaired_kept / repaired_total:.1%}")
+        print(f"genuine hallucinations        : {dropped_total} "
+              f"(quoted code absent from the file)")
+        print("  (Phase A acceptance target is >90%; the repaired figure is what a")
+        print("   user sees, since the serving path relocates by the quoted code)")
 
 
 if __name__ == "__main__":

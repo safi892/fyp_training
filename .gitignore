@@ -31,3 +31,6 @@ outputs/
 
 # Downloaded Kaggle run artefacts
 kaggle_output/
+
+# Locally cached base models (multi-GB, re-downloadable)
+models/

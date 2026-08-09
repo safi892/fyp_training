@@ -68,6 +68,71 @@ class _AnnotatedLine:
     comment: str
 
 
+@dataclass
+class RepairReport:
+    """What :func:`repair_anchors` did to a model's output."""
+
+    anchors: list[Anchor] = field(default_factory=list)
+    #: Anchors whose line number was already right.
+    exact: int = 0
+    #: Anchors relocated to the line their own ``code`` actually sits on.
+    repaired: int = 0
+    #: Anchors quoting a line that is not in the file at all.
+    dropped: int = 0
+
+    @property
+    def total(self) -> int:
+        return self.exact + self.repaired + self.dropped
+
+
+def repair_anchors(code: str, anchors: list[dict[str, Any]]) -> RepairReport:
+    """Trust the quoted code over the line number, and relocate accordingly.
+
+    Models count lines poorly - skipping brace-only lines is the usual failure -
+    while quoting the line they mean verbatim. Because an anchor carries both,
+    the quote can be searched for in the source and the number corrected. An
+    anchor quoting text that appears nowhere is a real hallucination and is
+    dropped rather than guessed at.
+
+    Ambiguity is resolved towards the claimed line, so repeated lines such as a
+    bare ``return;`` attach to the occurrence the model was most likely
+    describing.
+    """
+    lines = [line.strip() for line in code.split("\n")]
+    by_text: dict[str, list[int]] = {}
+    for index, text in enumerate(lines, start=1):
+        if text:
+            by_text.setdefault(text, []).append(index)
+
+    report = RepairReport()
+    for anchor in anchors:
+        number = anchor.get("line")
+        quoted = anchor.get("code")
+        comment = anchor.get("comment")
+        if not isinstance(quoted, str) or not isinstance(comment, str):
+            report.dropped += 1
+            continue
+        quoted = quoted.strip()
+
+        if isinstance(number, int) and 1 <= number <= len(lines) and lines[number - 1] == quoted:
+            report.anchors.append(Anchor(line=number, code=quoted, comment=comment))
+            report.exact += 1
+            continue
+
+        candidates = by_text.get(quoted)
+        if not candidates:
+            report.dropped += 1
+            continue
+        target = (
+            min(candidates, key=lambda c: abs(c - number)) if isinstance(number, int) else candidates[0]
+        )
+        report.anchors.append(Anchor(line=target, code=quoted, comment=comment))
+        report.repaired += 1
+
+    report.anchors.sort(key=lambda a: a.line)
+    return report
+
+
 def strip_code_fence(text: str) -> str:
     """Drop a leading/trailing markdown fence, keeping the body intact."""
     lines = text.split("\n")
