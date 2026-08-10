@@ -120,6 +120,13 @@ def main() -> None:
     records: list[dict[str, Any]] = []
     baseline_words: dict[str, set[str]] = {}
 
+    # Written as each generation completes rather than at the end: the whole run
+    # takes tens of minutes on CPU, and a partial file is reviewable while a
+    # lost one is not.
+    output_path = Path(args.output)
+    output_path.parent.mkdir(parents=True, exist_ok=True)
+    handle = output_path.open("w", encoding="utf-8")
+
     for sample in samples:
         for variant in args.variants:
             rng = random.Random(f"{args.seed}-{sample['name']}-{variant}".__hash__() & 0xFFFF)
@@ -170,16 +177,15 @@ def main() -> None:
             record["agreement"] = round(jaccard(words, baseline_words.get(sample["name"], set())), 3)
 
             records.append(record)
+            handle.write(json.dumps(record, ensure_ascii=False) + "\n")
+            handle.flush()
             print(f"  {sample['name']:<18}{variant:<12}"
                   f"concepts {hit}/{total}  anchors {record['anchors_kept']}/{report.total}  "
                   f"agree {record['agreement']:.2f}  "
-                  f"({record['seconds_line_comments'] + record['seconds_explanation']:.0f}s)")
+                  f"({record['seconds_line_comments'] + record['seconds_explanation']:.0f}s)",
+                  flush=True)
 
-    output_path = Path(args.output)
-    output_path.parent.mkdir(parents=True, exist_ok=True)
-    with output_path.open("w", encoding="utf-8") as handle:
-        for record in records:
-            handle.write(json.dumps(record, ensure_ascii=False) + "\n")
+    handle.close()
 
     print("\n" + "=" * 78)
     print(f"{'variant':<14}{'json':>8}{'raw anch':>10}{'anchors':>9}{'concepts':>10}{'agreement':>11}")
