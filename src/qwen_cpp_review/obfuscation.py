@@ -18,11 +18,36 @@ the reason the eval set is curated rather than drawn at random.
 from __future__ import annotations
 
 import random
+import re
 
 from qwen_cpp_review.identifier_augmentation import (
+    CPP_KEYWORDS,
     collect_declared_identifiers,
     make_mapping,
     rename_identifiers,
+)
+
+#: A function name is usually the loudest hint in a snippet - `countDigits`
+#: states the answer outright - so an evaluation that leaves it alone is not
+#: measuring what it claims to. The declaration pass in
+#: `identifier_augmentation` only finds variables, so function names are
+#: collected separately here.
+FUNCTION_RE = re.compile(
+    r"\b(?:int|long|short|float|double|bool|char|void|string|auto|size_t)\s+"
+    r"([A-Za-z_][A-Za-z0-9_]*)\s*\(",
+)
+
+#: Renaming these would change what the program does, or read as nonsense.
+PROTECTED_FUNCTIONS = {"main", "printf", "scanf", "malloc", "free", "sizeof"}
+
+#: The declaration pass in `identifier_augmentation` cannot see a name whose
+#: initialiser contains brackets - `int probe = low + (high - low) / 2;` - so
+#: that name would keep its meaning through an obfuscation and quietly make the
+#: model look more robust than it is. This catches the declaration directly.
+DECLARED_RE = re.compile(
+    r"\b(?:int|long|short|float|double|bool|char|void|string|auto|size_t|unsigned)\s+"
+    r"([A-Za-z_][A-Za-z0-9_]*)\s*(?:=|;|\[|,|\)|$)",
+    re.MULTILINE,
 )
 
 #: Placeholder names carrying no meaning at all.
@@ -65,8 +90,35 @@ STRATEGIES = {
 }
 
 
+def collect_function_names(code: str) -> list[str]:
+    """Function names defined in ``code``, excluding names that must not move."""
+    found = [
+        name
+        for name in FUNCTION_RE.findall(code)
+        if name not in CPP_KEYWORDS and name not in PROTECTED_FUNCTIONS
+    ]
+    return sorted(set(found), key=found.index)
+
+
+def renameable(code: str) -> list[str]:
+    """Every identifier an obfuscation may touch: variables and function names.
+
+    Three passes are unioned because each misses cases the others catch, and a
+    name left behind is a name the model can still read.
+    """
+    names = collect_function_names(code)
+    for candidate in DECLARED_RE.findall(code) + collect_declared_identifiers(code):
+        if (
+            candidate not in names
+            and candidate not in CPP_KEYWORDS
+            and candidate not in PROTECTED_FUNCTIONS
+        ):
+            names.append(candidate)
+    return names
+
+
 def obfuscate(code: str, strategy: str, rng: random.Random) -> str:
-    """Return ``code`` with its declared identifiers renamed by ``strategy``.
+    """Return ``code`` with its identifiers renamed by ``strategy``.
 
     ``original`` returns the input untouched, so it can be used as the control
     without special-casing at the call site.
@@ -76,7 +128,7 @@ def obfuscate(code: str, strategy: str, rng: random.Random) -> str:
     pool = STRATEGIES[strategy]
     if pool is None:
         return code
-    names = collect_declared_identifiers(code)
+    names = renameable(code)
     if not names:
         return code
     return rename_identifiers(code, make_mapping(names, list(pool), rng))
@@ -88,7 +140,7 @@ def mixed(code: str, rng: random.Random, clear_share: float = 0.5) -> str:
     The realistic middle case: part of a file is well named and part is not,
     so a model cannot rely on names being uniformly helpful or uniformly absent.
     """
-    names = collect_declared_identifiers(code)
+    names = renameable(code)
     if not names:
         return code
     split = max(1, int(len(names) * clear_share))
