@@ -47,7 +47,7 @@ from eval_hard import (  # noqa: E402  (path set above)
 )
 
 from qwen_cpp_review.line_anchoring import repair_anchors  # noqa: E402
-from qwen_cpp_review.prompt import SYSTEM_PROMPT, format_prompt_without_response  # noqa: E402
+from qwen_cpp_review.prompt import format_prompt_without_response  # noqa: E402
 
 #: Correct, conventional functions - the product's normal input. A phrasing
 #: that makes the model report defects here has moved the problem rather than
