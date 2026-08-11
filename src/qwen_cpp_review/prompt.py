@@ -37,6 +37,27 @@ FIELD_HINTS = {
     "complexity_analysis": 'object with "time" and "space"',
 }
 
+#: Per-task overrides for the hints above, for when two tasks want the same
+#: field to mean different things.
+#:
+#: `improve` and `optimize` both produce ``improved_code``, but they are not the
+#: same request. The training targets for ``improved_code`` were written without
+#: being executed, so the model learned tidying - const references, formatting,
+#: an added main. Probing showed the wording is what limits it: the trained
+#: phrasing changed the algorithm on none of three recursive samples, while
+#: naming memoisation explicitly changed it on all three. The instruction below
+#: is that wording.
+TASK_FIELD_HINTS = {
+    "optimize": {
+        "improved_code": (
+            "if this function recomputes the same subproblems, rewrite it so each is solved "
+            "once, using memoisation or a dynamic-programming table. Keep the signature and the "
+            "results identical, and size any table from the arguments rather than a fixed "
+            "constant. If there are no overlapping subproblems, return the code unchanged"
+        ),
+    },
+}
+
 #: Which output fields each task asks for. A dataset row names its task in a
 #: ``task`` key; rows without one fall back to the configured output fields, so
 #: existing single-task configs keep working unchanged.
@@ -45,6 +66,7 @@ TASKS = {
     "explanation": ["explanation"],
     "complexity": ["complexity_analysis"],
     "improve": ["improved_code"],
+    "optimize": ["improved_code"],
     "review": ["line_comments", "explanation", "improved_code", "complexity_analysis"],
 }
 
@@ -93,9 +115,10 @@ def resolve_output_fields(example: dict[str, Any], output_fields: list[str]) -> 
 
 def build_instruction(example: dict[str, Any], output_fields: list[str]) -> str:
     language = example.get("language") or "cpp"
+    overrides = TASK_FIELD_HINTS.get(example.get("task") or "", {})
     lines = []
     for field in output_fields:
-        hint = FIELD_HINTS.get(field)
+        hint = overrides.get(field, FIELD_HINTS.get(field))
         lines.append(f"- {field_label(field)}" + (f" ({hint})" if hint else ""))
     requested = "\n".join(lines)
     return (
