@@ -52,6 +52,31 @@ STOPWORDS = {
 }
 
 
+def resolve_adapter(adapter: str) -> str:
+    """Fail clearly when the adapter path is wrong.
+
+    PEFT falls back to treating an unknown path as a Hub repo id, so a typo or
+    a copied placeholder surfaces as an opaque HFValidationError about repo
+    naming rules rather than "that folder is not here".
+    """
+    path = Path(adapter)
+    if path.exists():
+        if (path / "adapter_config.json").exists():
+            return str(path)
+        raise SystemExit(
+            f"{path} has no adapter_config.json, so it is not a LoRA adapter.\n"
+            f"It contains: {', '.join(sorted(p.name for p in path.iterdir())[:10]) or '(empty)'}"
+        )
+    if "/" in adapter and not adapter.replace("/", "").replace("-", "").replace("_", "").isalnum():
+        raise SystemExit(
+            f"No such directory: {adapter}\n"
+            f"That looks like a local path rather than a Hub model id. Did you paste an "
+            f"abbreviated example such as '.../best_adapter'? Use the full path, e.g.\n"
+            f"  kaggle_output/'results(4)'/outputs/qwen2.5-coder-1.5b-cpp-review-qlora/best_adapter"
+        )
+    return adapter
+
+
 def make_variant(code: str, variant: str, rng: random.Random) -> str:
     return mixed(code, rng) if variant == "mixed" else obfuscate(code, variant, rng)
 
@@ -108,7 +133,7 @@ def main() -> None:
     if args.adapter:
         from peft import PeftModel
 
-        model = PeftModel.from_pretrained(model, args.adapter)
+        model = PeftModel.from_pretrained(model, resolve_adapter(args.adapter))
         label = Path(args.adapter).name
     model.eval()
 
