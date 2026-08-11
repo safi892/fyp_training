@@ -6,6 +6,9 @@ readme = "README.md"
 requires-python = ">=3.10,<3.13"
 dependencies = [
     "datasets==4.4.1",
+    # Whole-file annotation splits on syntax boundaries, never mid-function.
+    "tree-sitter==0.26.0",
+    "tree-sitter-cpp==0.23.4",
     "pyyaml==6.0.3",
     "rich==14.2.0",
     "safetensors==0.7.0",
