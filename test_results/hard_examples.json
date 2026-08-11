@@ -1,0 +1,188 @@
+[
+  {
+    "name": "broken_swap",
+    "trap": "looks exactly like bubble sort; the swap has no temporary and destroys data",
+    "code": "void sortValues(int data[], int n) {\n    for (int i = 0; i < n - 1; i++) {\n        for (int j = 0; j < n - i - 1; j++) {\n            if (data[j] > data[j + 1]) {\n                data[j] = data[j + 1];\n                data[j + 1] = data[j];\n            }\n        }\n    }\n}",
+    "finds": [
+      "overwrit|destroy|lose|lost|clobber|duplicat",
+      "no temporar|without a temporar|missing temporar|third variable",
+      "\\bbug|incorrect|wrong|broken|does not (work|sort)|fails"
+    ],
+    "false_claim": true,
+    "found": 0,
+    "of": 3,
+    "missed": [
+      "overwrit|destroy|lose|lost|clobber|duplicat",
+      "no temporar|without a temporar|missing temporar|third variable",
+      "\\bbug|incorrect|wrong|broken|does not (work|sort)|fails"
+    ],
+    "text": "Outer loop: each pass places the smallest element in the unsorted region\nInner loop: compare adjacent elements and swap if they are out of order\nIf the current element is greater than the next, swap them\nMove the larger element to the front\nPlace the smaller element at its correct position\nAfter each outer pass, the next largest element is guaranteed to be at the end\nPurpose: Sorts an integer array in ascending order using the bubble sort algorithm.  \nInput: `int data[]` \u2013 pointer to the first element of the array; `int n` \u2013 number of elements to sort.  \nOutput: The array `data` is reordered in\u2011place; the function returns `void`.  \nAlgorithm: Two nested loops traverse the array, comparing adjacent elements and swapping them if they are out of order. The outer loop repeats until no more swaps occur, guaranteeing a fully sorted array.",
+    "json_ok": true,
+    "raw": {
+      "line_comments": "{\n  \"line_comments\": [\n    {\n      \"line\": 3,\n      \"code\": \"for (int i = 0; i < n - 1; i++) {\",\n      \"comment\": \"Outer loop: each pass places the smallest element in the unsorted region\"\n    },\n    {\n      \"line\": 4,\n      \"code\": \"for (int j = 0; j < n - i - 1; j++) {\",\n      \"comment\": \"Inner loop: compare adjacent elements and swap if they are out of order\"\n    },\n    {\n      \"line\": 5,\n      \"code\": \"if (data[j] > data[j + 1]) {\",\n      \"comment\": \"If the current element is greater than the next, swap them\"\n    },\n    {\n      \"line\": 6,\n      \"code\": \"data[j] = data[j + 1];\",\n      \"comment\": \"Move the larger element to the front\"\n    },\n    {\n      \"line\": 7,\n      \"code\": \"data[j + 1] = data[j];\",\n      \"comment\": \"Place the smaller element at its correct position\"\n    },\n    {\n      \"line\": 10,\n      \"code\": \"}\",\n      \"comment\": \"After each outer pass, the next largest element is guaranteed to be at the end\"\n    }\n  ]\n}",
+      "explanation": "{\n  \"explanation\": \"Purpose: Sorts an integer array in ascending order using the bubble sort algorithm.  \\nInput: `int data[]` \u2013 pointer to the first element of the array; `int n` \u2013 number of elements to sort.  \\nOutput: The array `data` is reordered in\u2011place; the function returns `void`.  \\nAlgorithm: Two nested loops traverse the array, comparing adjacent elements and swapping them if they are out of order. The outer loop repeats until no more swaps occur, guaranteeing a fully sorted array.\"\n}"
+    }
+  },
+  {
+    "name": "overflow_mid",
+    "trap": "textbook binary search, but (low + high) overflows on large inputs",
+    "code": "int findValue(int arr[], int size, int target) {\n    int low = 0, high = size - 1;\n    while (low <= high) {\n        int mid = (low + high) / 2;\n        if (arr[mid] == target) return mid;\n        if (arr[mid] < target) low = mid + 1;\n        else high = mid - 1;\n    }\n    return -1;\n}",
+    "finds": [
+      "overflow"
+    ],
+    "false_claim": false,
+    "found": 0,
+    "of": 1,
+    "missed": [
+      "overflow"
+    ],
+    "text": "initialise search bounds\nbinary\u2011search loop: stop when the interval is empty\ncompute middle index (integer division)\ntarget found at mid\ntarget lies in the right half\ntarget lies in the left half\ntarget not present in the array\nPurpose: Locate the first occurrence of a target value in a sorted integer array.  \nInput: `arr` \u2013 pointer to the first element of the sorted array; `size` \u2013 number of elements; `target` \u2013 value to search for.  \nOutput: Index of the first matching element, or -1 if none exists.  \nAlgorithm: Perform a classic binary search, narrowing the search interval based on comparison of the middle element with the target. Continue until the interval collapses, then return -1 if the loop ends.",
+    "json_ok": true,
+    "raw": {
+      "line_comments": "{\n  \"line_comments\": [\n    {\n      \"line\": 3,\n      \"code\": \"int low = 0, high = size - 1;\",\n      \"comment\": \"initialise search bounds\"\n    },\n    {\n      \"line\": 4,\n      \"code\": \"while (low <= high) {\",\n      \"comment\": \"binary\u2011search loop: stop when the interval is empty\"\n    },\n    {\n      \"line\": 5,\n      \"code\": \"int mid = (low + high) / 2;\",\n      \"comment\": \"compute middle index (integer division)\"\n    },\n    {\n      \"line\": 6,\n      \"code\": \"if (arr[mid] == target) return mid;\",\n      \"comment\": \"target found at mid\"\n    },\n    {\n      \"line\": 7,\n      \"code\": \"if (arr[mid] < target) low = mid + 1;\",\n      \"comment\": \"target lies in the right half\"\n    },\n    {\n      \"line\": 8,\n      \"code\": \"else high = mid - 1;\",\n      \"comment\": \"target lies in the left half\"\n    },\n    {\n      \"line\": 10,\n      \"code\": \"return -1;\",\n      \"comment\": \"target not present in the array\"\n    }\n  ]\n}",
+      "explanation": "{\n  \"explanation\": \"Purpose: Locate the first occurrence of a target value in a sorted integer array.  \\nInput: `arr` \u2013 pointer to the first element of the sorted array; `size` \u2013 number of elements; `target` \u2013 value to search for.  \\nOutput: Index of the first matching element, or -1 if none exists.  \\nAlgorithm: Perform a classic binary search, narrowing the search interval based on comparison of the middle element with the target. Continue until the interval collapses, then return -1 if the loop ends.\"\n}"
+    }
+  },
+  {
+    "name": "erase_while_iterating",
+    "trap": "erase() invalidates the iterator; the loop is undefined behaviour",
+    "code": "void removeNegatives(std::vector<int>& values) {\n    for (auto it = values.begin(); it != values.end(); ++it) {\n        if (*it < 0)\n            values.erase(it);\n    }\n}",
+    "finds": [
+      "invalidat",
+      "undefined behavi|\\bUB\\b",
+      "skip|miss|consecutive|adjacent"
+    ],
+    "false_claim": true,
+    "found": 0,
+    "of": 3,
+    "missed": [
+      "invalidat",
+      "undefined behavi|\\bUB\\b",
+      "skip|miss|consecutive|adjacent"
+    ],
+    "text": "Iterate over the vector while preserving the original order.\nIf the current element is negative, erase it.\nErase the element at the iterator position.\nPurpose: Removes all negative integers from a vector.\nInput: A reference to a vector of integers.\nOutput: None (modifies the input vector in place).\nAlgorithm: Iterates through the vector and erases elements that are less than zero.",
+    "json_ok": true,
+    "raw": {
+      "line_comments": "{\n  \"line_comments\": [\n    {\n      \"line\": 3,\n      \"code\": \"for (auto it = values.begin(); it != values.end(); ++it) {\",\n      \"comment\": \"Iterate over the vector while preserving the original order.\"\n    },\n    {\n      \"line\": 4,\n      \"code\": \"if (*it < 0)\",\n      \"comment\": \"If the current element is negative, erase it.\"\n    },\n    {\n      \"line\": 5,\n      \"code\": \"values.erase(it);\",\n      \"comment\": \"Erase the element at the iterator position.\"\n    }\n  ]\n}",
+      "explanation": "{\n  \"explanation\": \"Purpose: Removes all negative integers from a vector.\\nInput: A reference to a vector of integers.\\nOutput: None (modifies the input vector in place).\\nAlgorithm: Iterates through the vector and erases elements that are less than zero.\"\n}"
+    }
+  },
+  {
+    "name": "dangling_reference",
+    "trap": "returns a reference to a local that dies at the closing brace",
+    "code": "const std::string& describe(int code) {\n    std::string result = \"code: \" + std::to_string(code);\n    return result;\n}",
+    "finds": [
+      "dangl",
+      "local|out of scope|goes out of|lifetime|destroy",
+      "undefined behavi|\\bUB\\b"
+    ],
+    "false_claim": true,
+    "found": 0,
+    "of": 3,
+    "missed": [
+      "dangl",
+      "local|out of scope|goes out of|lifetime|destroy",
+      "undefined behavi|\\bUB\\b"
+    ],
+    "text": "Build a descriptive string by concatenating a fixed prefix with the numeric code.\nReturn a reference to the constructed string; the caller may modify it.\nPurpose: Returns a string describing the given integer code.\nInput: An integer `code`.\nOutput: A `const std::string&` representing the description.\nAlgorithm: Concatenates the string \"code: \" with the integer's string representation.",
+    "json_ok": true,
+    "raw": {
+      "line_comments": "{\n  \"line_comments\": [\n    {\n      \"line\": 3,\n      \"code\": \"std::string result = \\\"code: \\\" + std::to_string(code);\",\n      \"comment\": \"Build a descriptive string by concatenating a fixed prefix with the numeric code.\"\n    },\n    {\n      \"line\": 4,\n      \"code\": \"return result;\",\n      \"comment\": \"Return a reference to the constructed string; the caller may modify it.\"\n    }\n  ]\n}",
+      "explanation": "{\n  \"explanation\": \"Purpose: Returns a string describing the given integer code.\\nInput: An integer `code`.\\nOutput: A `const std::string&` representing the description.\\nAlgorithm: Concatenates the string \\\"code: \\\" with the integer's string representation.\"\n}"
+    }
+  },
+  {
+    "name": "self_shadowing_counter",
+    "trap": "the inner declaration shadows the counter and reads itself uninitialised",
+    "code": "int countMatches(const std::vector<int>& items, int wanted) {\n    int found = 0;\n    for (std::size_t i = 0; i < items.size(); ++i) {\n        if (items[i] == wanted) {\n            int found = found + 1;\n        }\n    }\n    return found;\n}",
+    "finds": [
+      "shadow",
+      "uninitiali[sz]ed|indeterminate|itself",
+      "always (return|be|yield)|never (increment|updat|chang)|discarded|inner"
+    ],
+    "false_claim": true,
+    "found": 0,
+    "of": 3,
+    "missed": [
+      "shadow",
+      "uninitiali[sz]ed|indeterminate|itself",
+      "always (return|be|yield)|never (increment|updat|chang)|discarded|inner"
+    ],
+    "text": "accumulator for the number of occurrences of 'wanted'\niterate over each element; using size_t avoids signed/unsigned warnings\ncompare current element with the target value\nincrement the counter; the original code reuses the accumulator variable\nnote: the loop body is empty; the intent is to count matches\nreturn the total count of 'wanted' found in the vector\nPurpose: Counts how many times a specific integer appears in a vector.  \nInput: const std::vector<int>& items \u2013 the collection to search; int wanted \u2013 the value to locate.  \nOutput: int \u2013 the number of occurrences of wanted in items.  \nAlgorithm: Iterate over the vector with a size_t index, increment a counter each time the current element equals wanted, and finally return the counter. Edge cases such as an empty vector or a non\u2011int element are not handled.",
+    "json_ok": true,
+    "raw": {
+      "line_comments": "{\n  \"line_comments\": [\n    {\n      \"line\": 3,\n      \"code\": \"int found = 0;\",\n      \"comment\": \"accumulator for the number of occurrences of 'wanted'\"\n    },\n    {\n      \"line\": 4,\n      \"code\": \"for (std::size_t i = 0; i < items.size(); ++i) {\",\n      \"comment\": \"iterate over each element; using size_t avoids signed/unsigned warnings\"\n    },\n    {\n      \"line\": 5,\n      \"code\": \"if (items[i] == wanted) {\",\n      \"comment\": \"compare current element with the target value\"\n    },\n    {\n      \"line\": 6,\n      \"code\": \"int found = found + 1;\",\n      \"comment\": \"increment the counter; the original code reuses the accumulator variable\"\n    },\n    {\n      \"line\": 7,\n      \"code\": \"}\",\n      \"comment\": \"note: the loop body is empty; the intent is to count matches\"\n    },\n    {\n      \"line\": 8,\n      \"code\": \"return found;\",\n      \"comment\": \"return the total count of 'wanted' found in the vector\"\n    }\n  ]\n}",
+      "explanation": "{\n  \"explanation\": \"Purpose: Counts how many times a specific integer appears in a vector.  \\nInput: const std::vector<int>& items \u2013 the collection to search; int wanted \u2013 the value to locate.  \\nOutput: int \u2013 the number of occurrences of wanted in items.  \\nAlgorithm: Iterate over the vector with a size_t index, increment a counter each time the current element equals wanted, and finally return the counter. Edge cases such as an empty vector or a non\u2011int element are not handled.\"\n}"
+    }
+  },
+  {
+    "name": "unsigned_wraparound",
+    "trap": "size() - 1 on an empty vector wraps to a huge value and reads out of bounds",
+    "code": "bool isAscending(const std::vector<int>& series) {\n    for (std::size_t i = 0; i < series.size() - 1; ++i) {\n        if (series[i] > series[i + 1])\n            return false;\n    }\n    return true;\n}",
+    "finds": [
+      "empty",
+      "wrap|underflow|overflow|huge|enormous|SIZE_MAX|maximum value",
+      "out of (bounds|range)|out-of-bounds|past the end",
+      "unsigned"
+    ],
+    "false_claim": false,
+    "found": 0,
+    "of": 4,
+    "missed": [
+      "empty",
+      "wrap|underflow|overflow|huge|enormous|SIZE_MAX|maximum value",
+      "out of (bounds|range)|out-of-bounds|past the end",
+      "unsigned"
+    ],
+    "text": "Iterate over the vector, comparing each element with the next one.\nIf any element is greater than the following, the series is not ascending.\nEarly exit: a single violation already means the series is not ascending.\nIf the loop completes without finding any descending pair, the series is ascending.\nPurpose: Determines whether a sequence of integers is strictly increasing.\nInput: A constant reference to a std::vector<int> containing the sequence to check.\nOutput: A bool indicating whether the sequence is strictly increasing.\nAlgorithm: Iterates through the vector, comparing each element with the next one. If any element is greater than the next, returns false. If the loop completes without finding such an element, returns true.",
+    "json_ok": true,
+    "raw": {
+      "line_comments": "{\n  \"line_comments\": [\n    {\n      \"line\": 3,\n      \"code\": \"for (std::size_t i = 0; i < series.size() - 1; ++i) {\",\n      \"comment\": \"Iterate over the vector, comparing each element with the next one.\"\n    },\n    {\n      \"line\": 4,\n      \"code\": \"if (series[i] > series[i + 1])\",\n      \"comment\": \"If any element is greater than the following, the series is not ascending.\"\n    },\n    {\n      \"line\": 5,\n      \"code\": \"return false;\",\n      \"comment\": \"Early exit: a single violation already means the series is not ascending.\"\n    },\n    {\n      \"line\": 7,\n      \"code\": \"return true;\",\n      \"comment\": \"If the loop completes without finding any descending pair, the series is ascending.\"\n    }\n  ]\n}",
+      "explanation": "{\n  \"explanation\": \"Purpose: Determines whether a sequence of integers is strictly increasing.\\nInput: A constant reference to a std::vector<int> containing the sequence to check.\\nOutput: A bool indicating whether the sequence is strictly increasing.\\nAlgorithm: Iterates through the vector, comparing each element with the next one. If any element is greater than the next, returns false. If the loop completes without finding such an element, returns true.\"\n}"
+    }
+  },
+  {
+    "name": "shallow_copy_double_free",
+    "trap": "the copy constructor copies the pointer, so both objects delete it",
+    "code": "class Buffer {\n    int* data;\n    std::size_t len;\npublic:\n    Buffer(std::size_t n) : data(new int[n]), len(n) {}\n    ~Buffer() { delete[] data; }\n    Buffer(const Buffer& other) : data(other.data), len(other.len) {}\n};",
+    "finds": [
+      "shallow",
+      "double (free|delete)|twice|same (memory|pointer|buffer|array)",
+      "deep copy|rule of (three|3|five|5)"
+    ],
+    "false_claim": false,
+    "found": 0,
+    "of": 3,
+    "missed": [
+      "shallow",
+      "double (free|delete)|twice|same (memory|pointer|buffer|array)",
+      "deep copy|rule of (three|3|five|5)"
+    ],
+    "text": "raw pointer to the allocated integer array\nnumber of elements currently stored\npublic interface\nconstructor: allocate n elements and store the size\ndestructor: release the allocated memory\ncopy constructor: copy the raw pointer and size from another buffer\nPurpose: Provides a simple, lightweight buffer class that owns an int array and manages its lifetime.  \nInput: std::size_t n \u2013 the desired size of the buffer.  \nOutput: Constructs a Buffer object owning an int[n] and sets its length.  \nAlgorithm: In the constructor, allocate a new int array of size n and store the pointer and length. In the destructor, deallocate the array. The copy constructor copies the raw pointer and length from the source buffer, relying on the caller to ensure the source is valid.",
+    "json_ok": true,
+    "raw": {
+      "line_comments": "{\n  \"line_comments\": [\n    {\n      \"line\": 3,\n      \"code\": \"int* data;\",\n      \"comment\": \"raw pointer to the allocated integer array\"\n    },\n    {\n      \"line\": 4,\n      \"code\": \"std::size_t len;\",\n      \"comment\": \"number of elements currently stored\"\n    },\n    {\n      \"line\": 5,\n      \"code\": \"public:\",\n      \"comment\": \"public interface\"\n    },\n    {\n      \"line\": 6,\n      \"code\": \"Buffer(std::size_t n) : data(new int[n]), len(n) {}\",\n      \"comment\": \"constructor: allocate n elements and store the size\"\n    },\n    {\n      \"line\": 7,\n      \"code\": \"~Buffer() { delete[] data; }\",\n      \"comment\": \"destructor: release the allocated memory\"\n    },\n    {\n      \"line\": 8,\n      \"code\": \"Buffer(const Buffer& other) : data(other.data), len(other.len) {}\",\n      \"comment\": \"copy constructor: copy the raw pointer and size from another buffer\"\n    }\n  ]\n}",
+      "explanation": "{\n  \"explanation\": \"Purpose: Provides a simple, lightweight buffer class that owns an int array and manages its lifetime.  \\nInput: std::size_t n \u2013 the desired size of the buffer.  \\nOutput: Constructs a Buffer object owning an int[n] and sets its length.  \\nAlgorithm: In the constructor, allocate a new int array of size n and store the pointer and length. In the destructor, deallocate the array. The copy constructor copies the raw pointer and length from the source buffer, relying on the caller to ensure the source is valid.\"\n}"
+    }
+  },
+  {
+    "name": "misleading_function_name",
+    "trap": "named bubbleSort; actually sums the primes up to a limit",
+    "code": "int bubbleSort(int limit) {\n    int total = 0;\n    for (int i = 2; i <= limit; i++) {\n        bool flag = true;\n        for (int j = 2; j * j <= i; j++)\n            if (i % j == 0) { flag = false; break; }\n        if (flag) total += i;\n    }\n    return total;\n}",
+    "finds": [
+      "prime",
+      "\\bsum|accumulat|adds up|running total",
+      "divisor|divisib|factor|modul"
+    ],
+    "false_claim": false,
+    "found": 3,
+    "of": 3,
+    "missed": [],
+    "text": "accumulator for sum of all perfect squares up to limit\niterate over each integer i from 2 up to limit\nflag tracks whether i is a perfect square\ntest divisibility up to sqrt(i); if any divisor exists, i is composite\nfound a divisor \u2192 i is composite\ni is a perfect square, add it to the total\notherwise i is composite and will be skipped\nend outer loop\nreturn the sum of all perfect squares \u2264 limit\nPurpose: Counts how many positive integers \u2264\u202flimit are prime.  \nInput: int limit \u2013 the inclusive upper bound for the search.  \nOutput: int \u2013 the sum of all prime numbers in the range [2,\u202flimit].  \nAlgorithm: For each i from 2 to limit, a flag is used to detect primality; if i is not divisible by any j \u2264 \u221ai, it is added to the total. The outer loop runs O(limit) times, yielding O(limit\u00b2) time complexity.",
+    "json_ok": true,
+    "raw": {
+      "line_comments": "{\n  \"line_comments\": [\n    {\n      \"line\": 3,\n      \"code\": \"int total = 0;\",\n      \"comment\": \"accumulator for sum of all perfect squares up to limit\"\n    },\n    {\n      \"line\": 4,\n      \"code\": \"for (int i = 2; i <= limit; i++) {\",\n      \"comment\": \"iterate over each integer i from 2 up to limit\"\n    },\n    {\n      \"line\": 5,\n      \"code\": \"bool flag = true;\",\n      \"comment\": \"flag tracks whether i is a perfect square\"\n    },\n    {\n      \"line\": 6,\n      \"code\": \"for (int j = 2; j * j <= i; j++)\",\n      \"comment\": \"test divisibility up to sqrt(i); if any divisor exists, i is composite\"\n    },\n    {\n      \"line\": 7,\n      \"code\": \"if (i % j == 0) { flag = false; break; }\",\n      \"comment\": \"found a divisor \u2192 i is composite\"\n    },\n    {\n      \"line\": 10,\n      \"code\": \"if (flag) total += i;\",\n      \"comment\": \"i is a perfect square, add it to the total\"\n    },\n    {\n      \"line\": 11,\n      \"code\": \"}\",\n      \"comment\": \"otherwise i is composite and will be skipped\"\n    },\n    {\n      \"line\": 12,\n      \"code\": \"}\",\n      \"comment\": \"end outer loop\"\n    },\n    {\n      \"line\": 13,\n      \"code\": \"return total;\",\n      \"comment\": \"return the sum of all perfect squares \u2264 limit\"\n    }\n  ]\n}",
+      "explanation": "{\n  \"explanation\": \"Purpose: Counts how many positive integers \u2264\u202flimit are prime.  \\nInput: int limit \u2013 the inclusive upper bound for the search.  \\nOutput: int \u2013 the sum of all prime numbers in the range [2,\u202flimit].  \\nAlgorithm: For each i from 2 to limit, a flag is used to detect primality; if i is not divisible by any j \u2264 \u221ai, it is added to the total. The outer loop runs O(limit) times, yielding O(limit\u00b2) time complexity.\"\n}"
+    }
+  }
+]
