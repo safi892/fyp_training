@@ -38,3 +38,6 @@ models/
 # Local llama.cpp checkout (converter only) and GGUF builds
 tools/llama.cpp/
 models/gguf/
+
+# HuggingFace dataset cache - derived from cleaned/, rebuilt on demand
+.cache/
