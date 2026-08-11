@@ -1,0 +1,97 @@
+[
+  {
+    "sample": "fibonacci",
+    "phrasing": "trained_wording",
+    "verdict": "unchanged algorithm",
+    "signals": [
+      "has a loop",
+      "still recursive"
+    ],
+    "json_ok": true,
+    "improved_code": "int fib(int n)\n{\n    // Base case: the first two Fibonacci numbers are defined as 0 and 1.\n    if (n <= 1)\n        return n;\n\n    // Recursive call with the next index; the loop invariant guarantees termination.\n    for (int i = 2; i <= n; ++i) {\n        auto a = fib(i - 1);\n        auto b = fib(i - 2);\n        fib(i) = a + b;\n    }\n    return fib(n);\n}"
+  },
+  {
+    "sample": "fibonacci",
+    "phrasing": "explicit_faster",
+    "verdict": "ITERATIVE (no table)",
+    "signals": [
+      "has a loop"
+    ],
+    "json_ok": true,
+    "improved_code": "int fib(int n)\n{\n    if (n <= 1)\n        return n;\n    int a = 0, b = 1;\n    for (int i = 2; i <= n; ++i) {\n        int next = a + b;\n        a = b;\n        b = next;\n    }\n    return b;\n}"
+  },
+  {
+    "sample": "fibonacci",
+    "phrasing": "explicit_memo",
+    "verdict": "MEMOISED (top-down)",
+    "signals": [
+      "stores results",
+      "still recursive",
+      "static storage"
+    ],
+    "json_ok": true,
+    "improved_code": "int fib(int n)\n{\n    // Memoization table for the first 1000 values to avoid exponential time\n    static std::vector<int> memo(1000, -1);\n\n    // Return cached result if available\n    if (memo[n] != -1)\n        return memo[n];\n\n    // Base case: F(0) = 0, F(1) = 1\n    if (n <= 1)\n        return n;\n\n    // Recursive call with memoization\n    memo[n] = fib(n - 1) + fib(n - 2);\n    return memo[n];\n}"
+  },
+  {
+    "sample": "grid_paths",
+    "phrasing": "trained_wording",
+    "verdict": "unchanged algorithm",
+    "signals": [
+      "still recursive"
+    ],
+    "json_ok": true,
+    "improved_code": "int paths(int rows, int cols)\n{\n    // Base case: a single\u2011row or single\u2011column grid has exactly one path.\n    if (rows == 1 || cols == 1)\n        return 1;\n\n    // Recursive case: sum paths from the top and from the left.\n    return paths(rows - 1, cols) + paths(rows, cols - 1);\n}"
+  },
+  {
+    "sample": "grid_paths",
+    "phrasing": "explicit_faster",
+    "verdict": "unchanged algorithm",
+    "signals": [
+      "still recursive"
+    ],
+    "json_ok": true,
+    "improved_code": "int paths(int rows, int cols)\n{\n    // Base case: a single\u2011row or single\u2011column grid has exactly one path.\n    if (rows == 1 || cols == 1)\n        return 1;\n\n    // Recursive case: sum paths from the top and from the left.\n    return paths(rows - 1, cols) + paths(rows, cols - 1);\n}"
+  },
+  {
+    "sample": "grid_paths",
+    "phrasing": "explicit_memo",
+    "verdict": "TABULATED (bottom-up)",
+    "signals": [
+      "stores results",
+      "has a loop"
+    ],
+    "json_ok": true,
+    "improved_code": "int paths(int rows, int cols)\n{\n    // Memoization table: dp[i][j] stores the number of paths from (1,1) to (i,j)\n    std::vector<std::vector<int>> dp(rows + 1, std::vector<int>(cols + 1, 0));\n\n    // Base case: only one way to reach the top\u2011left corner\n    dp[1][1] = 1;\n\n    // Fill the table using the recurrence dp[i][j] = dp[i\u20111][j] + dp[i][j\u20111]\n    for (int i = 1; i <= rows; ++i) {\n        for (int j = 1; j <= cols; ++j) {\n            dp[i][j] = dp[i-1][j] + dp[i][j-1];\n        }\n    }\n\n    // The answer is the number of paths from (1,1) to (rows,cols)\n    return dp[rows][cols];\n}"
+  },
+  {
+    "sample": "coin_change",
+    "phrasing": "trained_wording",
+    "verdict": "unchanged algorithm",
+    "signals": [
+      "still recursive"
+    ],
+    "json_ok": true,
+    "improved_code": "int ways(int coins[], int count, int amount)\n{\n    // Base case: exact amount achieved.\n    if (amount == 0)\n        return 1;\n\n    // No more coins or insufficient remaining amount.\n    if (amount < 0 || count == 0)\n        return 0;\n\n    // Recursive case: either exclude the current coin or include it.\n    return ways(coins, count - 1, amount) + ways(coins, count, amount - coins[count - 1]);\n}"
+  },
+  {
+    "sample": "coin_change",
+    "phrasing": "explicit_faster",
+    "verdict": "unchanged algorithm",
+    "signals": [
+      "still recursive"
+    ],
+    "json_ok": true,
+    "improved_code": "int ways(int coins[], int count, int amount)\n{\n    // Base case: exact amount achieved.\n    if (amount == 0)\n        return 1;\n\n    // No more coins to consider \u2192 impossible to reach amount.\n    if (amount < 0 || count == 0)\n        return 0;\n\n    // Recursive case: either exclude the current coin or include it.\n    return ways(coins, count - 1, amount) + ways(coins, count, amount - coins[count - 1]);\n}"
+  },
+  {
+    "sample": "coin_change",
+    "phrasing": "explicit_memo",
+    "verdict": "TABULATED (bottom-up)",
+    "signals": [
+      "stores results",
+      "has a loop"
+    ],
+    "json_ok": true,
+    "improved_code": "int ways(int coins[], int count, int amount)\n{\n    // Guard against null pointer or invalid count.\n    if (!coins || count <= 0) return 0;\n\n    // Memoization table: dp[i][j] stores the number of ways to make j with the first i coins.\n    std::vector<std::vector<int>> dp(count + 1, std::vector<int>(amount + 1, 0));\n\n    // Fill the table using the original recursive logic.\n    for (int i = 1; i <= count; ++i) {\n        for (int j = 0; j <= amount; ++j) {\n            if (j == 0) {\n                dp[i][j] = 1; // Only one way to make amount 0.\n            } else if (j < coins[i - 1]) {\n                dp[i][j] = dp[i - 1][j]; // Cannot use coin i.\n            } else {\n                dp[i][j] = dp[i - 1][j] + dp[i][j - coins[i - 1]]; // Use coin i or skip it.\n            }\n        }\n    }\n\n    return dp[count][amount];\n}"
+  }
+]
