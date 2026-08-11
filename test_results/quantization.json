@@ -1,0 +1,170 @@
+{
+  "qwen-cpp-review-f16": {
+    "size_gb": 2.88,
+    "tokens_per_second": 8.2,
+    "json_ok": 1.0,
+    "anchors_kept": 30,
+    "anchors_total": 30,
+    "anchor_validity": 1.0,
+    "concepts": 1.0,
+    "agreement_with_fp32": 0.612,
+    "per_sample": [
+      {
+        "json_ok": 2,
+        "anchors_total": 6,
+        "anchors_kept": 6,
+        "anchors_dropped": 0,
+        "concepts_hit": 4,
+        "concepts_total": 4,
+        "explanation": "Purpose: Counts the number of decimal digits in the sum of two integers.  \nInput: two ints\u202f`first` and `second` representing the numbers to add.  \nOutput: an int indicating how many decimal digits are in the sum (0 if the sum is zero).  \nAlgorithm: Compute the sum, then repeatedly divide by 10 while the result is non\u2011zero, incrementing a counter each time. The final counter value is returned.",
+        "line_comments_raw": "{\n  \"line_comments\": [\n    {\n      \"line\": 3,\n      \"code\": \"int total = first + second;\",\n      \"comment\": \"Compute the sum of the two integers.\"\n    },\n    {\n      \"line\": 4,\n      \"code\": \"int tally = 0;\",\n      \"comment\": \"Initialize counter for the number of decimal digits.\"\n    },\n    {\n      \"line\": 5,\n      \"code\": \"while (total != 0)\",\n      \"comment\": \"Loop until the sum becomes zero.\"\n    },\n    {\n      \"line\": 6,\n      \"code\": \"total /= 10;\",\n      \"comment\": \"Remove the least\u2011significant digit.\"\n    },\n    {\n      \"line\": 7,\n      \"code\": \"tally++;\",\n      \"comment\": \"Increment the digit count.\"\n    },\n    {\n      \"line\": 9,\n      \"code\": \"return tally;\",\n      \"comment\": \"Return the total number of decimal digits.\"\n    }\n  ]\n}",
+        "sample": "digit_count"
+      },
+      {
+        "json_ok": 2,
+        "anchors_total": 8,
+        "anchors_kept": 8,
+        "anchors_dropped": 0,
+        "concepts_hit": 4,
+        "concepts_total": 4,
+        "explanation": "Purpose: Reverses the order of elements in an integer array in\u2011place.  \nInput: `int values[]` \u2013 pointer to the first element of the array; `int size` \u2013 number of elements to reverse.  \nOutput: The same array is modified; no value is returned.  \nAlgorithm: Uses two indices, `left` starting at 0 and `right` at `size\u20111`. While `left` is less than `right`, it swaps the elements at those positions and then moves the indices inward. This runs in O(n) time and O(1) extra space.",
+        "line_comments_raw": "{\n  \"line_comments\": [\n    {\n      \"line\": 3,\n      \"code\": \"int left = 0;\",\n      \"comment\": \"start of the array\"\n    },\n    {\n      \"line\": 4,\n      \"code\": \"int right = size - 1;\",\n      \"comment\": \"end of the array\"\n    },\n    {\n      \"line\": 5,\n      \"code\": \"while (left < right)\",\n      \"comment\": \"continue while there are elements left to swap\"\n    },\n    {\n      \"line\": 6,\n      \"code\": \"int spare = values[left];\",\n      \"comment\": \"store the element at the left index temporarily\"\n    },\n    {\n      \"line\": 7,\n      \"code\": \"values[left] = values[right];\",\n      \"comment\": \"move the element from the right to the left\"\n    },\n    {\n      \"line\": 8,\n      \"code\": \"values[right] = spare;\",\n      \"comment\": \"place the previously stored element at the right index\"\n    },\n    {\n      \"line\": 9,\n      \"code\": \"left++;\",\n      \"comment\": \"move left index to the right\"\n    },\n    {\n      \"line\": 10,\n      \"code\": \"right--;\",\n      \"comment\": \"move right index to the left\"\n    }\n  ]\n}",
+        "sample": "reverse_in_place"
+      },
+      {
+        "json_ok": 2,
+        "anchors_total": 11,
+        "anchors_kept": 11,
+        "anchors_dropped": 0,
+        "concepts_hit": 4,
+        "concepts_total": 4,
+        "explanation": "Purpose: Locate the first occurrence of a value in a sorted integer array.  \nInput: `table` \u2013 pointer to the first element of the sorted array; `length` \u2013 number of elements; `wanted` \u2013 value to search for.  \nOutput: Returns the index of the first match, or \u20131 if not found.  \nAlgorithm: Perform a classic binary search using the middle element as the pivot. Compare the pivot to `wanted`; if equal, return the index; if less, discard the left half; otherwise discard the right half. Continue until the search interval is empty.",
+        "line_comments_raw": "{\n  \"line_comments\": [\n    {\n      \"line\": 3,\n      \"code\": \"int low = 0;\",\n      \"comment\": \"start of search interval\"\n    },\n    {\n      \"line\": 4,\n      \"code\": \"int high = length - 1;\",\n      \"comment\": \"end of search interval\"\n    },\n    {\n      \"line\": 5,\n      \"code\": \"while (low <= high)\",\n      \"comment\": \"continue while there is at least one element left\"\n    },\n    {\n      \"line\": 6,\n      \"code\": \"int probe = low + (high - low) / 2;\",\n      \"comment\": \"compute middle index safely\"\n    },\n    {\n      \"line\": 7,\n      \"code\": \"if (table[probe] == wanted)\",\n      \"comment\": \"target found\"\n    },\n    {\n      \"line\": 8,\n      \"code\": \"return probe;\",\n      \"comment\": \"return its index\"\n    },\n    {\n      \"line\": 9,\n      \"code\": \"if (table[probe] < wanted)\",\n      \"comment\": \"target lies in the upper half\"\n    },\n    {\n      \"line\": 10,\n      \"code\": \"low = probe + 1;\",\n      \"comment\": \"discard lower half\"\n    },\n    {\n      \"line\": 11,\n      \"code\": \"else\",\n      \"comment\": \"target lies in the lower half\"\n    },\n    {\n      \"line\": 12,\n      \"code\": \"high = probe - 1;\",\n      \"comment\": \"discard upper half\"\n    },\n    {\n      \"line\": 14,\n      \"code\": \"return -1;\",\n      \"comment\": \"target not present\"\n    }\n  ]\n}",
+        "sample": "binary_search"
+      },
+      {
+        "json_ok": 2,
+        "anchors_total": 5,
+        "anchors_kept": 5,
+        "anchors_dropped": 0,
+        "concepts_hit": 4,
+        "concepts_total": 4,
+        "explanation": "Purpose: Compute the greatest common divisor (GCD) of two integers using the Euclidean algorithm.  \nInput: two integers\u202f`alpha` and `beta`.  \nOutput: the GCD of `alpha` and `beta` (as an `int`).  \nAlgorithm: Repeatedly replace `alpha` with `beta` and `beta` with the remainder of `alpha` divided by `beta`, until `beta` becomes zero; the last non\u2011zero `alpha` is the GCD.",
+        "line_comments_raw": "{\n  \"line_comments\": [\n    {\n      \"line\": 3,\n      \"code\": \"while (beta != 0)\",\n      \"comment\": \"Repeatedly apply the Euclidean algorithm until beta becomes zero.\"\n    },\n    {\n      \"line\": 4,\n      \"code\": \"int leftover = alpha % beta;\",\n      \"comment\": \"Compute the remainder of alpha divided by beta.\"\n    },\n    {\n      \"line\": 5,\n      \"code\": \"alpha = beta;\",\n      \"comment\": \"Shift the roles: beta becomes the new dividend, and the remainder becomes the new divisor.\"\n    },\n    {\n      \"line\": 6,\n      \"code\": \"beta = leftover;\",\n      \"comment\": \"Update beta for the next iteration.\"\n    },\n    {\n      \"line\": 8,\n      \"code\": \"return alpha;\",\n      \"comment\": \"When beta reaches zero, alpha holds the greatest common divisor.\"\n    }\n  ]\n}",
+        "sample": "gcd_euclid"
+      }
+    ]
+  },
+  "qwen-cpp-review-q8_0": {
+    "size_gb": 1.53,
+    "tokens_per_second": 13.1,
+    "json_ok": 1.0,
+    "anchors_kept": 30,
+    "anchors_total": 30,
+    "anchor_validity": 1.0,
+    "concepts": 0.9375,
+    "agreement_with_fp32": 0.67,
+    "per_sample": [
+      {
+        "json_ok": 2,
+        "anchors_total": 6,
+        "anchors_kept": 6,
+        "anchors_dropped": 0,
+        "concepts_hit": 4,
+        "concepts_total": 4,
+        "explanation": "Purpose: Counts the number of decimal digits in the sum of two integers.  \nInput: two ints\u202f`first` and `second` representing the numbers to add.  \nOutput: an int indicating how many decimal digits are in the sum (0 if the sum is zero).  \nAlgorithm: Compute the sum, then repeatedly divide by 10 while the result is non\u2011zero, incrementing a counter each time. The final counter value is returned.",
+        "line_comments_raw": "{\n  \"line_comments\": [\n    {\n      \"line\": 3,\n      \"code\": \"int total = first + second;\",\n      \"comment\": \"compute sum of the two integers\"\n    },\n    {\n      \"line\": 4,\n      \"code\": \"int tally = 0;\",\n      \"comment\": \"count digits in the sum\"\n    },\n    {\n      \"line\": 5,\n      \"code\": \"while (total != 0)\",\n      \"comment\": \"continue until all digits are processed\"\n    },\n    {\n      \"line\": 6,\n      \"code\": \"total /= 10;\",\n      \"comment\": \"drop the least\u2011significant digit\"\n    },\n    {\n      \"line\": 7,\n      \"code\": \"tally++;\",\n      \"comment\": \"increment digit counter\"\n    },\n    {\n      \"line\": 9,\n      \"code\": \"return tally;\",\n      \"comment\": \"return total digit count\"\n    }\n  ]\n}",
+        "sample": "digit_count"
+      },
+      {
+        "json_ok": 2,
+        "anchors_total": 8,
+        "anchors_kept": 8,
+        "anchors_dropped": 0,
+        "concepts_hit": 3,
+        "concepts_total": 4,
+        "explanation": "Purpose: Reverses the order of elements in an integer array in\u2011place.  \nInput: `int values[]` \u2013 pointer to the first element of the array; `int size` \u2013 number of elements to reverse.  \nOutput: The function modifies `values` in place; it returns `void`.  \nAlgorithm: Uses two indices, `left` starting at the first element and `right` at the last, swapping the elements at those positions and moving the indices towards each other until they meet or cross. This runs in O(n) time and O(1) extra space.",
+        "line_comments_raw": "{\n  \"line_comments\": [\n    {\n      \"line\": 3,\n      \"code\": \"int left = 0;\",\n      \"comment\": \"start of the array\"\n    },\n    {\n      \"line\": 4,\n      \"code\": \"int right = size - 1;\",\n      \"comment\": \"end of the array\"\n    },\n    {\n      \"line\": 5,\n      \"code\": \"while (left < right)\",\n      \"comment\": \"continue while there are elements left to swap\"\n    },\n    {\n      \"line\": 6,\n      \"code\": \"int spare = values[left];\",\n      \"comment\": \"store the element that will be moved to the right\"\n    },\n    {\n      \"line\": 7,\n      \"code\": \"values[left] = values[right];\",\n      \"comment\": \"move the element from the right to the left\"\n    },\n    {\n      \"line\": 8,\n      \"code\": \"values[right] = spare;\",\n      \"comment\": \"place the stored element from the left into the right position\"\n    },\n    {\n      \"line\": 9,\n      \"code\": \"left++;\",\n      \"comment\": \"advance left index to the next element\"\n    },\n    {\n      \"line\": 10,\n      \"code\": \"right--;\",\n      \"comment\": \"decrement right index to the previous element\"\n    }\n  ]\n}",
+        "sample": "reverse_in_place"
+      },
+      {
+        "json_ok": 2,
+        "anchors_total": 11,
+        "anchors_kept": 11,
+        "anchors_dropped": 0,
+        "concepts_hit": 4,
+        "concepts_total": 4,
+        "explanation": "Purpose: Locate the first occurrence of a value in a sorted integer array.  \nInput: `table` \u2013 pointer to the first element of the sorted array; `length` \u2013 number of elements; `wanted` \u2013 value to search for.  \nOutput: Returns the index of the first match, or \u20131 if not found.  \nAlgorithm: Perform a classic binary search using the middle element as the pivot. Compare the pivot to `wanted`; if equal, return the index; if less, discard the left half; otherwise discard the right half. Continue until the search interval is empty.",
+        "line_comments_raw": "{\n  \"line_comments\": [\n    {\n      \"line\": 3,\n      \"code\": \"int low = 0;\",\n      \"comment\": \"start of search interval\"\n    },\n    {\n      \"line\": 4,\n      \"code\": \"int high = length - 1;\",\n      \"comment\": \"end of search interval\"\n    },\n    {\n      \"line\": 5,\n      \"code\": \"while (low <= high)\",\n      \"comment\": \"continue while there is at least one element left\"\n    },\n    {\n      \"line\": 6,\n      \"code\": \"int probe = low + (high - low) / 2;\",\n      \"comment\": \"compute middle index safely\"\n    },\n    {\n      \"line\": 7,\n      \"code\": \"if (table[probe] == wanted)\",\n      \"comment\": \"target found\"\n    },\n    {\n      \"line\": 8,\n      \"code\": \"return probe;\",\n      \"comment\": \"return its index\"\n    },\n    {\n      \"line\": 9,\n      \"code\": \"if (table[probe] < wanted)\",\n      \"comment\": \"target lies in the upper half\"\n    },\n    {\n      \"line\": 10,\n      \"code\": \"low = probe + 1;\",\n      \"comment\": \"discard lower half\"\n    },\n    {\n      \"line\": 11,\n      \"code\": \"else\",\n      \"comment\": \"target lies in the lower half\"\n    },\n    {\n      \"line\": 12,\n      \"code\": \"high = probe - 1;\",\n      \"comment\": \"discard upper half\"\n    },\n    {\n      \"line\": 14,\n      \"code\": \"return -1;\",\n      \"comment\": \"target not present in the table\"\n    }\n  ]\n}",
+        "sample": "binary_search"
+      },
+      {
+        "json_ok": 2,
+        "anchors_total": 5,
+        "anchors_kept": 5,
+        "anchors_dropped": 0,
+        "concepts_hit": 4,
+        "concepts_total": 4,
+        "explanation": "Purpose: Compute the greatest common divisor (GCD) of two integers using the Euclidean algorithm.  \nInput: two integers\u202f`alpha` and `beta`.  \nOutput: the GCD of `alpha` and `beta` (as an `int`).  \nAlgorithm: Repeatedly replace `alpha` with `beta` and `beta` with the remainder of `alpha` divided by `beta`, until `beta` becomes zero; the last non\u2011zero `alpha` is the GCD.",
+        "line_comments_raw": "{\n  \"line_comments\": [\n    {\n      \"line\": 3,\n      \"code\": \"while (beta != 0)\",\n      \"comment\": \"Repeatedly apply the Euclidean algorithm until beta becomes zero.\"\n    },\n    {\n      \"line\": 4,\n      \"code\": \"int leftover = alpha % beta;\",\n      \"comment\": \"Compute the remainder of alpha divided by beta.\"\n    },\n    {\n      \"line\": 5,\n      \"code\": \"alpha = beta;\",\n      \"comment\": \"Shift the roles: beta becomes the new divisor, and the remainder becomes the new dividend.\"\n    },\n    {\n      \"line\": 6,\n      \"code\": \"beta = leftover;\",\n      \"comment\": \"Update beta for the next iteration.\"\n    },\n    {\n      \"line\": 8,\n      \"code\": \"return alpha;\",\n      \"comment\": \"When beta reaches zero, alpha holds the greatest common divisor.\"\n    }\n  ]\n}",
+        "sample": "gcd_euclid"
+      }
+    ]
+  },
+  "qwen-cpp-review-q4_k_m": {
+    "size_gb": 0.92,
+    "tokens_per_second": 17.7,
+    "json_ok": 1.0,
+    "anchors_kept": 32,
+    "anchors_total": 32,
+    "anchor_validity": 1.0,
+    "concepts": 0.9375,
+    "agreement_with_fp32": 0.591,
+    "per_sample": [
+      {
+        "json_ok": 2,
+        "anchors_total": 7,
+        "anchors_kept": 7,
+        "anchors_dropped": 0,
+        "concepts_hit": 4,
+        "concepts_total": 4,
+        "explanation": "Purpose: Counts the number of decimal digits in the sum of two integers.  \nInput: two ints\u202f`first` and `second`, representing the numbers to be added.  \nOutput: an int indicating how many decimal digits are in `first + second`.  \nAlgorithm: Compute the sum, then repeatedly divide by 10 while the result is non\u2011zero, incrementing a counter each time. The final counter value is returned.",
+        "line_comments_raw": "{\n  \"line_comments\": [\n    {\n      \"line\": 3,\n      \"code\": \"int total = first + second;\",\n      \"comment\": \"compute the sum of the two integers\"\n    },\n    {\n      \"line\": 4,\n      \"code\": \"int tally = 0;\",\n      \"comment\": \"count the number of decimal digits in the sum\"\n    },\n    {\n      \"line\": 5,\n      \"code\": \"while (total != 0)\",\n      \"comment\": \"loop until the sum becomes zero\"\n    },\n    {\n      \"line\": 6,\n      \"code\": \"total /= 10;\",\n      \"comment\": \"drop the least\u2011significant digit\"\n    },\n    {\n      \"line\": 7,\n      \"code\": \"tally++;\",\n      \"comment\": \"increment the digit counter\"\n    },\n    {\n      \"line\": 8,\n      \"code\": \"}\",\n      \"comment\": \"note: if total is 0 the loop body never executes, returning 0\"\n    },\n    {\n      \"line\": 9,\n      \"code\": \"return tally;\",\n      \"comment\": \"return the digit count\"\n    }\n  ]\n}",
+        "sample": "digit_count"
+      },
+      {
+        "json_ok": 2,
+        "anchors_total": 8,
+        "anchors_kept": 8,
+        "anchors_dropped": 0,
+        "concepts_hit": 3,
+        "concepts_total": 4,
+        "explanation": "Purpose: Reverses the order of elements in a contiguous integer array in\u2011place.  \nInput: `int values[]` \u2013 pointer to the first element of the array; `int size` \u2013 number of elements to reverse.  \nOutput: The same array is modified so that its elements appear in descending order.  \nAlgorithm: Two indices, `left` starting at 0 and `right` at `size\u20111`, traverse the array from both ends towards the centre. At each step, the element at `left` is swapped with the element at `right`, effectively reversing the segment. The loop stops when `left` meets or exceeds `right`.",
+        "line_comments_raw": "{\n  \"line_comments\": [\n    {\n      \"line\": 3,\n      \"code\": \"int left = 0;\",\n      \"comment\": \"start of the array\"\n    },\n    {\n      \"line\": 4,\n      \"code\": \"int right = size - 1;\",\n      \"comment\": \"end of the array\"\n    },\n    {\n      \"line\": 5,\n      \"code\": \"while (left < right)\",\n      \"comment\": \"swap elements from both ends until they meet\"\n    },\n    {\n      \"line\": 6,\n      \"code\": \"int spare = values[left];\",\n      \"comment\": \"store the element to be moved\"\n    },\n    {\n      \"line\": 7,\n      \"code\": \"values[left] = values[right];\",\n      \"comment\": \"move the right element to the left position\"\n    },\n    {\n      \"line\": 8,\n      \"code\": \"values[right] = spare;\",\n      \"comment\": \"move the stored element to the right position\"\n    },\n    {\n      \"line\": 9,\n      \"code\": \"left++;\",\n      \"comment\": \"advance left index\"\n    },\n    {\n      \"line\": 10,\n      \"code\": \"right--;\",\n      \"comment\": \"decrement right index\"\n    }\n  ]\n}",
+        "sample": "reverse_in_place"
+      },
+      {
+        "json_ok": 2,
+        "anchors_total": 11,
+        "anchors_kept": 11,
+        "anchors_dropped": 0,
+        "concepts_hit": 4,
+        "concepts_total": 4,
+        "explanation": "Purpose: Locate the first occurrence of a value in a sorted integer array.  \nInput: `table` \u2013 pointer to the first element of the sorted array; `length` \u2013 number of elements; `wanted` \u2013 value to search for.  \nOutput: Index of the first match, or -1 if not found.  \nAlgorithm: Perform a classic binary search, repeatedly halving the search interval until the target is found or the interval collapses. The midpoint is chosen to avoid overflow in the arithmetic.",
+        "line_comments_raw": "{\n  \"line_comments\": [\n    {\n      \"line\": 3,\n      \"code\": \"int low = 0;\",\n      \"comment\": \"start of search interval\"\n    },\n    {\n      \"line\": 4,\n      \"code\": \"int high = length - 1;\",\n      \"comment\": \"end of search interval\"\n    },\n    {\n      \"line\": 5,\n      \"code\": \"while (low <= high)\",\n      \"comment\": \"binary\u2011search loop\"\n    },\n    {\n      \"line\": 6,\n      \"code\": \"int probe = low + (high - low) / 2;\",\n      \"comment\": \"avoid overflow when computing mid\"\n    },\n    {\n      \"line\": 7,\n      \"code\": \"if (table[probe] == wanted)\",\n      \"comment\": \"exact match found\"\n    },\n    {\n      \"line\": 8,\n      \"code\": \"return probe;\",\n      \"comment\": \"return index of the found element\"\n    },\n    {\n      \"line\": 9,\n      \"code\": \"if (table[probe] < wanted)\",\n      \"comment\": \"target lies in the right half\"\n    },\n    {\n      \"line\": 10,\n      \"code\": \"low = probe + 1;\",\n      \"comment\": \"discard left half\"\n    },\n    {\n      \"line\": 11,\n      \"code\": \"else\",\n      \"comment\": \"target lies in the left half\"\n    },\n    {\n      \"line\": 12,\n      \"code\": \"high = probe - 1;\",\n      \"comment\": \"discard right half\"\n    },\n    {\n      \"line\": 14,\n      \"code\": \"return -1;\",\n      \"comment\": \"not found\"\n    }\n  ]\n}",
+        "sample": "binary_search"
+      },
+      {
+        "json_ok": 2,
+        "anchors_total": 6,
+        "anchors_kept": 6,
+        "anchors_dropped": 0,
+        "concepts_hit": 4,
+        "concepts_total": 4,
+        "explanation": "Purpose: Compute the greatest common divisor (GCD) of two integers using the Euclidean algorithm.  \nInput: Two integers\u202f`alpha` and `beta`.  \nOutput: An integer representing the GCD of the two inputs.  \nAlgorithm: Repeatedly replace `(alpha, beta)` with `(beta, alpha % beta)` until `beta` becomes zero, then return `alpha` as the GCD. Handles the degenerate case where `beta` is zero gracefully.",
+        "line_comments_raw": "{\n  \"line_comments\": [\n    {\n      \"line\": 3,\n      \"code\": \"while (beta != 0)\",\n      \"comment\": \"Repeatedly apply the Euclidean algorithm until beta becomes zero.\"\n    },\n    {\n      \"line\": 4,\n      \"code\": \"int leftover = alpha % beta;\",\n      \"comment\": \"Compute the remainder of alpha divided by beta.\"\n    },\n    {\n      \"line\": 5,\n      \"code\": \"alpha = beta;\",\n      \"comment\": \"Shift the larger number to become the smaller one for the next iteration.\"\n    },\n    {\n      \"line\": 6,\n      \"code\": \"beta = leftover;\",\n      \"comment\": \"Update beta to the remainder.\"\n    },\n    {\n      \"line\": 7,\n      \"code\": \"}\",\n      \"comment\": \"When beta reaches zero, alpha holds the greatest common divisor.\"\n    },\n    {\n      \"line\": 8,\n      \"code\": \"return alpha;\",\n      \"comment\": \"Return the computed GCD.\"\n    }\n  ]\n}",
+        "sample": "gcd_euclid"
+      }
+    ]
+  }
+}

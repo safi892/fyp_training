@@ -20,9 +20,24 @@ cleaned/results_0_cleaned.jsonl
 cleaned/results_1_cleaned.jsonl
 
 # Derived datasets - rebuild with scripts/build_line_anchored.py
+# then scripts/build_task_mixture.py
 cleaned/line_anchored.jsonl
 cleaned/line_anchored_rejected.jsonl
+cleaned/task_mixture.jsonl
 
 # Regenerable archives
 *.zip
 outputs/
+
+# Downloaded Kaggle run artefacts
+kaggle_output/
+
+# Locally cached base models (multi-GB, re-downloadable)
+models/
+
+# Local llama.cpp checkout (converter only) and GGUF builds
+tools/llama.cpp/
+models/gguf/
+
+# HuggingFace dataset cache - derived from cleaned/, rebuilt on demand
+.cache/

@@ -83,8 +83,63 @@ def build_sft_config(config: AppConfig) -> SFTConfig:
         max_length=config.data.max_seq_length,
         report_to=config.training.report_to,
         seed=config.training.seed,
-        dataset_text_field="text",
+        group_by_length=config.training.group_by_length,
+        # Verified against the installed TRL 0.25.0: completion_only_loss is
+        # "supported only for prompt-completion datasets", and a language
+        # modeling dataset (one text column) is supervised over the whole
+        # sequence. So the dataset shape and this flag have to agree, and
+        # dataset.py picks the shape from the same train_on_inputs setting.
+        **(
+            {"dataset_text_field": "text"}
+            if config.data.train_on_inputs
+            else {"completion_only_loss": True}
+        ),
+        # Populates state.num_input_tokens_seen, which ThroughputAndMemoryCallback
+        # turns into a real tokens/sec rather than one inferred from batch shape.
+        include_num_input_tokens_seen=True,
+        # Kaggle pipes the training cell through tee, where a redrawing bar
+        # becomes thousands of near-identical lines. The callback prints one
+        # complete line per logging step instead.
+        disable_tqdm=config.training.disable_tqdm,
     )
+
+
+def check_supervision_setup(config: AppConfig, columns: list[str]) -> None:
+    """Refuse to train when the loss would not cover what we think it covers.
+
+    Both failures below are silent at runtime: the loss curve falls either way,
+    and the model quietly learns to reproduce prompts or attends across packed
+    document boundaries. See the `loss-masking-verify` skill.
+    """
+    if config.data.train_on_inputs:
+        if "text" not in columns:
+            raise ValueError(
+                f"train_on_inputs is true, which needs a 'text' column; got {sorted(columns)}"
+            )
+        LOGGER.warning(
+            "train_on_inputs is TRUE: loss covers the instruction and the input code, not just "
+            "the target. Metrics will look better than the model is. Set data.train_on_inputs "
+            "to false for completion-only loss."
+        )
+    else:
+        missing = [name for name in ("prompt", "completion") if name not in columns]
+        if missing:
+            raise ValueError(
+                f"completion-only loss needs prompt-completion columns; missing {missing} "
+                f"in {sorted(columns)}"
+            )
+
+    if config.training.packing:
+        # TRL 0.25.0: packing_strategy 'bfd' force-enables padding_free, which
+        # it documents as supported only with FlashAttention 2/3. The T4 is
+        # Turing and has neither, and 'wrapped' concatenates across documents.
+        # Rather than accept cross-contamination, refuse.
+        if not config.model.flash_attention:
+            raise ValueError(
+                "training.packing requires model.flash_attention; TRL's default 'bfd' strategy "
+                "enables padding-free batching, which needs FlashAttention 2/3. On a T4 keep "
+                "packing false and recover throughput by turning gradient_checkpointing off."
+            )
 
 
 def build_trainer(
@@ -101,6 +156,7 @@ def build_trainer(
     seed_everything(config.training.seed)
     raw_dataset = load_review_dataset(config.data)
     sft_dataset = prepare_sft_dataset(raw_dataset, config.data, tokenizer)
+    check_supervision_setup(config, sft_dataset["train"].column_names)
     model = load_model_for_qlora(config.model, config.training.gradient_checkpointing)
 
     adapter_path = plan.adapter_path if plan else config.training.initial_adapter_path
