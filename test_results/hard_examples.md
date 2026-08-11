@@ -52,7 +52,7 @@ Output: The array `data` is reordered in‑place; the function returns `void`.
 Algorithm: Two nested loops traverse the array, comparing adjacent elements and swapping them if they are out of order. The outer loop repeats until no more swaps occur, guaranteeing a fully sorted array.
 ```
 
-Concepts not named: `overwrit|destroy|lose|lost|clobber|duplicat`, `no temporar|without a temporar|missing temporar|third variable`, `\bbug|incorrect|wrong|broken|does not (work|sort)|fails`
+Concepts not named: `overwrit|destroy|lose|lost|clobber|duplicat`, `no temporar|without a temporar|missing temporar|third variable`, `\bbug|incorrect|broken|does not (work|sort)|fails to|is not a( real)? swap`
 
 ## overflow_mid
 
@@ -114,7 +114,7 @@ Output: None (modifies the input vector in place).
 Algorithm: Iterates through the vector and erases elements that are less than zero.
 ```
 
-Concepts not named: `invalidat`, `undefined behavi|\bUB\b`, `skip|miss|consecutive|adjacent`
+Concepts not named: `invalidat`, `undefined behavi|\bUB\b`, `skips? (over |an? )?(element|item|value|entry|negative)|miss(es)? (an? )?(element|item|negative)|consecutive|adjacent`
 
 ## dangling_reference
 

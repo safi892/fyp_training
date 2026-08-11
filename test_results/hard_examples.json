@@ -14,7 +14,7 @@
     "missed": [
       "overwrit|destroy|lose|lost|clobber|duplicat",
       "no temporar|without a temporar|missing temporar|third variable",
-      "\\bbug|incorrect|wrong|broken|does not (work|sort)|fails"
+      "\\bbug|incorrect|broken|does not (work|sort)|fails to|is not a( real)? swap"
     ],
     "text": "Outer loop: each pass places the smallest element in the unsorted region\nInner loop: compare adjacent elements and swap if they are out of order\nIf the current element is greater than the next, swap them\nMove the larger element to the front\nPlace the smaller element at its correct position\nAfter each outer pass, the next largest element is guaranteed to be at the end\nPurpose: Sorts an integer array in ascending order using the bubble sort algorithm.  \nInput: `int data[]` \u2013 pointer to the first element of the array; `int n` \u2013 number of elements to sort.  \nOutput: The array `data` is reordered in\u2011place; the function returns `void`.  \nAlgorithm: Two nested loops traverse the array, comparing adjacent elements and swapping them if they are out of order. The outer loop repeats until no more swaps occur, guaranteeing a fully sorted array.",
     "json_ok": true,
@@ -58,7 +58,7 @@
     "missed": [
       "invalidat",
       "undefined behavi|\\bUB\\b",
-      "skip|miss|consecutive|adjacent"
+      "skips? (over |an? )?(element|item|value|entry|negative)|miss(es)? (an? )?(element|item|negative)|consecutive|adjacent"
     ],
     "text": "Iterate over the vector while preserving the original order.\nIf the current element is negative, erase it.\nErase the element at the iterator position.\nPurpose: Removes all negative integers from a vector.\nInput: A reference to a vector of integers.\nOutput: None (modifies the input vector in place).\nAlgorithm: Iterates through the vector and erases elements that are less than zero.",
     "json_ok": true,

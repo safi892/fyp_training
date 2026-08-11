@@ -247,7 +247,50 @@ def main() -> None:
     parser.add_argument("--n-predict", type=int, default=700)
     parser.add_argument("--tokenizer", default="Qwen/Qwen2.5-Coder-1.5B-Instruct")
     parser.add_argument("--output", default="test_results/defect_probe")
+    parser.add_argument(
+        "--rescore", default=None,
+        help="Re-apply scoring to a saved results JSON instead of generating again.",
+    )
     args = parser.parse_args()
+
+    # Scoring rules need tuning against real output, and regenerating to test a
+    # rule change both costs half an hour and lets the goalposts move unnoticed.
+    # Replaying fixes the text while the judgement is revised.
+    if args.rescore:
+        saved = json.loads(Path(args.rescore).read_text(encoding="utf-8"))
+        by_name = {s["name"]: s for s in SAMPLES}
+        rows, totals = [], {}
+        for row in saved["rows"]:
+            if row["kind"] == "buggy":
+                row = {**row, **score(row["text"], by_name[row["sample"]])}
+            else:
+                row = {**row, "invented": bool(_ALLEGATION.search(row["text"]))}
+            rows.append(row)
+        for phrasing in PHRASINGS:
+            mine = [r for r in rows if r["phrasing"] == phrasing]
+            buggy = [r for r in mine if r["kind"] == "buggy"]
+            totals[phrasing] = {
+                "found": sum(r["found"] for r in buggy),
+                "of": sum(r["of"] for r in buggy),
+                "false_claims": sum(int(r["false_claim"]) for r in buggy),
+                "invented": sum(int(r["invented"]) for r in mine if r["kind"] == "clean"),
+                "anchors_proposed": sum(r["anchors_proposed"] for r in mine),
+                "anchors_kept": sum(r["anchors_kept"] for r in mine),
+            }
+        out = Path(args.output)
+        out.with_suffix(".json").write_text(
+            json.dumps({"rows": rows, "totals": totals}, indent=2), encoding="utf-8"
+        )
+        write_report(rows, totals, out.with_suffix(".md"))
+        print(f"rescored {len(rows)} saved generations\n")
+        print(f"{'phrasing':<18} {'named':>8} {'false':>7} {'invented':>9} {'anchors':>10}")
+        for name in PHRASINGS:
+            t = totals[name]
+            print(
+                f"{name:<18} {t['found']:>3}/{t['of']:<4} {t['false_claims']:>7} "
+                f"{t['invented']:>9} {t['anchors_kept']:>4}/{t['anchors_proposed']:<5}"
+            )
+        return
 
     from transformers import AutoTokenizer
 

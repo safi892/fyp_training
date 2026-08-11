@@ -60,7 +60,11 @@ SAMPLES: list[dict[str, Any]] = [
         "finds": [
             r"overwrit|destroy|lose|lost|clobber|duplicat",
             r"no temporar|without a temporar|missing temporar|third variable",
-            r"\bbug|incorrect|wrong|broken|does not (work|sort)|fails",
+            # "wrong" is deliberately absent: "swap them if they are in the
+            # wrong order" is how a *correct* comparison is described, and
+            # scoring it as a defect report credits the model for the phrase it
+            # produces when it has noticed nothing.
+            r"\bbug|incorrect|broken|does not (work|sort)|fails to|is not a( real)? swap",
         ],
         "false_claim": r"\bswaps?\b|\bswapping\b|exchanges",
     },
@@ -92,7 +96,11 @@ SAMPLES: list[dict[str, Any]] = [
         "finds": [
             r"invalidat",
             r"undefined behavi|\bUB\b",
-            r"skip|miss|consecutive|adjacent",
+            # Not a bare "skip": "erase the iterator position to skip it" means
+            # "remove it", which is what the code intends, not the bug where
+            # adjacent negatives are stepped over.
+            r"skips? (over |an? )?(element|item|value|entry|negative)"
+            r"|miss(es)? (an? )?(element|item|negative)|consecutive|adjacent",
         ],
         "false_claim": r"remove[s]? all|correctly remove|erases all",
     },
@@ -215,12 +223,23 @@ def harvest_text(comments_raw: str, explanation_raw: str) -> tuple[str, int]:
 
 
 def score(text: str, sample: dict[str, Any]) -> dict[str, Any]:
-    """Count concepts named, and whether a false assertion was made."""
+    """Count concepts named, and whether a false assertion was made.
+
+    False assertions are located first and cut out of the text before concepts
+    are counted. Without that, a concept word sitting *inside* the falsehood
+    scores as if the model had found the problem: told that ``(low + high) / 2``
+    is a binary search, the model wrote "compute midpoint to avoid overflow",
+    which contains the word this sample scores on and asserts the opposite of
+    the truth. Cutting the span first means a concept only counts when it is
+    named somewhere the model was not busy being wrong — and a genuine "attempts
+    to swap, but the value is lost" still counts, because the concept survives
+    outside the excised phrase.
+    """
     lowered = text.lower()
-    hits = [bool(re.search(group, lowered, re.I)) for group in sample["finds"]]
     asserted = bool(re.search(sample["false_claim"], lowered, re.I))
-    # A claim only counts as false when the defect went unmentioned: naming the
-    # bug and then describing the intent is accurate, not misleading.
+    remainder = re.sub(sample["false_claim"], " ", lowered, flags=re.I)
+
+    hits = [bool(re.search(group, remainder, re.I)) for group in sample["finds"]]
     return {
         "found": sum(hits),
         "of": len(hits),
