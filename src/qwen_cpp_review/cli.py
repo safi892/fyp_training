@@ -177,10 +177,21 @@ def merge_main() -> None:
     args = parser.parse_args()
     configure_logging()
     tokenizer = AutoTokenizer.from_pretrained(args.adapter, trust_remote_code=True, use_fast=True)
+    # Merging is arithmetic on the weights and needs no GPU, so it must work on
+    # a machine without one. torch.cuda.is_bf16_supported() raises rather than
+    # returning False when torch has no CUDA at all, and float16 on CPU is both
+    # slow and lossy, so pick per device.
+    if torch.cuda.is_available():
+        dtype = torch.bfloat16 if torch.cuda.is_bf16_supported() else torch.float16
+        device_map = "auto"
+    else:
+        dtype = torch.float32
+        device_map = None
+    LOGGER.info("merging on %s in %s", "cuda" if device_map else "cpu", dtype)
     base = AutoModelForCausalLM.from_pretrained(
         args.base_model,
-        torch_dtype=torch.bfloat16 if torch.cuda.is_bf16_supported() else torch.float16,
-        device_map="auto",
+        torch_dtype=dtype,
+        device_map=device_map,
         trust_remote_code=True,
     )
     model = PeftModel.from_pretrained(base, args.adapter)

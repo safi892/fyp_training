@@ -34,3 +34,7 @@ kaggle_output/
 
 # Locally cached base models (multi-GB, re-downloadable)
 models/
+
+# Local llama.cpp checkout (converter only) and GGUF builds
+tools/llama.cpp/
+models/gguf/
