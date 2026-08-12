@@ -192,7 +192,7 @@
       "explanation": "{\n  \"explanation\": \"Purpose: Counts how many positive integers \u2264\u202flimit are prime.  \\nInput: int limit \u2013 the inclusive upper bound for the search.  \\nOutput: int \u2013 the sum of all prime numbers in the range [2,\u202flimit].  \\nAlgorithm: For each i from 2 to limit, a flag is used to detect primality; if i is not divisible by any j \u2264 \u221ai, it is added to the total. The outer loop runs O(limit) times, yielding O(limit\u00b2) time complexity.\"\n}"
     },
     "evidence": [
-      "imit purpose: counts how many positive integers \u2264\u202flimit are prime.   input: int limit \u2013 the inclusive upp",
+      "imit purpose: counts how many positive integers \u2264\u202flimit are prime.   input: int limit - the inclusive upp",
       "accumulator for sum of all perfect squares up to",
       "up to limit flag tracks whether i is a perfect square test divisibility up to sqrt(i); if any divisor exis"
     ]
@@ -257,11 +257,10 @@
       "\\bbreak\\b",
       "always (return|be|yield|give)s?.{0,12}(0|zero)"
     ],
-    "false_claim": true,
-    "found": 0,
+    "false_claim": false,
+    "found": 1,
     "of": 3,
     "missed": [
-      "fall(s|ing)?[ -]?through|fallthrough",
       "\\bbreak\\b",
       "always (return|be|yield|give)s?.{0,12}(0|zero)"
     ],
@@ -271,7 +270,9 @@
       "line_comments": "{\n  \"line_comments\": [\n    {\n      \"line\": 3,\n      \"code\": \"int points = 0;\",\n      \"comment\": \"initialize accumulator for total points\"\n    },\n    {\n      \"line\": 4,\n      \"code\": \"switch (grade) {\",\n      \"comment\": \"map letter grade to numeric score\"\n    },\n    {\n      \"line\": 5,\n      \"code\": \"case 'A': points = 4;\",\n      \"comment\": \"A is the highest grade, worth 4 points\"\n    },\n    {\n      \"line\": 6,\n      \"code\": \"case 'B': points = 3;\",\n      \"comment\": \"B is the next highest, worth 3 points\"\n    },\n    {\n      \"line\": 7,\n      \"code\": \"case 'C': points = 2;\",\n      \"comment\": \"C is the next lowest, worth 2 points\"\n    },\n    {\n      \"line\": 8,\n      \"code\": \"default: points = 0;\",\n      \"comment\": \"any other grade yields 0 points\"\n    },\n    {\n      \"line\": 9,\n      \"code\": \"}\",\n      \"comment\": \"fall\u2011through: the switch body is empty, so the default case is executed\"\n    },\n    {\n      \"line\": 10,\n      \"code\": \"return points;\",\n      \"comment\": \"return accumulated score\"\n    }\n  ]\n}",
       "explanation": "{\n  \"explanation\": \"Purpose: Converts a letter grade to its corresponding numeric score.\\nInput: A single character representing a letter grade ('A', 'B', 'C', or any other character).\\nOutput: An integer representing the score associated with the grade.\\nAlgorithm: Uses a switch statement to map each letter grade to its score. If the grade is not recognized, it defaults to 0.\"\n}"
     },
-    "evidence": []
+    "evidence": [
+      "next lowest, worth 2 points any other grade yields 0 points fall-through: the switch body is empty, so the defau"
+    ]
   },
   {
     "name": "accumulated_float_equality",

@@ -418,6 +418,55 @@ def harvest_text(comments_raw: str, explanation_raw: str) -> tuple[str, int]:
     return "\n".join(parts), parsed
 
 
+#: Typographic characters the model emits where a keyboard would give ASCII.
+#: It writes "fall‑through" with a non-breaking hyphen, "in‑place" likewise, and
+#: uses a non-breaking space before units. Left alone, a pattern written the
+#: obvious way silently fails to match, and the model loses a point it earned -
+#: the same class of error as the flattering matches, pointing the other way.
+_TYPOGRAPHY = str.maketrans({
+    "‐": "-", "‑": "-", "‒": "-", "–": "-", "—": "-",
+    "―": "-", "−": "-", " ": " ", "’": "'", "“": '"',
+    "”": '"',
+})
+
+
+def normalise(text: str) -> str:
+    """Fold typographic punctuation to ASCII so patterns match what was meant."""
+    return text.translate(_TYPOGRAPHY)
+
+
+#: Phrases that say the named problem does *not* happen here. The model reaches
+#: for them constantly: "compute midpoint to avoid overflow" on an unguarded
+#: `(low + high) / 2`, "the extra element is intentionally ignored to avoid
+#: out-of-bounds access" on a loop that runs off the end. Both name the defect
+#: and deny it in one breath, and a plain keyword search reads the naming and
+#: misses the denial.
+#:
+#: Deliberately narrow. "does not check for overflow" is a real catch and
+#: contains "not", so bare negations are excluded and only phrases meaning
+#: "this is handled" are listed.
+_DENIAL = re.compile(
+    r"(avoid|prevent|guard(s|ing)? against|protect(s|ing)? against|no risk of"
+    r"|safe from|is safe|correctly handles?|properly handles?|intentionally"
+    r"|ensures? no|without any)\W*$",
+    re.I,
+)
+
+
+def _find_outside_a_denial(pattern: str, text: str) -> re.Match[str] | None:
+    """Find ``pattern``, ignoring occurrences that sit inside a denial.
+
+    Naming a problem while asserting it does not arise is not noticing it. The
+    search continues past such a match rather than stopping, so a later honest
+    mention still scores.
+    """
+    for match in re.finditer(pattern, text, re.I):
+        preceding = text[max(0, match.start() - 30) : match.start()]
+        if not _DENIAL.search(preceding):
+            return match
+    return None
+
+
 def score(text: str, sample: dict[str, Any]) -> dict[str, Any]:
     """Count concepts named, and whether a false assertion was made.
 
@@ -431,11 +480,11 @@ def score(text: str, sample: dict[str, Any]) -> dict[str, Any]:
     to swap, but the value is lost" still counts, because the concept survives
     outside the excised phrase.
     """
-    lowered = text.lower()
+    lowered = normalise(text).lower()
     asserted = bool(re.search(sample["false_claim"], lowered, re.I))
     remainder = re.sub(sample["false_claim"], " ", lowered, flags=re.I)
 
-    matches = [re.search(group, remainder, re.I) for group in sample["finds"]]
+    matches = [_find_outside_a_denial(group, remainder) for group in sample["finds"]]
     hits = [match is not None for match in matches]
     # Every awarded point carries the phrase that earned it. Three times now a
     # single common word has scored where the model had understood nothing -

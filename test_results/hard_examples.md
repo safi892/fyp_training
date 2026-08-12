@@ -17,7 +17,7 @@ something it does not, without naming the defect.
 | `misleading_function_name` | named bubbleSort; actually sums the primes up to a limit | ok | 3/3 | no |
 | `loop_bound_off_by_one` | <= size() reads one element past the end of the vector | ok | 0/3 | no |
 | `assignment_in_condition` | = instead of ==; assigns, then tests the assigned value | ok | 1/3 | no |
-| `switch_fallthrough` | no break statements, so every case falls into default | ok | 0/3 | **yes** |
+| `switch_fallthrough` | no break statements, so every case falls into default | ok | 1/3 | no |
 | `accumulated_float_equality` | compares an accumulated double for exact equality | ok | 0/3 | no |
 | `sizeof_on_decayed_array` | an array parameter is a pointer, so sizeof measures the pointer | ok | 0/3 | **yes** |
 | `leak_on_early_return` | the early return skips the delete[] | ok | 0/2 | **yes** |
@@ -28,7 +28,7 @@ something it does not, without naming the defect.
 | `xor_swap_same_index` | an xor swap zeroes the element when both indices are the same | ok | 0/3 | **yes** |
 | `index_past_last_character` | index size() is the terminator; the last character is at size() - 1 | ok | 0/2 | **yes** |
 
-**6/55 problems named** · **11/20 samples drew a confidently false description**
+**7/55 problems named** · **10/20 samples drew a confidently false description**
 
 ---
 
@@ -283,7 +283,7 @@ Algorithm: For each i from 2 to limit, a flag is used to detect primality; if i 
 
 Scored on:
 
-- …imit purpose: counts how many positive integers ≤ limit are prime.   input: int limit – the inclusive upp…
+- …imit purpose: counts how many positive integers ≤ limit are prime.   input: int limit - the inclusive upp…
 - …accumulator for sum of all perfect squares up to…
 - …up to limit flag tracks whether i is a perfect square test divisibility up to sqrt(i); if any divisor exis…
 
@@ -361,7 +361,7 @@ int scoreOf(char grade) {
 }
 ```
 
-**Model output** — found 0/3, **asserted something false**
+**Model output** — found 1/3
 
 ```
 initialize accumulator for total points
@@ -378,7 +378,11 @@ Output: An integer representing the score associated with the grade.
 Algorithm: Uses a switch statement to map each letter grade to its score. If the grade is not recognized, it defaults to 0.
 ```
 
-Concepts not named: `fall(s|ing)?[ -]?through|fallthrough`, `\bbreak\b`, `always (return|be|yield|give)s?.{0,12}(0|zero)`
+Scored on:
+
+- …next lowest, worth 2 points any other grade yields 0 points fall-through: the switch body is empty, so the defau…
+
+Concepts not named: `\bbreak\b`, `always (return|be|yield|give)s?.{0,12}(0|zero)`
 
 ## accumulated_float_equality
 
