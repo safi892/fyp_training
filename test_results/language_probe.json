@@ -1,0 +1,32 @@
+[
+  {
+    "probe": "roman_urdu_plain",
+    "kind": "code",
+    "verdict": "ENGLISH",
+    "text": "Purpose: Counts the number of decimal digits in the sum of two integers.  \nInput: two ints `first` and `second` representing the numbers to be added.  \nOutput: an int indicating how many decimal digits are in the resulting sum.  \nAlgorithm: Compute the sum, then repeatedly divide by 10 until the remainder becomes zero, incrementing a counter each time. The final counter value is returned."
+  },
+  {
+    "probe": "roman_urdu_with_example",
+    "kind": "code",
+    "verdict": "ENGLISH",
+    "text": "Purpose: Counts the number of decimal digits in the sum of two integers.  \nInput: two ints `first` and `second`.  \nOutput: an int representing the digit count of `first + second`.  \nAlgorithm: Adds the two numbers, then repeatedly divides the result by 10 while the remainder is non‑zero, incrementing a counter each time. The final counter value is returned."
+  },
+  {
+    "probe": "urdu_script",
+    "kind": "code",
+    "verdict": "ENGLISH",
+    "text": "Purpose: Counts the number of decimal digits in the sum of two integers.  \nInput: two ints `first` and `second` representing the numbers to be added.  \nOutput: an int indicating how many decimal digits are in the resulting sum.  \nAlgorithm: Compute the sum, then repeatedly divide by 10 while the remainder is non‑zero, incrementing a counter each time. The final counter value is returned."
+  },
+  {
+    "probe": "translate_plain",
+    "kind": "translation",
+    "verdict": "PERSIAN + LOOPING",
+    "text": "این فنكشن تعداد کلیکی که دو عدد را جمع می‌کند، را تعداد کلیکی که دو عدد را جمع می‌کند، را تعداد کلیکی که دو عدد را جمع می‌کند، را تعداد کلیکی که دو عدد را جمع می‌کند، را تعداد کلیکی که دو عدد را جمع می‌کند، را تعداد کلیکی که دو عدد را جمع می‌کند، را تعداد کلیکی که دو عدد را جمع می‌کند، را تعداد کلیکی که دو عدد را جمع می‌کند، را تعداد کلیکی که دو عدد را جمع می‌کند، را تعداد کلیکی که دو عدد را جمع می‌کند، را تعداد کلیکی که دو عدد را ج"
+  },
+  {
+    "probe": "translate_few_shot",
+    "kind": "translation",
+    "verdict": "PERSIAN",
+    "text": "This function تعداد کردن کمترین تعداد ارقام در جمع دو عدد اعشاری است."
+  }
+]
