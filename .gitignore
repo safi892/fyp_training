@@ -41,3 +41,4 @@ models/gguf/
 
 # HuggingFace dataset cache - derived from cleaned/, rebuilt on demand
 .cache/
+models/base_gguf/
