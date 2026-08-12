@@ -15,8 +15,20 @@ something it does not, without naming the defect.
 | `unsigned_wraparound` | size() - 1 on an empty vector wraps to a huge value and reads out of bounds | ok | 0/4 | no |
 | `shallow_copy_double_free` | the copy constructor copies the pointer, so both objects delete it | ok | 0/3 | no |
 | `misleading_function_name` | named bubbleSort; actually sums the primes up to a limit | ok | 3/3 | no |
+| `loop_bound_off_by_one` | <= size() reads one element past the end of the vector | ok | 0/3 | no |
+| `assignment_in_condition` | = instead of ==; assigns, then tests the assigned value | ok | 1/3 | no |
+| `switch_fallthrough` | no break statements, so every case falls into default | ok | 0/3 | **yes** |
+| `accumulated_float_equality` | compares an accumulated double for exact equality | ok | 0/3 | no |
+| `sizeof_on_decayed_array` | an array parameter is a pointer, so sizeof measures the pointer | ok | 0/3 | **yes** |
+| `leak_on_early_return` | the early return skips the delete[] | ok | 0/2 | **yes** |
+| `recursion_without_base_case` | nothing stops the recursion; it runs until the stack is exhausted | ok | 1/3 | no |
+| `grow_during_range_for` | push_back inside a range-for invalidates the iterators it is using | ok | 0/3 | **yes** |
+| `integer_division_before_widening` | both operands are int, so the fraction is gone before the double is made | ok | 1/2 | no |
+| `operator_precedence` | == binds tighter than &, so the mask is compared, not applied | ok | 0/2 | **yes** |
+| `xor_swap_same_index` | an xor swap zeroes the element when both indices are the same | ok | 0/3 | **yes** |
+| `index_past_last_character` | index size() is the terminator; the last character is at size() - 1 | ok | 0/2 | **yes** |
 
-**3/23 problems named** · **4/8 samples drew a confidently false description**
+**6/55 problems named** · **11/20 samples drew a confidently false description**
 
 ---
 
@@ -268,3 +280,334 @@ Input: int limit – the inclusive upper bound for the search.
 Output: int – the sum of all prime numbers in the range [2, limit].  
 Algorithm: For each i from 2 to limit, a flag is used to detect primality; if i is not divisible by any j ≤ √i, it is added to the total. The outer loop runs O(limit) times, yielding O(limit²) time complexity.
 ```
+
+Scored on:
+
+- …imit purpose: counts how many positive integers ≤ limit are prime.   input: int limit – the inclusive upp…
+- …accumulator for sum of all perfect squares up to…
+- …up to limit flag tracks whether i is a perfect square test divisibility up to sqrt(i); if any divisor exis…
+
+## loop_bound_off_by_one
+
+*<= size() reads one element past the end of the vector*
+
+```cpp
+int sumAll(const std::vector<int>& values) {
+    int total = 0;
+    for (std::size_t i = 0; i <= values.size(); ++i)
+        total += values[i];
+    return total;
+}
+```
+
+**Model output** — found 0/3
+
+```
+Initialise accumulator to zero
+Loop over all indices up to the vector size; the extra element is intentionally ignored to avoid out‑of‑bounds access.
+Add current element to total
+Return the accumulated sum
+Purpose: Computes the cumulative sum of all elements in a vector.  
+Input: const std::vector<int>& values – a read‑only reference to the integer sequence.  
+Output: int – the sum of all elements (including the element at index values.size()).  
+Algorithm: Initializes a running total to zero, then iterates over the vector up to one element past its size, adding each element to the total. The final total is returned.
+```
+
+Concepts not named: `out of (bounds|range)|out-of-bounds|past the end|beyond the (last|end)`, `off.?by.?one|one (too many|extra|past)`, `undefined behavi|\bUB\b|crash`
+
+## assignment_in_condition
+
+*= instead of ==; assigns, then tests the assigned value*
+
+```cpp
+bool isTarget(int value, int target) {
+    if (value = target)
+        return true;
+    return false;
+}
+```
+
+**Model output** — found 1/3
+
+```
+Compare the two integers using the assignment operator; this is a common mistake because the expression evaluates to the result of the assignment, which is 1 for true and 0 for false. The comparison then returns true if the assignment succeeded, which is not the intended behavior.
+If the assignment failed, the comparison is false, so the function returns false.
+Purpose: Determines whether a given integer equals a specified target.
+Input: Two integers, `value` and `target`.
+Output: A boolean indicating whether `value` is equal to `target`.
+Algorithm: Compares `value` with `target` using an equality check. Returns true if they are equal, otherwise false.
+```
+
+Scored on:
+
+- …the two integers using the assignment operator; this is a common mistake beca…
+
+Concepts not named: `always (true|returns true|be true)|never (returns? )?false`, `modif|overwrit|changes the`
+
+## switch_fallthrough
+
+*no break statements, so every case falls into default*
+
+```cpp
+int scoreOf(char grade) {
+    int points = 0;
+    switch (grade) {
+        case 'A': points = 4;
+        case 'B': points = 3;
+        case 'C': points = 2;
+        default: points = 0;
+    }
+    return points;
+}
+```
+
+**Model output** — found 0/3, **asserted something false**
+
+```
+initialize accumulator for total points
+map letter grade to numeric score
+A is the highest grade, worth 4 points
+B is the next highest, worth 3 points
+C is the next lowest, worth 2 points
+any other grade yields 0 points
+fall‑through: the switch body is empty, so the default case is executed
+return accumulated score
+Purpose: Converts a letter grade to its corresponding numeric score.
+Input: A single character representing a letter grade ('A', 'B', 'C', or any other character).
+Output: An integer representing the score associated with the grade.
+Algorithm: Uses a switch statement to map each letter grade to its score. If the grade is not recognized, it defaults to 0.
+```
+
+Concepts not named: `fall(s|ing)?[ -]?through|fallthrough`, `\bbreak\b`, `always (return|be|yield|give)s?.{0,12}(0|zero)`
+
+## accumulated_float_equality
+
+*compares an accumulated double for exact equality*
+
+```cpp
+bool reachesOne(double step, int steps) {
+    double running = 0.0;
+    for (int i = 0; i < steps; ++i)
+        running += step;
+    return running == 1.0;
+}
+```
+
+**Model output** — found 0/3
+
+```
+Iterate 'steps' times, adding 'step' to 'running' each iteration.
+Accumulate the next term of the geometric progression.
+After the loop, 'running' holds the sum of the series; true iff it equals 1.
+Purpose: Determines whether a sequence of adding a constant step to zero eventually reaches exactly 1.0.  
+Input: <code>step</code> – the constant increment per iteration; <code>steps</code> – the number of iterations to perform.  
+Output: <code>bool</code> – true if the accumulated sum equals 1.0 after <code>steps</code> iterations, false otherwise.  
+Algorithm: Initialize a running total to zero, then loop <code>steps</code> times adding <code>step</code> each iteration. After the loop, compare the total to 1.0 and return the result.
+```
+
+Concepts not named: `floating.?point|rounding|precision|epsilon`, `never (be )?(exactly )?equal|will not be exact|rarely|almost never|cannot be represented`, `toleran|approximat`
+
+## sizeof_on_decayed_array
+
+*an array parameter is a pointer, so sizeof measures the pointer*
+
+```cpp
+int countItems(int arr[]) {
+    return sizeof(arr) / sizeof(arr[0]);
+}
+```
+
+**Model output** — found 0/3, **asserted something false**
+
+```
+Returns the number of elements in the array. The size of the pointer itself is multiplied by the element size, yielding the total bytes, which is then divided by the element size to obtain the count.
+Purpose: Counts the number of elements in an integer array.  
+Input: An array of ints (int arr[]).  
+Output: An int representing the array’s length (number of elements).  
+Algorithm: The function uses the standard library size_t type for the result, then divides the total bytes of the array by the size of a single element to obtain the count. No bounds checking is performed.
+```
+
+Concepts not named: `decay`, `always (return|be|give)s?.{0,10}(2|the same)|not the (number|count|length)`, `(size|length) is (lost|not known|unavailable)|cannot (determine|know)`
+
+## leak_on_early_return
+
+*the early return skips the delete[]*
+
+```cpp
+int totalUnder(const std::vector<int>& values, int limit) {
+    int* seen = new int[values.size()]();
+    int sum = 0;
+    for (std::size_t i = 0; i < values.size(); ++i) {
+        if (values[i] > limit)
+            return -1;
+        sum += values[i];
+    }
+    delete[] seen;
+    return sum;
+}
+```
+
+**Model output** — found 0/2, **asserted something false**
+
+```
+allocate a boolean array to track which elements have been seen
+accumulator for the total of all elements
+iterate over the input vector
+early exit: any element exceeding the limit is invalid
+signal error
+accumulate the current element
+release the allocated storage
+return the total sum of all elements that did not exceed the limit
+Purpose: Compute the sum of all elements in a vector that are strictly less than a given limit.  
+Input: const std::vector<int>& values – the list of integers to sum; int limit – the threshold.  
+Output: int – the total sum of qualifying elements, or -1 if any element exceeds the limit.  
+Algorithm: Allocate a boolean array of size values.size() to mark seen elements. Iterate over the vector, aborting early if an element exceeds limit, otherwise add it to the running total. Finally, deallocate the array and return the accumulated sum.
+```
+
+Concepts not named: `leak`, `early return|returns? early|not reached|never (deleted|freed|reached)|skips? the`
+
+## recursion_without_base_case
+
+*nothing stops the recursion; it runs until the stack is exhausted*
+
+```cpp
+int countDown(int n) {
+    return n + countDown(n - 1);
+}
+```
+
+**Model output** — found 1/3
+
+```
+Recursive definition: adds the current value to the result of the call with one less argument. This leads to an infinite loop because the recursion depth grows without bound.
+Purpose: Counts down from a given integer to zero, returning the total number of steps taken.  
+Input: int n – the starting integer (must be non‑negative).  
+Output: int – the cumulative count of recursive calls (n + countDown(n‑1)).  
+Algorithm: The function calls itself with n‑1, adding one to the result each time, effectively performing a full factorial‑style recursion.
+```
+
+Scored on:
+
+- …result of the call with one less argument. this leads to an infinite loop because the recursion depth grows…
+
+Concepts not named: `base case|termination|terminat|stop(ping)? condition`, `stack overflow|exhaust|crash`
+
+## grow_during_range_for
+
+*push_back inside a range-for invalidates the iterators it is using*
+
+```cpp
+void duplicate(std::vector<int>& values) {
+    for (int value : values)
+        values.push_back(value);
+}
+```
+
+**Model output** — found 0/3, **asserted something false**
+
+```
+Iterate over each element in the input vector.
+Append the current element to the end of the vector, effectively duplicating it.
+Purpose: Duplicate each element in a vector.  
+Input: A reference to a std::vector<int> containing the elements to be duplicated.  
+Output: The same vector is modified in‑place; no value is returned.  
+Algorithm: Iterate over the vector with a range‑based loop, appending each element to the end of the vector. This effectively duplicates every element.
+```
+
+Concepts not named: `invalidat`, `undefined behavi|\bUB\b`, `infinite|grow(s|ing)? (forever|without)|reallocat|never (end|terminat)`
+
+## integer_division_before_widening
+
+*both operands are int, so the fraction is gone before the double is made*
+
+```cpp
+double meanOf(int total, int count) {
+    return total / count;
+}
+```
+
+**Model output** — found 1/2
+
+```
+Compute the arithmetic mean by dividing the total by the count. The result is an integer; if count is zero the behavior is undefined (division by zero).
+Purpose: Computes the arithmetic mean of a set of values.  
+Input: <code>total</code> – the sum of all elements; <code>count</code> – the number of elements.  
+Output: <code>double</code> – the mean value (undefined if <code>count == 0</code>).  
+Algorithm: Performs integer division <code>total / count</code>, which truncates towards zero, yielding the arithmetic mean. No special handling for zero count is provided.
+```
+
+Scored on:
+
+- …ndefined if <code>count == 0</code>).   algorithm: performs integer division <code>total / count</code>, which trunc…
+
+Concepts not named: `cast|static_cast|convert|widen`
+
+## operator_precedence
+
+*== binds tighter than &, so the mask is compared, not applied*
+
+```cpp
+bool hasFlag(int flags, int mask) {
+    return flags & mask == mask;
+}
+```
+
+**Model output** — found 0/2, **asserted something false**
+
+```
+Returns true if the specified flag is set in the flags bitmask.
+Purpose: Determines whether a specific flag is set in a given integer.
+Input: Two integers - `flags` (the current state of flags), `mask` (the flag to check).
+Output: Boolean indicating whether the flag is set.
+Algorithm: Performs a bitwise AND operation between `flags` and `mask`. If the result equals `mask`, the flag is set.
+```
+
+Concepts not named: `precedence|parenthes|binds? (more )?tight|evaluat.{0,25}(first|before)`, `(lowest|first|least significant) bit|always|\b& 1\b`
+
+## xor_swap_same_index
+
+*an xor swap zeroes the element when both indices are the same*
+
+```cpp
+void swapAt(int data[], int i, int j) {
+    data[i] ^= data[j];
+    data[j] ^= data[i];
+    data[i] ^= data[j];
+}
+```
+
+**Model output** — found 0/3, **asserted something false**
+
+```
+XOR swap: the XOR of two values yields the third value when applied twice.
+After the first XOR, data[j] now holds the original data[i].
+The final XOR yields the original data[j], restoring the original order.
+Purpose: Swaps the values at two specified indices in an integer array.
+Input: `data` (int array), `i` (index of first element), `j` (index of second element).
+Output: None (the function modifies the array in place).
+Algorithm: Uses XOR bitwise operation to swap the values without using a temporary variable.
+```
+
+Concepts not named: `same (index|position|element)|identical indices|\bi == j\b|self`, `zero(ed|es|s)?|destroy|lose|lost|wipe`, `guard|check|special case`
+
+## index_past_last_character
+
+*index size() is the terminator; the last character is at size() - 1*
+
+```cpp
+char lastChar(const std::string& text) {
+    return text[text.size()];
+}
+```
+
+**Model output** — found 0/2, **asserted something false**
+
+```
+Access the character at the last position of the string. This assumes the string is non‑empty; otherwise undefined behavior occurs.
+Purpose: Returns the last character of a string.
+Input: const std::string& text - A constant reference to the string whose last character is to be retrieved.
+Output: char - The last character of the input string.
+Algorithm: Directly accesses the character at the index equal to the size of the string minus one.
+```
+
+Concepts not named: `null|terminator|'\\\\0'`, `size\(\) ?- ?1|one past|off.?by.?one|last .{0,15}is at`

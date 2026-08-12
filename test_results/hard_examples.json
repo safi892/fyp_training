@@ -6,7 +6,7 @@
     "finds": [
       "overwrit|destroy|lose|lost|clobber|duplicat",
       "no temporar|without a temporar|missing temporar|third variable",
-      "\\bbug|incorrect|wrong|broken|does not (work|sort)|fails"
+      "\\bbug|incorrect|broken|does not (work|sort)|fails to|is not a( real)? swap"
     ],
     "false_claim": true,
     "found": 0,
@@ -21,7 +21,8 @@
     "raw": {
       "line_comments": "{\n  \"line_comments\": [\n    {\n      \"line\": 3,\n      \"code\": \"for (int i = 0; i < n - 1; i++) {\",\n      \"comment\": \"Outer loop: each pass places the smallest element in the unsorted region\"\n    },\n    {\n      \"line\": 4,\n      \"code\": \"for (int j = 0; j < n - i - 1; j++) {\",\n      \"comment\": \"Inner loop: compare adjacent elements and swap if they are out of order\"\n    },\n    {\n      \"line\": 5,\n      \"code\": \"if (data[j] > data[j + 1]) {\",\n      \"comment\": \"If the current element is greater than the next, swap them\"\n    },\n    {\n      \"line\": 6,\n      \"code\": \"data[j] = data[j + 1];\",\n      \"comment\": \"Move the larger element to the front\"\n    },\n    {\n      \"line\": 7,\n      \"code\": \"data[j + 1] = data[j];\",\n      \"comment\": \"Place the smaller element at its correct position\"\n    },\n    {\n      \"line\": 10,\n      \"code\": \"}\",\n      \"comment\": \"After each outer pass, the next largest element is guaranteed to be at the end\"\n    }\n  ]\n}",
       "explanation": "{\n  \"explanation\": \"Purpose: Sorts an integer array in ascending order using the bubble sort algorithm.  \\nInput: `int data[]` \u2013 pointer to the first element of the array; `int n` \u2013 number of elements to sort.  \\nOutput: The array `data` is reordered in\u2011place; the function returns `void`.  \\nAlgorithm: Two nested loops traverse the array, comparing adjacent elements and swapping them if they are out of order. The outer loop repeats until no more swaps occur, guaranteeing a fully sorted array.\"\n}"
-    }
+    },
+    "evidence": []
   },
   {
     "name": "overflow_mid",
@@ -41,7 +42,8 @@
     "raw": {
       "line_comments": "{\n  \"line_comments\": [\n    {\n      \"line\": 3,\n      \"code\": \"int low = 0, high = size - 1;\",\n      \"comment\": \"initialise search bounds\"\n    },\n    {\n      \"line\": 4,\n      \"code\": \"while (low <= high) {\",\n      \"comment\": \"binary\u2011search loop: stop when the interval is empty\"\n    },\n    {\n      \"line\": 5,\n      \"code\": \"int mid = (low + high) / 2;\",\n      \"comment\": \"compute middle index (integer division)\"\n    },\n    {\n      \"line\": 6,\n      \"code\": \"if (arr[mid] == target) return mid;\",\n      \"comment\": \"target found at mid\"\n    },\n    {\n      \"line\": 7,\n      \"code\": \"if (arr[mid] < target) low = mid + 1;\",\n      \"comment\": \"target lies in the right half\"\n    },\n    {\n      \"line\": 8,\n      \"code\": \"else high = mid - 1;\",\n      \"comment\": \"target lies in the left half\"\n    },\n    {\n      \"line\": 10,\n      \"code\": \"return -1;\",\n      \"comment\": \"target not present in the array\"\n    }\n  ]\n}",
       "explanation": "{\n  \"explanation\": \"Purpose: Locate the first occurrence of a target value in a sorted integer array.  \\nInput: `arr` \u2013 pointer to the first element of the sorted array; `size` \u2013 number of elements; `target` \u2013 value to search for.  \\nOutput: Index of the first matching element, or -1 if none exists.  \\nAlgorithm: Perform a classic binary search, narrowing the search interval based on comparison of the middle element with the target. Continue until the interval collapses, then return -1 if the loop ends.\"\n}"
-    }
+    },
+    "evidence": []
   },
   {
     "name": "erase_while_iterating",
@@ -50,7 +52,7 @@
     "finds": [
       "invalidat",
       "undefined behavi|\\bUB\\b",
-      "skip|miss|consecutive|adjacent"
+      "skips? (over |an? )?(element|item|value|entry|negative)|miss(es)? (an? )?(element|item|negative)|consecutive|adjacent"
     ],
     "false_claim": true,
     "found": 0,
@@ -65,7 +67,8 @@
     "raw": {
       "line_comments": "{\n  \"line_comments\": [\n    {\n      \"line\": 3,\n      \"code\": \"for (auto it = values.begin(); it != values.end(); ++it) {\",\n      \"comment\": \"Iterate over the vector while preserving the original order.\"\n    },\n    {\n      \"line\": 4,\n      \"code\": \"if (*it < 0)\",\n      \"comment\": \"If the current element is negative, erase it.\"\n    },\n    {\n      \"line\": 5,\n      \"code\": \"values.erase(it);\",\n      \"comment\": \"Erase the element at the iterator position.\"\n    }\n  ]\n}",
       "explanation": "{\n  \"explanation\": \"Purpose: Removes all negative integers from a vector.\\nInput: A reference to a vector of integers.\\nOutput: None (modifies the input vector in place).\\nAlgorithm: Iterates through the vector and erases elements that are less than zero.\"\n}"
-    }
+    },
+    "evidence": []
   },
   {
     "name": "dangling_reference",
@@ -89,7 +92,8 @@
     "raw": {
       "line_comments": "{\n  \"line_comments\": [\n    {\n      \"line\": 3,\n      \"code\": \"std::string result = \\\"code: \\\" + std::to_string(code);\",\n      \"comment\": \"Build a descriptive string by concatenating a fixed prefix with the numeric code.\"\n    },\n    {\n      \"line\": 4,\n      \"code\": \"return result;\",\n      \"comment\": \"Return a reference to the constructed string; the caller may modify it.\"\n    }\n  ]\n}",
       "explanation": "{\n  \"explanation\": \"Purpose: Returns a string describing the given integer code.\\nInput: An integer `code`.\\nOutput: A `const std::string&` representing the description.\\nAlgorithm: Concatenates the string \\\"code: \\\" with the integer's string representation.\"\n}"
-    }
+    },
+    "evidence": []
   },
   {
     "name": "self_shadowing_counter",
@@ -113,7 +117,8 @@
     "raw": {
       "line_comments": "{\n  \"line_comments\": [\n    {\n      \"line\": 3,\n      \"code\": \"int found = 0;\",\n      \"comment\": \"accumulator for the number of occurrences of 'wanted'\"\n    },\n    {\n      \"line\": 4,\n      \"code\": \"for (std::size_t i = 0; i < items.size(); ++i) {\",\n      \"comment\": \"iterate over each element; using size_t avoids signed/unsigned warnings\"\n    },\n    {\n      \"line\": 5,\n      \"code\": \"if (items[i] == wanted) {\",\n      \"comment\": \"compare current element with the target value\"\n    },\n    {\n      \"line\": 6,\n      \"code\": \"int found = found + 1;\",\n      \"comment\": \"increment the counter; the original code reuses the accumulator variable\"\n    },\n    {\n      \"line\": 7,\n      \"code\": \"}\",\n      \"comment\": \"note: the loop body is empty; the intent is to count matches\"\n    },\n    {\n      \"line\": 8,\n      \"code\": \"return found;\",\n      \"comment\": \"return the total count of 'wanted' found in the vector\"\n    }\n  ]\n}",
       "explanation": "{\n  \"explanation\": \"Purpose: Counts how many times a specific integer appears in a vector.  \\nInput: const std::vector<int>& items \u2013 the collection to search; int wanted \u2013 the value to locate.  \\nOutput: int \u2013 the number of occurrences of wanted in items.  \\nAlgorithm: Iterate over the vector with a size_t index, increment a counter each time the current element equals wanted, and finally return the counter. Edge cases such as an empty vector or a non\u2011int element are not handled.\"\n}"
-    }
+    },
+    "evidence": []
   },
   {
     "name": "unsigned_wraparound",
@@ -139,7 +144,8 @@
     "raw": {
       "line_comments": "{\n  \"line_comments\": [\n    {\n      \"line\": 3,\n      \"code\": \"for (std::size_t i = 0; i < series.size() - 1; ++i) {\",\n      \"comment\": \"Iterate over the vector, comparing each element with the next one.\"\n    },\n    {\n      \"line\": 4,\n      \"code\": \"if (series[i] > series[i + 1])\",\n      \"comment\": \"If any element is greater than the following, the series is not ascending.\"\n    },\n    {\n      \"line\": 5,\n      \"code\": \"return false;\",\n      \"comment\": \"Early exit: a single violation already means the series is not ascending.\"\n    },\n    {\n      \"line\": 7,\n      \"code\": \"return true;\",\n      \"comment\": \"If the loop completes without finding any descending pair, the series is ascending.\"\n    }\n  ]\n}",
       "explanation": "{\n  \"explanation\": \"Purpose: Determines whether a sequence of integers is strictly increasing.\\nInput: A constant reference to a std::vector<int> containing the sequence to check.\\nOutput: A bool indicating whether the sequence is strictly increasing.\\nAlgorithm: Iterates through the vector, comparing each element with the next one. If any element is greater than the next, returns false. If the loop completes without finding such an element, returns true.\"\n}"
-    }
+    },
+    "evidence": []
   },
   {
     "name": "shallow_copy_double_free",
@@ -163,7 +169,8 @@
     "raw": {
       "line_comments": "{\n  \"line_comments\": [\n    {\n      \"line\": 3,\n      \"code\": \"int* data;\",\n      \"comment\": \"raw pointer to the allocated integer array\"\n    },\n    {\n      \"line\": 4,\n      \"code\": \"std::size_t len;\",\n      \"comment\": \"number of elements currently stored\"\n    },\n    {\n      \"line\": 5,\n      \"code\": \"public:\",\n      \"comment\": \"public interface\"\n    },\n    {\n      \"line\": 6,\n      \"code\": \"Buffer(std::size_t n) : data(new int[n]), len(n) {}\",\n      \"comment\": \"constructor: allocate n elements and store the size\"\n    },\n    {\n      \"line\": 7,\n      \"code\": \"~Buffer() { delete[] data; }\",\n      \"comment\": \"destructor: release the allocated memory\"\n    },\n    {\n      \"line\": 8,\n      \"code\": \"Buffer(const Buffer& other) : data(other.data), len(other.len) {}\",\n      \"comment\": \"copy constructor: copy the raw pointer and size from another buffer\"\n    }\n  ]\n}",
       "explanation": "{\n  \"explanation\": \"Purpose: Provides a simple, lightweight buffer class that owns an int array and manages its lifetime.  \\nInput: std::size_t n \u2013 the desired size of the buffer.  \\nOutput: Constructs a Buffer object owning an int[n] and sets its length.  \\nAlgorithm: In the constructor, allocate a new int array of size n and store the pointer and length. In the destructor, deallocate the array. The copy constructor copies the raw pointer and length from the source buffer, relying on the caller to ensure the source is valid.\"\n}"
-    }
+    },
+    "evidence": []
   },
   {
     "name": "misleading_function_name",
@@ -183,6 +190,306 @@
     "raw": {
       "line_comments": "{\n  \"line_comments\": [\n    {\n      \"line\": 3,\n      \"code\": \"int total = 0;\",\n      \"comment\": \"accumulator for sum of all perfect squares up to limit\"\n    },\n    {\n      \"line\": 4,\n      \"code\": \"for (int i = 2; i <= limit; i++) {\",\n      \"comment\": \"iterate over each integer i from 2 up to limit\"\n    },\n    {\n      \"line\": 5,\n      \"code\": \"bool flag = true;\",\n      \"comment\": \"flag tracks whether i is a perfect square\"\n    },\n    {\n      \"line\": 6,\n      \"code\": \"for (int j = 2; j * j <= i; j++)\",\n      \"comment\": \"test divisibility up to sqrt(i); if any divisor exists, i is composite\"\n    },\n    {\n      \"line\": 7,\n      \"code\": \"if (i % j == 0) { flag = false; break; }\",\n      \"comment\": \"found a divisor \u2192 i is composite\"\n    },\n    {\n      \"line\": 10,\n      \"code\": \"if (flag) total += i;\",\n      \"comment\": \"i is a perfect square, add it to the total\"\n    },\n    {\n      \"line\": 11,\n      \"code\": \"}\",\n      \"comment\": \"otherwise i is composite and will be skipped\"\n    },\n    {\n      \"line\": 12,\n      \"code\": \"}\",\n      \"comment\": \"end outer loop\"\n    },\n    {\n      \"line\": 13,\n      \"code\": \"return total;\",\n      \"comment\": \"return the sum of all perfect squares \u2264 limit\"\n    }\n  ]\n}",
       "explanation": "{\n  \"explanation\": \"Purpose: Counts how many positive integers \u2264\u202flimit are prime.  \\nInput: int limit \u2013 the inclusive upper bound for the search.  \\nOutput: int \u2013 the sum of all prime numbers in the range [2,\u202flimit].  \\nAlgorithm: For each i from 2 to limit, a flag is used to detect primality; if i is not divisible by any j \u2264 \u221ai, it is added to the total. The outer loop runs O(limit) times, yielding O(limit\u00b2) time complexity.\"\n}"
-    }
+    },
+    "evidence": [
+      "imit purpose: counts how many positive integers \u2264\u202flimit are prime.   input: int limit \u2013 the inclusive upp",
+      "accumulator for sum of all perfect squares up to",
+      "up to limit flag tracks whether i is a perfect square test divisibility up to sqrt(i); if any divisor exis"
+    ]
+  },
+  {
+    "name": "loop_bound_off_by_one",
+    "trap": "<= size() reads one element past the end of the vector",
+    "code": "int sumAll(const std::vector<int>& values) {\n    int total = 0;\n    for (std::size_t i = 0; i <= values.size(); ++i)\n        total += values[i];\n    return total;\n}",
+    "finds": [
+      "out of (bounds|range)|out-of-bounds|past the end|beyond the (last|end)",
+      "off.?by.?one|one (too many|extra|past)",
+      "undefined behavi|\\bUB\\b|crash"
+    ],
+    "false_claim": false,
+    "found": 0,
+    "of": 3,
+    "missed": [
+      "out of (bounds|range)|out-of-bounds|past the end|beyond the (last|end)",
+      "off.?by.?one|one (too many|extra|past)",
+      "undefined behavi|\\bUB\\b|crash"
+    ],
+    "text": "Initialise accumulator to zero\nLoop over all indices up to the vector size; the extra element is intentionally ignored to avoid out\u2011of\u2011bounds access.\nAdd current element to total\nReturn the accumulated sum\nPurpose: Computes the cumulative sum of all elements in a vector.  \nInput: const std::vector<int>& values \u2013 a read\u2011only reference to the integer sequence.  \nOutput: int \u2013 the sum of all elements (including the element at index\u202fvalues.size()).  \nAlgorithm: Initializes a running total to zero, then iterates over the vector up to one element past its size, adding each element to the total. The final total is returned.",
+    "json_ok": true,
+    "raw": {
+      "line_comments": "{\n  \"line_comments\": [\n    {\n      \"line\": 3,\n      \"code\": \"int total = 0;\",\n      \"comment\": \"Initialise accumulator to zero\"\n    },\n    {\n      \"line\": 4,\n      \"code\": \"for (std::size_t i = 0; i <= values.size(); ++i)\",\n      \"comment\": \"Loop over all indices up to the vector size; the extra element is intentionally ignored to avoid out\u2011of\u2011bounds access.\"\n    },\n    {\n      \"line\": 5,\n      \"code\": \"total += values[i];\",\n      \"comment\": \"Add current element to total\"\n    },\n    {\n      \"line\": 6,\n      \"code\": \"return total;\",\n      \"comment\": \"Return the accumulated sum\"\n    }\n  ]\n}",
+      "explanation": "{\n  \"explanation\": \"Purpose: Computes the cumulative sum of all elements in a vector.  \\nInput: const std::vector<int>& values \u2013 a read\u2011only reference to the integer sequence.  \\nOutput: int \u2013 the sum of all elements (including the element at index\u202fvalues.size()).  \\nAlgorithm: Initializes a running total to zero, then iterates over the vector up to one element past its size, adding each element to the total. The final total is returned.\"\n}"
+    },
+    "evidence": []
+  },
+  {
+    "name": "assignment_in_condition",
+    "trap": "= instead of ==; assigns, then tests the assigned value",
+    "code": "bool isTarget(int value, int target) {\n    if (value = target)\n        return true;\n    return false;\n}",
+    "finds": [
+      "assign(s|ment|ing|ed)?\\b",
+      "always (true|returns true|be true)|never (returns? )?false",
+      "modif|overwrit|changes the"
+    ],
+    "false_claim": false,
+    "found": 1,
+    "of": 3,
+    "missed": [
+      "always (true|returns true|be true)|never (returns? )?false",
+      "modif|overwrit|changes the"
+    ],
+    "text": "Compare the two integers using the assignment operator; this is a common mistake because the expression evaluates to the result of the assignment, which is 1 for true and 0 for false. The comparison then returns true if the assignment succeeded, which is not the intended behavior.\nIf the assignment failed, the comparison is false, so the function returns false.\nPurpose: Determines whether a given integer equals a specified target.\nInput: Two integers, `value` and `target`.\nOutput: A boolean indicating whether `value` is equal to `target`.\nAlgorithm: Compares `value` with `target` using an equality check. Returns true if they are equal, otherwise false.",
+    "json_ok": true,
+    "raw": {
+      "line_comments": "{\n  \"line_comments\": [\n    {\n      \"line\": 3,\n      \"code\": \"if (value = target)\",\n      \"comment\": \"Compare the two integers using the assignment operator; this is a common mistake because the expression evaluates to the result of the assignment, which is 1 for true and 0 for false. The comparison then returns true if the assignment succeeded, which is not the intended behavior.\"\n    },\n    {\n      \"line\": 4,\n      \"code\": \"return false;\",\n      \"comment\": \"If the assignment failed, the comparison is false, so the function returns false.\"\n    }\n  ]\n}",
+      "explanation": "{\n  \"explanation\": \"Purpose: Determines whether a given integer equals a specified target.\\nInput: Two integers, `value` and `target`.\\nOutput: A boolean indicating whether `value` is equal to `target`.\\nAlgorithm: Compares `value` with `target` using an equality check. Returns true if they are equal, otherwise false.\"\n}"
+    },
+    "evidence": [
+      "the two integers using the assignment operator; this is a common mistake beca"
+    ]
+  },
+  {
+    "name": "switch_fallthrough",
+    "trap": "no break statements, so every case falls into default",
+    "code": "int scoreOf(char grade) {\n    int points = 0;\n    switch (grade) {\n        case 'A': points = 4;\n        case 'B': points = 3;\n        case 'C': points = 2;\n        default: points = 0;\n    }\n    return points;\n}",
+    "finds": [
+      "fall(s|ing)?[ -]?through|fallthrough",
+      "\\bbreak\\b",
+      "always (return|be|yield|give)s?.{0,12}(0|zero)"
+    ],
+    "false_claim": true,
+    "found": 0,
+    "of": 3,
+    "missed": [
+      "fall(s|ing)?[ -]?through|fallthrough",
+      "\\bbreak\\b",
+      "always (return|be|yield|give)s?.{0,12}(0|zero)"
+    ],
+    "text": "initialize accumulator for total points\nmap letter grade to numeric score\nA is the highest grade, worth 4 points\nB is the next highest, worth 3 points\nC is the next lowest, worth 2 points\nany other grade yields 0 points\nfall\u2011through: the switch body is empty, so the default case is executed\nreturn accumulated score\nPurpose: Converts a letter grade to its corresponding numeric score.\nInput: A single character representing a letter grade ('A', 'B', 'C', or any other character).\nOutput: An integer representing the score associated with the grade.\nAlgorithm: Uses a switch statement to map each letter grade to its score. If the grade is not recognized, it defaults to 0.",
+    "json_ok": true,
+    "raw": {
+      "line_comments": "{\n  \"line_comments\": [\n    {\n      \"line\": 3,\n      \"code\": \"int points = 0;\",\n      \"comment\": \"initialize accumulator for total points\"\n    },\n    {\n      \"line\": 4,\n      \"code\": \"switch (grade) {\",\n      \"comment\": \"map letter grade to numeric score\"\n    },\n    {\n      \"line\": 5,\n      \"code\": \"case 'A': points = 4;\",\n      \"comment\": \"A is the highest grade, worth 4 points\"\n    },\n    {\n      \"line\": 6,\n      \"code\": \"case 'B': points = 3;\",\n      \"comment\": \"B is the next highest, worth 3 points\"\n    },\n    {\n      \"line\": 7,\n      \"code\": \"case 'C': points = 2;\",\n      \"comment\": \"C is the next lowest, worth 2 points\"\n    },\n    {\n      \"line\": 8,\n      \"code\": \"default: points = 0;\",\n      \"comment\": \"any other grade yields 0 points\"\n    },\n    {\n      \"line\": 9,\n      \"code\": \"}\",\n      \"comment\": \"fall\u2011through: the switch body is empty, so the default case is executed\"\n    },\n    {\n      \"line\": 10,\n      \"code\": \"return points;\",\n      \"comment\": \"return accumulated score\"\n    }\n  ]\n}",
+      "explanation": "{\n  \"explanation\": \"Purpose: Converts a letter grade to its corresponding numeric score.\\nInput: A single character representing a letter grade ('A', 'B', 'C', or any other character).\\nOutput: An integer representing the score associated with the grade.\\nAlgorithm: Uses a switch statement to map each letter grade to its score. If the grade is not recognized, it defaults to 0.\"\n}"
+    },
+    "evidence": []
+  },
+  {
+    "name": "accumulated_float_equality",
+    "trap": "compares an accumulated double for exact equality",
+    "code": "bool reachesOne(double step, int steps) {\n    double running = 0.0;\n    for (int i = 0; i < steps; ++i)\n        running += step;\n    return running == 1.0;\n}",
+    "finds": [
+      "floating.?point|rounding|precision|epsilon",
+      "exact(ly)?|never (be )?equal|rarely",
+      "toleran|approximat"
+    ],
+    "false_claim": false,
+    "found": 0,
+    "of": 3,
+    "missed": [
+      "floating.?point|rounding|precision|epsilon",
+      "never (be )?(exactly )?equal|will not be exact|rarely|almost never|cannot be represented",
+      "toleran|approximat"
+    ],
+    "text": "Iterate 'steps' times, adding 'step' to 'running' each iteration.\nAccumulate the next term of the geometric progression.\nAfter the loop, 'running' holds the sum of the series; true iff it equals 1.\nPurpose: Determines whether a sequence of adding a constant step to zero eventually reaches exactly 1.0.  \nInput: <code>step</code> \u2013 the constant increment per iteration; <code>steps</code> \u2013 the number of iterations to perform.  \nOutput: <code>bool</code> \u2013 true if the accumulated sum equals 1.0 after <code>steps</code> iterations, false otherwise.  \nAlgorithm: Initialize a running total to zero, then loop <code>steps</code> times adding <code>step</code> each iteration. After the loop, compare the total to 1.0 and return the result.",
+    "json_ok": true,
+    "raw": {
+      "line_comments": "{\n  \"line_comments\": [\n    {\n      \"line\": 3,\n      \"code\": \"for (int i = 0; i < steps; ++i)\",\n      \"comment\": \"Iterate 'steps' times, adding 'step' to 'running' each iteration.\"\n    },\n    {\n      \"line\": 4,\n      \"code\": \"running += step;\",\n      \"comment\": \"Accumulate the next term of the geometric progression.\"\n    },\n    {\n      \"line\": 5,\n      \"code\": \"return running == 1.0;\",\n      \"comment\": \"After the loop, 'running' holds the sum of the series; true iff it equals 1.\"\n    }\n  ]\n}",
+      "explanation": "{\n  \"explanation\": \"Purpose: Determines whether a sequence of adding a constant step to zero eventually reaches exactly 1.0.  \\nInput: <code>step</code> \u2013 the constant increment per iteration; <code>steps</code> \u2013 the number of iterations to perform.  \\nOutput: <code>bool</code> \u2013 true if the accumulated sum equals 1.0 after <code>steps</code> iterations, false otherwise.  \\nAlgorithm: Initialize a running total to zero, then loop <code>steps</code> times adding <code>step</code> each iteration. After the loop, compare the total to 1.0 and return the result.\"\n}"
+    },
+    "evidence": []
+  },
+  {
+    "name": "sizeof_on_decayed_array",
+    "trap": "an array parameter is a pointer, so sizeof measures the pointer",
+    "code": "int countItems(int arr[]) {\n    return sizeof(arr) / sizeof(arr[0]);\n}",
+    "finds": [
+      "decay|\\bpointer\\b",
+      "always (return|be|give)s?.{0,10}(2|the same)|not the (number|count|length)",
+      "(size|length) is (lost|not known|unavailable)|cannot (determine|know)"
+    ],
+    "false_claim": true,
+    "found": 0,
+    "of": 3,
+    "missed": [
+      "decay",
+      "always (return|be|give)s?.{0,10}(2|the same)|not the (number|count|length)",
+      "(size|length) is (lost|not known|unavailable)|cannot (determine|know)"
+    ],
+    "text": "Returns the number of elements in the array. The size of the pointer itself is multiplied by the element size, yielding the total bytes, which is then divided by the element size to obtain the count.\nPurpose: Counts the number of elements in an integer array.  \nInput: An array of ints (int arr[]).  \nOutput: An int representing the array\u2019s length (number of elements).  \nAlgorithm: The function uses the standard library size_t type for the result, then divides the total bytes of the array by the size of a single element to obtain the count. No bounds checking is performed.",
+    "json_ok": true,
+    "raw": {
+      "line_comments": "{\n  \"line_comments\": [\n    {\n      \"line\": 3,\n      \"code\": \"return sizeof(arr) / sizeof(arr[0]);\",\n      \"comment\": \"Returns the number of elements in the array. The size of the pointer itself is multiplied by the element size, yielding the total bytes, which is then divided by the element size to obtain the count.\"\n    }\n  ]\n}",
+      "explanation": "{\n  \"explanation\": \"Purpose: Counts the number of elements in an integer array.  \\nInput: An array of ints (int arr[]).  \\nOutput: An int representing the array\u2019s length (number of elements).  \\nAlgorithm: The function uses the standard library size_t type for the result, then divides the total bytes of the array by the size of a single element to obtain the count. No bounds checking is performed.\"\n}"
+    },
+    "evidence": []
+  },
+  {
+    "name": "leak_on_early_return",
+    "trap": "the early return skips the delete[]",
+    "code": "int totalUnder(const std::vector<int>& values, int limit) {\n    int* seen = new int[values.size()]();\n    int sum = 0;\n    for (std::size_t i = 0; i < values.size(); ++i) {\n        if (values[i] > limit)\n            return -1;\n        sum += values[i];\n    }\n    delete[] seen;\n    return sum;\n}",
+    "finds": [
+      "leak",
+      "early return|returns? early|not reached|never (deleted|freed|reached)|skips? the"
+    ],
+    "false_claim": true,
+    "found": 0,
+    "of": 2,
+    "missed": [
+      "leak",
+      "early return|returns? early|not reached|never (deleted|freed|reached)|skips? the"
+    ],
+    "text": "allocate a boolean array to track which elements have been seen\naccumulator for the total of all elements\niterate over the input vector\nearly exit: any element exceeding the limit is invalid\nsignal error\naccumulate the current element\nrelease the allocated storage\nreturn the total sum of all elements that did not exceed the limit\nPurpose: Compute the sum of all elements in a vector that are strictly less than a given limit.  \nInput: const std::vector<int>& values \u2013 the list of integers to sum; int limit \u2013 the threshold.  \nOutput: int \u2013 the total sum of qualifying elements, or -1 if any element exceeds the limit.  \nAlgorithm: Allocate a boolean array of size values.size() to mark seen elements. Iterate over the vector, aborting early if an element exceeds limit, otherwise add it to the running total. Finally, deallocate the array and return the accumulated sum.",
+    "json_ok": true,
+    "raw": {
+      "line_comments": "{\n  \"line_comments\": [\n    {\n      \"line\": 3,\n      \"code\": \"int* seen = new int[values.size()]();\",\n      \"comment\": \"allocate a boolean array to track which elements have been seen\"\n    },\n    {\n      \"line\": 4,\n      \"code\": \"int sum = 0;\",\n      \"comment\": \"accumulator for the total of all elements\"\n    },\n    {\n      \"line\": 5,\n      \"code\": \"for (std::size_t i = 0; i < values.size(); ++i) {\",\n      \"comment\": \"iterate over the input vector\"\n    },\n    {\n      \"line\": 6,\n      \"code\": \"if (values[i] > limit)\",\n      \"comment\": \"early exit: any element exceeding the limit is invalid\"\n    },\n    {\n      \"line\": 7,\n      \"code\": \"return -1;\",\n      \"comment\": \"signal error\"\n    },\n    {\n      \"line\": 8,\n      \"code\": \"sum += values[i];\",\n      \"comment\": \"accumulate the current element\"\n    },\n    {\n      \"line\": 10,\n      \"code\": \"delete[] seen;\",\n      \"comment\": \"release the allocated storage\"\n    },\n    {\n      \"line\": 11,\n      \"code\": \"return sum;\",\n      \"comment\": \"return the total sum of all elements that did not exceed the limit\"\n    }\n  ]\n}",
+      "explanation": "{\n  \"explanation\": \"Purpose: Compute the sum of all elements in a vector that are strictly less than a given limit.  \\nInput: const std::vector<int>& values \u2013 the list of integers to sum; int limit \u2013 the threshold.  \\nOutput: int \u2013 the total sum of qualifying elements, or -1 if any element exceeds the limit.  \\nAlgorithm: Allocate a boolean array of size values.size() to mark seen elements. Iterate over the vector, aborting early if an element exceeds limit, otherwise add it to the running total. Finally, deallocate the array and return the accumulated sum.\"\n}"
+    },
+    "evidence": []
+  },
+  {
+    "name": "recursion_without_base_case",
+    "trap": "nothing stops the recursion; it runs until the stack is exhausted",
+    "code": "int countDown(int n) {\n    return n + countDown(n - 1);\n}",
+    "finds": [
+      "base case|termination|terminat|stop(ping)? condition",
+      "infinite|never (end|stop)|forever|unbounded",
+      "stack overflow|exhaust|crash"
+    ],
+    "false_claim": false,
+    "found": 1,
+    "of": 3,
+    "missed": [
+      "base case|termination|terminat|stop(ping)? condition",
+      "stack overflow|exhaust|crash"
+    ],
+    "text": "Recursive definition: adds the current value to the result of the call with one less argument. This leads to an infinite loop because the recursion depth grows without bound.\nPurpose: Counts down from a given integer to zero, returning the total number of steps taken.  \nInput: int n \u2013 the starting integer (must be non\u2011negative).  \nOutput: int \u2013 the cumulative count of recursive calls (n + countDown(n\u20111)).  \nAlgorithm: The function calls itself with n\u20111, adding one to the result each time, effectively performing a full factorial\u2011style recursion.",
+    "json_ok": true,
+    "raw": {
+      "line_comments": "{\n  \"line_comments\": [\n    {\n      \"line\": 2,\n      \"code\": \"return n + countDown(n - 1);\",\n      \"comment\": \"Recursive definition: adds the current value to the result of the call with one less argument. This leads to an infinite loop because the recursion depth grows without bound.\"\n    }\n  ]\n}",
+      "explanation": "{\n  \"explanation\": \"Purpose: Counts down from a given integer to zero, returning the total number of steps taken.  \\nInput: int n \u2013 the starting integer (must be non\u2011negative).  \\nOutput: int \u2013 the cumulative count of recursive calls (n + countDown(n\u20111)).  \\nAlgorithm: The function calls itself with n\u20111, adding one to the result each time, effectively performing a full factorial\u2011style recursion.\"\n}"
+    },
+    "evidence": [
+      "result of the call with one less argument. this leads to an infinite loop because the recursion depth grows"
+    ]
+  },
+  {
+    "name": "grow_during_range_for",
+    "trap": "push_back inside a range-for invalidates the iterators it is using",
+    "code": "void duplicate(std::vector<int>& values) {\n    for (int value : values)\n        values.push_back(value);\n}",
+    "finds": [
+      "invalidat",
+      "undefined behavi|\\bUB\\b",
+      "infinite|grow(s|ing)? (forever|without)|reallocat|never (end|terminat)"
+    ],
+    "false_claim": true,
+    "found": 0,
+    "of": 3,
+    "missed": [
+      "invalidat",
+      "undefined behavi|\\bUB\\b",
+      "infinite|grow(s|ing)? (forever|without)|reallocat|never (end|terminat)"
+    ],
+    "text": "Iterate over each element in the input vector.\nAppend the current element to the end of the vector, effectively duplicating it.\nPurpose: Duplicate each element in a vector.  \nInput: A reference to a std::vector<int> containing the elements to be duplicated.  \nOutput: The same vector is modified in\u2011place; no value is returned.  \nAlgorithm: Iterate over the vector with a range\u2011based loop, appending each element to the end of the vector. This effectively duplicates every element.",
+    "json_ok": true,
+    "raw": {
+      "line_comments": "{\n  \"line_comments\": [\n    {\n      \"line\": 3,\n      \"code\": \"for (int value : values)\",\n      \"comment\": \"Iterate over each element in the input vector.\"\n    },\n    {\n      \"line\": 4,\n      \"code\": \"values.push_back(value);\",\n      \"comment\": \"Append the current element to the end of the vector, effectively duplicating it.\"\n    }\n  ]\n}",
+      "explanation": "{\n  \"explanation\": \"Purpose: Duplicate each element in a vector.  \\nInput: A reference to a std::vector<int> containing the elements to be duplicated.  \\nOutput: The same vector is modified in\u2011place; no value is returned.  \\nAlgorithm: Iterate over the vector with a range\u2011based loop, appending each element to the end of the vector. This effectively duplicates every element.\"\n}"
+    },
+    "evidence": []
+  },
+  {
+    "name": "integer_division_before_widening",
+    "trap": "both operands are int, so the fraction is gone before the double is made",
+    "code": "double meanOf(int total, int count) {\n    return total / count;\n}",
+    "finds": [
+      "integer division|truncat|discard|drops? the (fraction|decimal|remainder)",
+      "cast|static_cast|convert|widen"
+    ],
+    "false_claim": false,
+    "found": 1,
+    "of": 2,
+    "missed": [
+      "cast|static_cast|convert|widen"
+    ],
+    "text": "Compute the arithmetic mean by dividing the total by the count. The result is an integer; if count is zero the behavior is undefined (division by zero).\nPurpose: Computes the arithmetic mean of a set of values.  \nInput: <code>total</code> \u2013 the sum of all elements; <code>count</code> \u2013 the number of elements.  \nOutput: <code>double</code> \u2013 the mean value (undefined if <code>count == 0</code>).  \nAlgorithm: Performs integer division <code>total / count</code>, which truncates towards zero, yielding the arithmetic mean. No special handling for zero count is provided.",
+    "json_ok": true,
+    "raw": {
+      "line_comments": "{\n  \"line_comments\": [\n    {\n      \"line\": 3,\n      \"code\": \"return total / count;\",\n      \"comment\": \"Compute the arithmetic mean by dividing the total by the count. The result is an integer; if count is zero the behavior is undefined (division by zero).\"\n    }\n  ]\n}",
+      "explanation": "{\n  \"explanation\": \"Purpose: Computes the arithmetic mean of a set of values.  \\nInput: <code>total</code> \u2013 the sum of all elements; <code>count</code> \u2013 the number of elements.  \\nOutput: <code>double</code> \u2013 the mean value (undefined if <code>count == 0</code>).  \\nAlgorithm: Performs integer division <code>total / count</code>, which truncates towards zero, yielding the arithmetic mean. No special handling for zero count is provided.\"\n}"
+    },
+    "evidence": [
+      "ndefined if <code>count == 0</code>).   algorithm: performs integer division <code>total / count</code>, which trunc"
+    ]
+  },
+  {
+    "name": "operator_precedence",
+    "trap": "== binds tighter than &, so the mask is compared, not applied",
+    "code": "bool hasFlag(int flags, int mask) {\n    return flags & mask == mask;\n}",
+    "finds": [
+      "precedence|parenthes|binds? (more )?tight|evaluat.{0,25}(first|before)",
+      "(lowest|first|least significant) bit|always|\\b& 1\\b"
+    ],
+    "false_claim": true,
+    "found": 0,
+    "of": 2,
+    "missed": [
+      "precedence|parenthes|binds? (more )?tight|evaluat.{0,25}(first|before)",
+      "(lowest|first|least significant) bit|always|\\b& 1\\b"
+    ],
+    "text": "Returns true if the specified flag is set in the flags bitmask.\nPurpose: Determines whether a specific flag is set in a given integer.\nInput: Two integers - `flags` (the current state of flags), `mask` (the flag to check).\nOutput: Boolean indicating whether the flag is set.\nAlgorithm: Performs a bitwise AND operation between `flags` and `mask`. If the result equals `mask`, the flag is set.",
+    "json_ok": true,
+    "raw": {
+      "line_comments": "{\n  \"line_comments\": [\n    {\n      \"line\": 2,\n      \"code\": \"return flags & mask == mask;\",\n      \"comment\": \"Returns true if the specified flag is set in the flags bitmask.\"\n    }\n  ]\n}",
+      "explanation": "{\n  \"explanation\": \"Purpose: Determines whether a specific flag is set in a given integer.\\nInput: Two integers - `flags` (the current state of flags), `mask` (the flag to check).\\nOutput: Boolean indicating whether the flag is set.\\nAlgorithm: Performs a bitwise AND operation between `flags` and `mask`. If the result equals `mask`, the flag is set.\"\n}"
+    },
+    "evidence": []
+  },
+  {
+    "name": "xor_swap_same_index",
+    "trap": "an xor swap zeroes the element when both indices are the same",
+    "code": "void swapAt(int data[], int i, int j) {\n    data[i] ^= data[j];\n    data[j] ^= data[i];\n    data[i] ^= data[j];\n}",
+    "finds": [
+      "same (index|position|element)|identical indices|\\bi == j\\b|self",
+      "zero(ed|es|s)?|destroy|lose|lost|wipe",
+      "guard|check|special case"
+    ],
+    "false_claim": true,
+    "found": 0,
+    "of": 3,
+    "missed": [
+      "same (index|position|element)|identical indices|\\bi == j\\b|self",
+      "zero(ed|es|s)?|destroy|lose|lost|wipe",
+      "guard|check|special case"
+    ],
+    "text": "XOR swap: the XOR of two values yields the third value when applied twice.\nAfter the first XOR, data[j] now holds the original data[i].\nThe final XOR yields the original data[j], restoring the original order.\nPurpose: Swaps the values at two specified indices in an integer array.\nInput: `data` (int array), `i` (index of first element), `j` (index of second element).\nOutput: None (the function modifies the array in place).\nAlgorithm: Uses XOR bitwise operation to swap the values without using a temporary variable.",
+    "json_ok": true,
+    "raw": {
+      "line_comments": "{\n  \"line_comments\": [\n    {\n      \"line\": 3,\n      \"code\": \"data[i] ^= data[j];\",\n      \"comment\": \"XOR swap: the XOR of two values yields the third value when applied twice.\"\n    },\n    {\n      \"line\": 4,\n      \"code\": \"data[j] ^= data[i];\",\n      \"comment\": \"After the first XOR, data[j] now holds the original data[i].\"\n    },\n    {\n      \"line\": 5,\n      \"code\": \"data[i] ^= data[j];\",\n      \"comment\": \"The final XOR yields the original data[j], restoring the original order.\"\n    }\n  ]\n}",
+      "explanation": "{\n  \"explanation\": \"Purpose: Swaps the values at two specified indices in an integer array.\\nInput: `data` (int array), `i` (index of first element), `j` (index of second element).\\nOutput: None (the function modifies the array in place).\\nAlgorithm: Uses XOR bitwise operation to swap the values without using a temporary variable.\"\n}"
+    },
+    "evidence": []
+  },
+  {
+    "name": "index_past_last_character",
+    "trap": "index size() is the terminator; the last character is at size() - 1",
+    "code": "char lastChar(const std::string& text) {\n    return text[text.size()];\n}",
+    "finds": [
+      "null|terminator|'\\\\\\\\0'",
+      "size\\(\\) ?- ?1|one past|off.?by.?one|last .{0,15}is at"
+    ],
+    "false_claim": true,
+    "found": 0,
+    "of": 2,
+    "missed": [
+      "null|terminator|'\\\\\\\\0'",
+      "size\\(\\) ?- ?1|one past|off.?by.?one|last .{0,15}is at"
+    ],
+    "text": "Access the character at the last position of the string. This assumes the string is non\u2011empty; otherwise undefined behavior occurs.\nPurpose: Returns the last character of a string.\nInput: const std::string& text - A constant reference to the string whose last character is to be retrieved.\nOutput: char - The last character of the input string.\nAlgorithm: Directly accesses the character at the index equal to the size of the string minus one.",
+    "json_ok": true,
+    "raw": {
+      "line_comments": "{\n  \"line_comments\": [\n    {\n      \"line\": 3,\n      \"code\": \"return text[text.size()];\",\n      \"comment\": \"Access the character at the last position of the string. This assumes the string is non\u2011empty; otherwise undefined behavior occurs.\"\n    }\n  ]\n}",
+      "explanation": "{\n  \"explanation\": \"Purpose: Returns the last character of a string.\\nInput: const std::string& text - A constant reference to the string whose last character is to be retrieved.\\nOutput: char - The last character of the input string.\\nAlgorithm: Directly accesses the character at the index equal to the size of the string minus one.\"\n}"
+    },
+    "evidence": []
   }
 ]

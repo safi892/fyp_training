@@ -11,6 +11,14 @@ isn't: a bubble sort whose swap loses data, a binary search that overflows, a
 loop that erases while iterating. A model matching patterns will produce a
 confident, fluent, wrong description. A model reading the code will notice.
 
+Twenty samples, written for this evaluation rather than collected. Synthetic is
+the right trade here: the ground truth is known exactly, because the defect was
+placed deliberately, and the scoring can therefore be checked rather than
+argued about. The cost is that these are not a sample of anything - they say
+what the model does on twenty specific defects, not what it does on the defects
+real submissions contain. Mined wrong-answer submissions would answer the
+second question and cannot answer the first.
+
 Scoring has two axes, and the second matters more:
 
 - ``finds``      — did it name the real problem?
@@ -193,6 +201,194 @@ public:
         ],
         "false_claim": r"\bsort|\bbubble|ascending order|reorder",
     },
+    {
+        "name": "loop_bound_off_by_one",
+        "trap": "<= size() reads one element past the end of the vector",
+        "code": """int sumAll(const std::vector<int>& values) {
+    int total = 0;
+    for (std::size_t i = 0; i <= values.size(); ++i)
+        total += values[i];
+    return total;
+}""",
+        "finds": [
+            r"out of (bounds|range)|out-of-bounds|past the end|beyond the (last|end)",
+            r"off.?by.?one|one (too many|extra|past)",
+            r"undefined behavi|\bUB\b|crash",
+        ],
+        "false_claim": r"sums? (all|every|each|the) (element|value|item)",
+    },
+    {
+        "name": "assignment_in_condition",
+        "trap": "= instead of ==; assigns, then tests the assigned value",
+        "code": """bool isTarget(int value, int target) {
+    if (value = target)
+        return true;
+    return false;
+}""",
+        "finds": [
+            r"assign(s|ment|ing|ed)?\b",
+            r"always (true|returns true|be true)|never (returns? )?false",
+            r"modif|overwrit|changes the",
+        ],
+        "false_claim": r"compares?|checks? (whether|if|that)|returns? true (if|when)",
+    },
+    {
+        "name": "switch_fallthrough",
+        "trap": "no break statements, so every case falls into default",
+        "code": """int scoreOf(char grade) {
+    int points = 0;
+    switch (grade) {
+        case 'A': points = 4;
+        case 'B': points = 3;
+        case 'C': points = 2;
+        default: points = 0;
+    }
+    return points;
+}""",
+        "finds": [
+            r"fall(s|ing)?[ -]?through|fallthrough",
+            r"\bbreak\b",
+            r"always (return|be|yield|give)s?.{0,12}(0|zero)",
+        ],
+        "false_claim": r"(returns?|maps?|converts?|gives?) .{0,25}(grade|letter)",
+    },
+    {
+        "name": "accumulated_float_equality",
+        "trap": "compares an accumulated double for exact equality",
+        "code": """bool reachesOne(double step, int steps) {
+    double running = 0.0;
+    for (int i = 0; i < steps; ++i)
+        running += step;
+    return running == 1.0;
+}""",
+        "finds": [
+            r"floating.?point|rounding|precision|epsilon",
+            # Not a bare "exactly": "eventually reaches exactly 1.0" is how the
+            # model describes the code working, so the word marks the claim it
+            # is making rather than a doubt about it.
+            r"never (be )?(exactly )?equal|will not be exact|rarely|almost never|cannot be represented",
+            r"toleran|approximat",
+        ],
+        "false_claim": r"returns? true (if|when|once) .{0,30}(reach|equal|sum|total)",
+    },
+    {
+        "name": "sizeof_on_decayed_array",
+        "trap": "an array parameter is a pointer, so sizeof measures the pointer",
+        "code": """int countItems(int arr[]) {
+    return sizeof(arr) / sizeof(arr[0]);
+}""",
+        "finds": [
+            # "decay" is the concept; a bare "pointer" is not. The model wrote
+            # "the size of the pointer itself is multiplied by the element
+            # size" and concluded the function returns the element count - the
+            # word was present and the understanding was not.
+            r"decay",
+            r"always (return|be|give)s?.{0,10}(2|the same)|not the (number|count|length)",
+            r"(size|length) is (lost|not known|unavailable)|cannot (determine|know)",
+        ],
+        "false_claim": r"(returns?|counts?|computes?|calculates?) the (number|count|size|length)",
+    },
+    {
+        "name": "leak_on_early_return",
+        "trap": "the early return skips the delete[]",
+        "code": """int totalUnder(const std::vector<int>& values, int limit) {
+    int* seen = new int[values.size()]();
+    int sum = 0;
+    for (std::size_t i = 0; i < values.size(); ++i) {
+        if (values[i] > limit)
+            return -1;
+        sum += values[i];
+    }
+    delete[] seen;
+    return sum;
+}""",
+        "finds": [
+            r"leak",
+            # Not a bare "delete": the code contains `delete[] seen;`, so a
+            # model echoing the line it is describing would score a point for
+            # noticing nothing.
+            r"early return|returns? early|not reached|never (deleted|freed|reached)|skips? the",
+        ],
+        "false_claim": r"(cleans? up|releases?|frees?|deallocates?|deletes?) the (memory|allocation|buffer|array)",
+    },
+    {
+        "name": "recursion_without_base_case",
+        "trap": "nothing stops the recursion; it runs until the stack is exhausted",
+        "code": """int countDown(int n) {
+    return n + countDown(n - 1);
+}""",
+        "finds": [
+            r"base case|termination|terminat|stop(ping)? condition",
+            r"infinite|never (end|stop)|forever|unbounded",
+            r"stack overflow|exhaust|crash",
+        ],
+        "false_claim": r"(sums?|adds?|returns? the sum of) .{0,25}(integer|number|value|from|down)",
+    },
+    {
+        "name": "grow_during_range_for",
+        "trap": "push_back inside a range-for invalidates the iterators it is using",
+        "code": """void duplicate(std::vector<int>& values) {
+    for (int value : values)
+        values.push_back(value);
+}""",
+        "finds": [
+            r"invalidat",
+            r"undefined behavi|\bUB\b",
+            r"infinite|grow(s|ing)? (forever|without)|reallocat|never (end|terminat)",
+        ],
+        "false_claim": r"(duplicates?|doubles?|appends?|copies) (each|every|the|a copy)",
+    },
+    {
+        "name": "integer_division_before_widening",
+        "trap": "both operands are int, so the fraction is gone before the double is made",
+        "code": """double meanOf(int total, int count) {
+    return total / count;
+}""",
+        "finds": [
+            r"integer division|truncat|discard|drops? the (fraction|decimal|remainder)",
+            r"cast|static_cast|convert|widen",
+        ],
+        "false_claim": r"(returns?|computes?|calculates?|gives?) the (mean|average|ratio)",
+    },
+    {
+        "name": "operator_precedence",
+        "trap": "== binds tighter than &, so the mask is compared, not applied",
+        "code": """bool hasFlag(int flags, int mask) {
+    return flags & mask == mask;
+}""",
+        "finds": [
+            r"precedence|parenthes|binds? (more )?tight|evaluat.{0,25}(first|before)",
+            r"(lowest|first|least significant) bit|always|\b& 1\b",
+        ],
+        "false_claim": r"(tests?|checks?|returns? (true )?(if|whether)) .{0,30}(flag|bit|mask)",
+    },
+    {
+        "name": "xor_swap_same_index",
+        "trap": "an xor swap zeroes the element when both indices are the same",
+        "code": """void swapAt(int data[], int i, int j) {
+    data[i] ^= data[j];
+    data[j] ^= data[i];
+    data[i] ^= data[j];
+}""",
+        "finds": [
+            r"same (index|position|element)|identical indices|\bi == j\b|self",
+            r"zero(ed|es|s)?|destroy|lose|lost|wipe",
+            r"guard|check|special case",
+        ],
+        "false_claim": r"swaps? (the )?(two )?(element|value|item|entr)",
+    },
+    {
+        "name": "index_past_last_character",
+        "trap": "index size() is the terminator; the last character is at size() - 1",
+        "code": """char lastChar(const std::string& text) {
+    return text[text.size()];
+}""",
+        "finds": [
+            r"null|terminator|'\\\\0'",
+            r"size\(\) ?- ?1|one past|off.?by.?one|last .{0,15}is at",
+        ],
+        "false_claim": r"returns? the last (character|char|letter)",
+    },
 ]
 
 def harvest_text(comments_raw: str, explanation_raw: str) -> tuple[str, int]:
@@ -239,11 +435,22 @@ def score(text: str, sample: dict[str, Any]) -> dict[str, Any]:
     asserted = bool(re.search(sample["false_claim"], lowered, re.I))
     remainder = re.sub(sample["false_claim"], " ", lowered, flags=re.I)
 
-    hits = [bool(re.search(group, remainder, re.I)) for group in sample["finds"]]
+    matches = [re.search(group, remainder, re.I) for group in sample["finds"]]
+    hits = [match is not None for match in matches]
+    # Every awarded point carries the phrase that earned it. Three times now a
+    # single common word has scored where the model had understood nothing -
+    # "overflow" inside "to avoid overflow", "exactly" inside "reaches exactly
+    # 1.0", "pointer" inside a confident description of the wrong computation.
+    # A score that cannot be audited gets believed, so the evidence ships with it.
     return {
         "found": sum(hits),
         "of": len(hits),
         "missed": [g for g, hit in zip(sample["finds"], hits) if not hit],
+        "evidence": [
+            remainder[max(0, m.start() - 60) : m.end() + 40].strip().replace("\n", " ")
+            for m in matches
+            if m is not None
+        ],
         "false_claim": asserted and not any(hits),
     }
 
@@ -327,6 +534,10 @@ def write_report(records: list[dict[str, Any]], path: Path) -> None:
             "```",
             "",
         ]
+        if record.get("evidence"):
+            lines += ["Scored on:", ""]
+            lines += [f"- …{phrase}…" for phrase in record["evidence"]]
+            lines += [""]
         if record["missed"]:
             lines += ["Concepts not named: " + ", ".join(f"`{m}`" for m in record["missed"]), ""]
     path.write_text("\n".join(lines), encoding="utf-8")
