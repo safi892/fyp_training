@@ -170,7 +170,116 @@ retrain on option A or B. That asymmetry is the argument on its own.
 
 ---
 
-## 6. Where the work lives
+## 6. Training a translator for this domain
+
+The obvious objection to option C is that a general MT model is a blunt
+instrument for the job. That objection is correct, and the numbers say so.
+
+### The domain is roughly ten times narrower than ordinary English
+
+Measured over the 18,942 explanations in `cleaned/merged_cleaned.jsonl`:
+
+| Vocabulary | Share of all text |
+| ---: | ---: |
+| top 500 words | **81.4%** |
+| top 1,000 words | 89.5% |
+| top 2,000 words | **95.2%** |
+
+General English needs 10,000–20,000 word types to reach 95%. This needs 2,000.
+The text is also templated rather than free — `"Purpose: Compute the …"` opens
+**2,966** of them, `"Algorithm: The function …"` another 2,264.
+
+A narrow, repetitive, templated domain is the case where a small purpose-built
+model beats a large general one, and where a few thousand training pairs are
+enough rather than a few million.
+
+### Register, not grammar, is the real problem
+
+`opus-mt-en-ur` and NLLB were trained on news and parliamentary text. Given
+*"this function returns a pointer to the array element"*, they will faithfully
+render **function**, **pointer**, **array** and **element** as formal literary
+Urdu — words no working developer in Pakistan says out loud.
+
+Actual Roman Urdu developer speech is code-switched, keeping the technical
+nouns in English:
+
+> Ye function array ko sort karta hai aur pointer return karta hai.
+
+**17 of the 60 most frequent words in the corpus are exactly those terms** —
+`input, output, algorithm, int, string, vector, value, integer, node, returns,
+array, element, index, function, pointer, list, return`. A general model gets
+them grammatically right and pragmatically wrong, which reads worse than
+leaving them in English would have.
+
+This is the argument for training something of our own. It is not that
+off-the-shelf Urdu is poor; it is that off-the-shelf Urdu is the wrong
+register, and no amount of decoding parameters fixes that.
+
+### Use the two-hop to build data, not to serve requests
+
+```
+BUILD TIME, once
+    18,942 English explanations
+        -> Urdu (MT)  -> Roman Urdu (transliteration, ~96 Char-BLEU [3])
+        -> corrected by hand on a sample
+        = a parallel corpus that does not currently exist
+
+RUN TIME, every request
+    English -> [ small domain model ] -> Roman Urdu       one hop
+```
+
+The two-hop earns its place once, offline, where its errors are cheap because
+the output is being edited anyway. At serving time it would double the latency
+and compound two models' mistakes into one answer.
+
+For a domain this templated, 2,000–5,000 corrected pairs is a reasonable
+target, not the whole corpus. Candidate starting points: fine-tune
+`opus-mt-en-ur` on the domain data, or a small mT5. Domain-adapting a model
+that already knows Urdu grammar is far cheaper than teaching grammar from
+scratch.
+
+### The checkable property: placeholder integrity
+
+Everything in this project rests on a property that can be checked
+mechanically. For comments that property is anchor validity. Translation has
+an exact analogue, and it should be built before any model is trained.
+
+Identifiers and code fragments are masked out before translation and restored
+afterwards:
+
+```
+before   Divide `total` by 10 to drop the last digit of arr[j]
+masked   Divide ⟦0⟧ by 10 to drop the last digit of ⟦1⟧
+                          -> translate ->
+after    ⟦0⟧ ko 10 se divide karein taake ⟦1⟧ ka aakhri digit hat jaye
+restore  `total` ko 10 se divide karein taake arr[j] ka aakhri digit hat jaye
+```
+
+Every placeholder must return **present, exactly once, unchanged**. That is
+decidable without a fluent reader, and it catches the failure that would
+actually hurt: a translator quietly rewriting `arr[j]`, renaming `total`, or
+dropping a symbol because it looked like noise. A translation that fails the
+check is discarded and the English is returned, the same way an unverifiable
+optimisation returns the user's own code.
+
+It has a second benefit. Masking removes exactly the tokens a general MT model
+handles worst, so it improves off-the-shelf output as well as protecting it —
+which means the check is worth building even if no model is ever trained.
+
+### Two tiers
+
+| | Work | What it gets |
+| --- | --- | --- |
+| **Tier 1** | placeholder masking, exact translation of the fixed scaffolding (`Purpose:` → `Maqsad:`), and the ~500 words covering 81% | A working feature, deterministic and offline, replacing a 20-phrase dictionary. Days. |
+| **Tier 2** | build the parallel corpus, fine-tune a small seq2seq on it | A Roman Urdu parallel set for code explanations, which does not exist. One to two weeks. |
+
+Tier 1 ships and is testable. Tier 2 is the part with novelty in it, and is
+honestly a second project rather than a finishing touch — the corpus is the
+contribution, and building a corpus is where the time goes.
+
+---
+
+## 7. Where the work lives
 
 The three parts of this project stay separate, and this does not change that:
 
@@ -185,11 +294,13 @@ the client needs no change either.
 
 ---
 
-## 7. What to measure, if this is built
+## 8. What to measure, if this is built
 
 The English harness does not transfer — [1] is explicit that automatic metrics
 fail on non-English output. Plan for human judgement:
 
+- **Placeholder integrity** — every masked identifier returns present, once,
+  unchanged. Decidable without a human, so it can gate every response.
 - **Anchor validity after translation** must still be 100%. It should be, by
   construction, since `code` is never touched — but assert it, because "by
   construction" is how the earlier bugs got in.
