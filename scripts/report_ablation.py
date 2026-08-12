@@ -78,6 +78,7 @@ def totals(records: list[dict[str, Any]]) -> dict[str, Any]:
     return {
         "samples": len(records),
         "json_ok": sum(1 for r in records if r.get("json_ok")),
+        "chars": sum(len(r.get("text", "")) for r in records),
         "anchors_proposed": sum(p for p, _ in counted),
         "anchors_kept": sum(k for _, k in counted),
         "found": sum(r.get("found", 0) for r in records),
@@ -131,6 +132,12 @@ def main() -> None:
             f"{tuned['false_claims']}/{n}",
             "content",
         ),
+        (
+            "Text scored (chars)",
+            f"{base['chars']:,}",
+            f"{tuned['chars']:,}",
+            "caveat",
+        ),
     ]
 
     lines = [
@@ -151,6 +158,7 @@ def main() -> None:
         tuned["false_claims"] / max(1, n)
     )
 
+    volume = base["chars"] / max(1, tuned["chars"])
     lines += [
         "",
         "## What the training bought",
@@ -162,6 +170,18 @@ def main() -> None:
         "Read the two kinds separately. A model that emits perfect JSON about code it",
         "has misread has been improved on one axis and not the other, and averaging",
         "them into a single score hides the distinction this project exists to make.",
+        "",
+        "### Reading the content rows fairly",
+        "",
+        f"The base model's answers are **{volume:.1f}x longer** than the fine-tuned",
+        "model's. Concepts are found by searching the text, so more text is more",
+        "chances to match one — the content comparison is tilted in the base model's",
+        "favour before either model says anything. A small apparent advantage there is",
+        "therefore not evidence of better understanding.",
+        "",
+        "What can be said is the negative: **there is no evidence the fine-tuning",
+        "improved comprehension.** That is a real finding rather than a disappointing",
+        "one, because it locates precisely what the training did buy.",
         "",
     ]
 
