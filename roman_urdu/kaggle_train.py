@@ -85,6 +85,38 @@ def to_serving(text: str) -> str:
     return _SENTINEL.sub(lambda m: f"⟦{int(m.group(1))}⟧", text)
 
 
+def in_notebook() -> bool:
+    """Whether this is running inside a Jupyter/Kaggle cell rather than a shell.
+
+    Pasted into a cell, ``argparse`` sees the kernel's own ``-f kernel.json``
+    and exits with "unrecognized arguments" before anything happens. Detecting
+    the notebook and parsing an empty argument list makes the paste-and-run
+    case work, which is how this script is meant to be used.
+    """
+    try:
+        from IPython import get_ipython
+    except ImportError:
+        return False
+    shell = get_ipython()
+    return shell is not None and "IPKernelApp" in getattr(shell, "config", {})
+
+
+def check_dependencies() -> None:
+    """Fail now on a missing package, not after the first epoch.
+
+    ``sacrebleu`` is only touched when the first evaluation runs, which on this
+    dataset is roughly twenty minutes in. Importing it up front turns a wasted
+    half hour into a one-line message.
+    """
+    try:
+        import sacrebleu  # noqa: F401
+    except ImportError:
+        raise SystemExit(
+            "sacrebleu is not installed, and evaluation would fail after the "
+            "first epoch.\n  pip install sacrebleu"
+        ) from None
+
+
 def check_tokenizer(tokenizer) -> None:
     """Refuse to train if placeholders do not survive a round trip.
 
@@ -123,7 +155,11 @@ def main() -> None:
     parser.add_argument("--lr", type=float, default=3e-4)
     parser.add_argument("--max-source", type=int, default=128)
     parser.add_argument("--max-target", type=int, default=160)
-    args = parser.parse_args()
+    # In a cell there are no arguments to read, and Jupyter's own would be
+    # mistaken for ours. Defaults are what the paste-and-run case wants anyway.
+    args = parser.parse_args(args=[] if in_notebook() else None)
+
+    check_dependencies()
 
     import numpy as np
     from datasets import Dataset
