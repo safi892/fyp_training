@@ -57,25 +57,37 @@ def usable(english: str, roman: str) -> bool:
     return not any(0x0600 <= ord(character) <= 0x06FF for character in roman)
 
 
-def add_placeholder(english: str, roman: str) -> tuple[str, str] | None:
-    """Mask one word that appears verbatim on both sides, if there is one.
+def add_placeholder(english: str, roman: str, limit: int = 3) -> tuple[str, str] | None:
+    """Mask up to ``limit`` words appearing verbatim on both sides.
 
-    The shared word is real evidence of a token translation leaves alone, which
-    is precisely what a masked identifier is. Only one is masked per row: the
-    lesson is "carry this across", and repeating it in a single sentence does
-    not teach it harder.
+    A shared word is real evidence of a token translation leaves alone, which
+    is precisely what a masked identifier is.
+
+    **Why more than one.** The first version masked a single word per row, so
+    every example the model saw contained exactly ``⟦0⟧`` and it never learned
+    that placeholders are numbered. Measured on real drafts afterwards: given
+    "A string ⟦0⟧ and an ⟦1⟧ object ⟦2⟧" it returned "Aik string⟦0⟧ aur
+    aik⟦0⟧ object" - the right shape, every index collapsed to zero, and only
+    21 of 43 placeholders recovered. Sentences carrying several identifiers are
+    the normal case in this domain, so the training data has to contain them.
     """
+    shared: list[str] = []
     for candidate in _CANDIDATE.findall(english):
-        if candidate in _NOT_A_NAME:
+        if candidate in _NOT_A_NAME or candidate in shared:
             continue
-        if not re.search(rf"\b{re.escape(candidate)}\b", roman):
-            continue
+        if re.search(rf"\b{re.escape(candidate)}\b", roman):
+            shared.append(candidate)
+        if len(shared) == limit:
+            break
+
+    if not shared:
+        return None
+
+    for index, candidate in enumerate(shared):
         pattern = rf"\b{re.escape(candidate)}\b"
-        return (
-            re.sub(pattern, "⟦0⟧", english, count=1),
-            re.sub(pattern, "⟦0⟧", roman, count=1),
-        )
-    return None
+        english = re.sub(pattern, f"⟦{index}⟧", english, count=1)
+        roman = re.sub(pattern, f"⟦{index}⟧", roman, count=1)
+    return english, roman
 
 
 def main() -> None:

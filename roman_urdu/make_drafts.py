@@ -69,6 +69,24 @@ def mask(text: str) -> tuple[str, list[str]]:
     return _PROTECTED.sub(swap, text), spans
 
 
+def load_tokenizer(path: str):
+    """Load the saved tokenizer, tolerating the version it was saved by.
+
+    Kaggle's transformers writes ``extra_special_tokens`` as a list; older
+    releases read it as a mapping and fail with ``'list' object has no
+    attribute 'keys'``. The key is redundant either way — the 100 sentinels are
+    already registered through ``extra_ids`` — so it is overridden rather than
+    the downloaded model being edited, which would make the fix invisible to
+    the next person who copies it off Kaggle.
+    """
+    from transformers import AutoTokenizer
+
+    try:
+        return AutoTokenizer.from_pretrained(path)
+    except AttributeError:
+        return AutoTokenizer.from_pretrained(path, extra_special_tokens={})
+
+
 def sample_lines(path: Path, limit: int, seed: int) -> list[tuple[str, str]]:
     buckets: dict[str, list[str]] = {key: [] for key in SECTION_WEIGHTS}
     with path.open(encoding="utf-8") as handle:
@@ -102,7 +120,7 @@ def main() -> None:
 
     from transformers import AutoModelForSeq2SeqLM, AutoTokenizer
 
-    tokenizer = AutoTokenizer.from_pretrained(args.model)
+    tokenizer = load_tokenizer(args.model)
     model = AutoModelForSeq2SeqLM.from_pretrained(args.model)
     model.eval()
 
