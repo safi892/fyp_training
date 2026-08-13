@@ -118,7 +118,7 @@ def main() -> None:
     parser.add_argument("--output", default="roman_urdu/drafts.md")
     args = parser.parse_args()
 
-    from transformers import AutoModelForSeq2SeqLM, AutoTokenizer
+    from transformers import AutoModelForSeq2SeqLM
 
     tokenizer = load_tokenizer(args.model)
     model = AutoModelForSeq2SeqLM.from_pretrained(args.model)
