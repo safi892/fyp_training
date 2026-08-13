@@ -43,3 +43,6 @@ models/gguf/
 .cache/
 models/base_gguf/
 models/mt/
+roman_urdu/data/
+urdu/
+t5-roman-urdu/
