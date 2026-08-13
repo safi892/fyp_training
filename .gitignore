@@ -46,3 +46,4 @@ models/mt/
 roman_urdu/data/
 urdu/
 t5-roman-urdu/
+roman_urdu/corpus/
