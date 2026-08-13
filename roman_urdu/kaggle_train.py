@@ -33,6 +33,45 @@ from pathlib import Path
 
 PREFIX = "translate English to Roman Urdu: "
 
+#: Where the splits live, most specific first. Kaggle mounts an attached
+#: dataset read-only under /kaggle/input, and the exact path depends on how it
+#: was attached, so the likely spellings are tried rather than one being
+#: assumed - a wrong path here costs an hour of GPU before it is noticed.
+DATA_LOCATIONS = (
+    "/kaggle/input/datasets/saffiullah892/language/data",
+    "/kaggle/input/language/data",
+    "/kaggle/input/language",
+    "roman_urdu/data",
+    "data",
+)
+
+#: Only /kaggle/working survives the session. Writing the model anywhere else
+#: on Kaggle trains it successfully and then throws it away.
+DEFAULT_OUT = "/kaggle/working/t5-roman-urdu" if Path("/kaggle/working").exists() else "t5-roman-urdu"
+
+
+def find_data(given: str | None) -> Path:
+    """Locate the splits, and say what is actually there when they are missing."""
+    candidates = ([given] if given else []) + list(DATA_LOCATIONS)
+    for candidate in candidates:
+        path = Path(candidate)
+        if (path / "train.jsonl").exists():
+            print(f"data: {path}")
+            return path
+
+    tried = "\n  ".join(candidates)
+    available = ""
+    root = Path("/kaggle/input")
+    if root.exists():
+        found = sorted(str(p.parent) for p in root.rglob("train.jsonl"))
+        available = (
+            "\n\ntrain.jsonl was found in:\n  " + "\n  ".join(found)
+            if found
+            else "\n\nNothing named train.jsonl exists under /kaggle/input. "
+            "Is the dataset attached to this notebook?"
+        )
+    raise SystemExit(f"could not find train.jsonl. Tried:\n  {tried}{available}")
+
 #: Serving writes ⟦0⟧; T5 understands <extra_id_0>. Same idea, different alphabet.
 _SERVING = re.compile(r"⟦(\d+)⟧")
 _SENTINEL = re.compile(r"<extra_id_(\d+)>")
@@ -73,9 +112,12 @@ def load(path: Path) -> list[dict[str, str]]:
 
 def main() -> None:
     parser = argparse.ArgumentParser(description=__doc__)
-    parser.add_argument("--data", default="roman_urdu/data")
+    parser.add_argument(
+        "--data", default=None,
+        help=f"Splits directory. Autodetected from {DATA_LOCATIONS[0]} and friends.",
+    )
     parser.add_argument("--model", default="t5-small")
-    parser.add_argument("--out", default="t5-roman-urdu")
+    parser.add_argument("--out", default=DEFAULT_OUT)
     parser.add_argument("--epochs", type=float, default=3.0)
     parser.add_argument("--batch", type=int, default=32)
     parser.add_argument("--lr", type=float, default=3e-4)
@@ -97,7 +139,7 @@ def main() -> None:
     check_tokenizer(tokenizer)
     model = AutoModelForSeq2SeqLM.from_pretrained(args.model)
 
-    data = Path(args.data)
+    data = find_data(args.data)
     splits = {name: Dataset.from_list(load(data / f"{name}.jsonl"))
               for name in ("train", "validation", "test")}
     for name, split in splits.items():
