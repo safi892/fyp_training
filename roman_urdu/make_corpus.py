@@ -103,8 +103,15 @@ def do_draft(args: argparse.Namespace) -> None:
     outdir.mkdir(parents=True, exist_ok=True)
     batch = 1 + len(list(outdir.glob("batch_*.txt")))
 
-    # A different seed per batch, so batch 2 is not batch 1 again.
-    lines = sample_lines(Path(args.data), args.limit, args.seed + batch)
+    # Everything already sent out, so batches do not repeat each other.
+    already = {
+        row["en"]
+        for path in outdir.glob("batch_*.txt")
+        for row in parse_batch(path.read_text(encoding="utf-8"))
+    }
+    lines = sample_lines(Path(args.data), args.limit, args.seed + batch, exclude=already)
+    if already:
+        print(f"skipping {len(already):,} sentences already drafted")
     print(f"batch {batch}: drafting {len(lines)} lines\n")
 
     records = []

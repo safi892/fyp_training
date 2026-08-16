@@ -87,7 +87,17 @@ def load_tokenizer(path: str):
         return AutoTokenizer.from_pretrained(path, extra_special_tokens={})
 
 
-def sample_lines(path: Path, limit: int, seed: int) -> list[tuple[str, str]]:
+def sample_lines(
+    path: Path, limit: int, seed: int, exclude: set[str] | None = None
+) -> list[tuple[str, str]]:
+    """Sample labelled lines, skipping any already drafted.
+
+    ``exclude`` matters once batches are being produced in series: the pool was
+    previously capped at the first ``limit * 20`` lines of the file, so batch 40
+    drew from the same few hundred sentences as batch 1 and mostly repeated
+    them. The whole corpus is read now, and lines already sent out are dropped.
+    """
+    exclude = exclude or set()
     buckets: dict[str, list[str]] = {key: [] for key in SECTION_WEIGHTS}
     with path.open(encoding="utf-8") as handle:
         for raw in handle:
@@ -96,8 +106,11 @@ def sample_lines(path: Path, limit: int, seed: int) -> list[tuple[str, str]]:
                 if not match:
                     continue
                 section = match.group(1).lower()
-                if section in buckets and len(buckets[section]) < limit * 20:
-                    buckets[section].append(match.group(2).strip())
+                body = match.group(2).strip()
+                # Compared in masked form, because that is what a batch file
+                # records and therefore all a later run can read back.
+                if section in buckets and mask(body)[0] not in exclude:
+                    buckets[section].append(body)
 
     rng = random.Random(seed)
     chosen: list[tuple[str, str]] = []
