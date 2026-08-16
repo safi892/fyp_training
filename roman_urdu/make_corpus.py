@@ -114,18 +114,29 @@ def do_draft(args: argparse.Namespace) -> None:
         print(f"skipping {len(already):,} sentences already drafted")
     print(f"batch {batch}: drafting {len(lines)} lines\n")
 
+    import torch
+
+    # Generated in groups rather than one at a time: on CPU the per-call
+    # overhead dominates, and 2,000 sentences singly is hours where batched it
+    # is well under one.
     records = []
-    for position, (section, english) in enumerate(lines, start=1):
-        masked, spans = mask(english)
+    for start in range(0, len(lines), args.chunk):
+        group = lines[start : start + args.chunk]
+        masked = [mask(english) for _, english in group]
         inputs = tokenizer(
-            PREFIX + to_sentinel(masked), return_tensors="pt",
-            truncation=True, max_length=256,
+            [PREFIX + to_sentinel(text) for text, _ in masked],
+            return_tensors="pt", truncation=True, max_length=256, padding=True,
         )
-        output = model.generate(**inputs, max_new_tokens=200, num_beams=4)
-        draft = to_serving(tokenizer.decode(output[0], skip_special_tokens=False))
-        draft = re.sub(r"</s>|<pad>", "", draft).strip()
-        records.append({"section": section, "masked": masked, "draft": draft, "spans": spans})
-        print(f"[{position:>3}/{len(lines)}] {section}")
+        with torch.no_grad():
+            outputs = model.generate(**inputs, max_new_tokens=200, num_beams=4)
+
+        for (section, _), (text, spans), output in zip(group, masked, outputs, strict=True):
+            draft = to_serving(tokenizer.decode(output, skip_special_tokens=False))
+            draft = re.sub(r"</s>|<pad>", "", draft).strip()
+            records.append(
+                {"section": section, "masked": text, "draft": draft, "spans": spans}
+            )
+        print(f"[{len(records):>5}/{len(lines)}]")
 
     path = outdir / f"batch_{batch:03d}.txt"
     write_batch(records, path, batch)
@@ -199,6 +210,7 @@ def main() -> None:
     draft.add_argument("--outdir", default="roman_urdu/corpus")
     draft.add_argument("--limit", type=int, default=50)
     draft.add_argument("--seed", type=int, default=100)
+    draft.add_argument("--chunk", type=int, default=16, help="Sentences per generate call.")
     draft.set_defaults(func=do_draft)
 
     collect = sub.add_parser("collect", help="turn corrected batches into pairs")

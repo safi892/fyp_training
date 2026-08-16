@@ -97,7 +97,7 @@ def sample_lines(
     drew from the same few hundred sentences as batch 1 and mostly repeated
     them. The whole corpus is read now, and lines already sent out are dropped.
     """
-    exclude = exclude or set()
+    exclude = set(exclude or set())
     buckets: dict[str, list[str]] = {key: [] for key in SECTION_WEIGHTS}
     with path.open(encoding="utf-8") as handle:
         for raw in handle:
@@ -108,8 +108,13 @@ def sample_lines(
                 section = match.group(1).lower()
                 body = match.group(2).strip()
                 # Compared in masked form, because that is what a batch file
-                # records and therefore all a later run can read back.
-                if section in buckets and mask(body)[0] not in exclude:
+                # records and therefore all a later run can read back. Adding
+                # to `exclude` as we go also drops the repeats inside the
+                # corpus itself - the same one-line Purpose appears under many
+                # functions, and correcting it twice is wasted effort.
+                masked = mask(body)[0]
+                if section in buckets and masked not in exclude:
+                    exclude.add(masked)
                     buckets[section].append(body)
 
     rng = random.Random(seed)
