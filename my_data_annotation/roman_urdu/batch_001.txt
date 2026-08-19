@@ -1,0 +1,240 @@
+﻿# Roman Urdu corpus - batch 1
+#
+# Edit the RU lines. Leave EN alone.
+#
+# Rules that are checked when this is collected:
+#   * every ⟦n⟧ in the EN line must appear in your RU line
+#   * keep technical words in English - function, array, pointer, index
+#   * write how you would say it out loud, not how a textbook would
+#
+# The ⟦n⟧ = ... note on each header line says what the placeholder stands for.
+# Delete a block entirely to drop that sentence.
+
+
+# 1  input   ⟦0⟧=lists (ListNode*)
+EN  Two pointers to the heads of the linked ⟦0⟧.
+RU   Linked lists ke heads ko point karne wale do pointers.
+
+# 2  purpose
+EN  To perform an exact division of two BigInt numbers, ensuring no remainder.
+RU Do BigInt numbers ko is tarah exact divide karna ke koi remainder na bache.
+
+# 3  algorithm
+EN  Iterates through the string to fill the LPS array. For each character, it checks if the current prefix can be extended by the next character. If so, it extends the prefix; otherwise, it uses previously computed values in the LPS array to find the longest possible prefix that is also a suffix.
+RU String ke har character par iterate karta hai taake LPS array ko fill kiya ja sake. Har character ke liye yeh check karta hai ke kya current prefix ko next character ke zariye extend kiya ja sakta hai. Agar ho sakta ho, to yeh prefix ko extend karta hai; warna LPS array mein pehle se calculate ki gayi values ko use karke sab se lamba possible prefix find karta hai jo suffix bhi ho.
+
+
+# 4  algorithm   ⟦0⟧=macros (SC_HIDAPI, HAVE_PORTMIDI, HAVE_ALSA)
+EN  Checks for the presence of specific ⟦0⟧ to determine which deinitialization functions to call.
+RU  Specific ⟦0⟧ ki mojoodgi check karta hai taake yeh determine kiya ja sake ke kaun se deinitialization functions call karne hain.
+
+
+# 5  algorithm   ⟦0⟧=`cpp_float`
+EN  Simply returns a new ⟦0⟧ with the negated mantissa and exponent. If debugging is enabled, the rational part is also negated.
+RU  Bas ek naya ⟦0⟧ return karta hai jisme mantissa aur exponent ko negate kiya jata hai. Agar debugging enabled ho, to rational part ko bhi negate kiya jata hai.
+
+
+# 6  purpose
+EN  Sorts a singly-linked list using insertion sort.
+RU Insertion sort ko use karte hue singly-linked list ko sort karta hai.
+
+
+# 7  algorithm   ⟦0⟧=`k`
+EN  Iterate through the array. Maintain a counter that increments for each zero encountered. When a '1' is found, check if the counter is less than ⟦0⟧. If so, return false. Reset the counter to 0 if it meets or exceeds ⟦0⟧.
+RU  Array ke through iterate karta hai. Har baar zero milne par counter ko increment karta hai. Jab ‘1’ mile, to check karta hai ke kya counter ⟦0⟧ se kam hai. Agar kam ho, to false return karta hai. Agar counter ⟦0⟧ ke barabar ya us se zyada ho, to counter ko 0 par reset kar deta hai.
+
+
+# 8  algorithm   ⟦0⟧=keep_or_remove_connected_components
+EN  Calls '⟦0⟧' with the flag set to true to keep the specified components.
+RU  ‘⟦0⟧’ ko flag true ke sath call karta hai taake specified components ko rakha ja sake.
+
+
+# 9  output
+EN  Boolean indicating if the point is inside the half-facet.
+RU  Boolean jo indicate karta hai ke point half-facet ke andar hai ya nahi.
+
+# 10  input
+EN  An iterator range [begin, end) and a handle h.
+RU  Ek iterator range [begin, end) aur ek handle h.
+
+
+# 11  input   ⟦0⟧=Bbox_3
+EN  A ⟦0⟧ object representing the bounding box.
+RU  Ek ⟦0⟧ object jo bounding box ko represent karta hai.
+
+
+# 12  input   ⟦0⟧=`Graph* inGraph`  ⟦1⟧=`uint32 inIndex`  ⟦2⟧=`uint32 inBus`
+EN  ⟦0⟧ (pointer to the graph), ⟦1⟧ (index of the control), ⟦2⟧ (bus identifier).
+RU  ⟦0⟧ (graph ka pointer), ⟦1⟧ (control ka index), ⟦2⟧ (bus ka identifier).
+
+
+# 13  algorithm
+EN  The function computes the barycenter by taking a weighted average of the coordinates of the two points, where the weights are normalized by their sum to ensure the result is a valid barycenter.
+RU  Function do points ke coordinates ka weighted average le kar barycenter calculate karta hai, jahan weights ko unke sum se normalize kiya jata hai taake result ek valid barycenter ho.
+
+
+# 14  algorithm
+EN  Checks if the type is EDGE; if not, throws an error. Uses conditional compilation to decide how to access the Edge value stored in the object.
+RU  Check karta hai ke type EDGE hai ya nahi; agar nahi ho to error throw karta hai. Conditional compilation ka use karke yeh decide karta hai ke object mein stored Edge value ko kis tarah access karna hai.
+
+# 15  algorithm   ⟦0⟧=`p`  ⟦1⟧=`count`
+EN  Uses placement new to construct an object of type T at the memory location pointed to by ⟦0⟧. Then, it increments the ⟦1⟧ variable.
+RU  Placement new ka use karke ⟦0⟧ ke zariye point ki gayi memory location par type T ka object construct karta hai. Phir ⟦1⟧ variable ko increment karta hai.
+
+# 16  algorithm
+EN  Uses nested loops to compare each character of 'needle' against characters in 'haystack'. If a mismatch is found, it breaks out of the inner loop and continues with the next character in 'haystack'. If 'needle' is fully matched, returns the current index in 'haystack'.
+RU  Nested loops ka use karke ‘needle’ ke har character ko ‘haystack’ ke characters ke sath compare karta hai. Agar mismatch milay, to inner loop se bahar nikal jata hai aur ‘haystack’ ke next character ke sath continue karta hai. Agar ‘needle’ completely match ho jaye, to ‘haystack’ mein current index return karta hai.
+
+
+# 17  purpose
+EN  This function calculates the maximum score difference between two players in a game where players take turns picking stones from either end of an array. The player who picks last wins the game.
+RU  Yeh function do players ke darmiyan maximum score difference calculate karta hai ek aisi game mein jahan players bari bari array ke dono ends mein se stones pick karte hain. Jo player sab se aakhir mein stone pick karta hai, woh game jeet jata hai.
+
+# 18  algorithm
+EN  The function sums the corresponding coordinates of the three points and then divides each sum by 3 to find the centroid's coordinates.
+RU  Function teen points ke corresponding coordinates ko add karta hai aur phir har sum ko 3 se divide karta hai taake centroid ke coordinates find kiye ja saken.
+
+# 19  input   ⟦0⟧=`arr`  ⟦1⟧=`n`
+EN  Takes an integer array ⟦0⟧ and its size ⟦1⟧.
+RU  Ek integer array ⟦0⟧ aur us ka size ⟦1⟧ leta hai.
+
+
+# 20  algorithm
+EN  The function appends the start and end points of the Self object, its time, and its collinearity status to the output stream.
+RU  Function Self object ke start aur end points, us ka time, aur collinearity status output stream mein append karta hai.
+
+
+# 21  output   ⟦0⟧=`const hashed_index_node*`
+EN  ⟦0⟧ - A pointer to a hashed index node.
+RU  ⟦0⟧ - Hashed index node ka pointer.
+
+# 22  algorithm   ⟦0⟧=Boost.Algorithm  ⟦1⟧=`find_format_copy`  ⟦2⟧=`nth_finder`
+EN  Uses ⟦0⟧'s ⟦1⟧ with ⟦2⟧ to locate and remove the nth occurrence of the search sequence.
+RU  ⟦0⟧ ke ⟦1⟧ ko ⟦2⟧ ke sath use karke search sequence ki nth occurrence ko locate karta hai aur remove karta hai.
+
+
+# 23  purpose
+EN  To safely copy a specified number of characters from one string to another, ensuring that the destination string is properly null-terminated.
+RU  Ek string se doosri string mein specified number of characters ko safely copy karne ke liye, aur yeh ensure karta hai ke destination string properly null-terminated ho.
+
+# 24  purpose
+EN  To create a prism given six points in space.
+RU  Space mein diye gaye 6 points ki madad se ek prism create karna.
+
+# 25  output   ⟦0⟧=`Polynomial<int>`
+EN  A ⟦0⟧ object representing the GCD of the input polynomials.
+RU  Ek ⟦0⟧ object jo input polynomials ke GCD ko represent karta hai.
+
+# 26  algorithm   ⟦0⟧=`node_old`  ⟦1⟧=`node_new`
+EN  The function simply copies the location from ⟦0⟧ to ⟦1⟧ and returns ⟦1⟧.
+RU  Function sirf ⟦0⟧ se location ko copy karke ⟦1⟧ mein rakhta hai aur ⟦1⟧ return karta hai.
+
+
+# 27  algorithm
+EN  Multiply 'a' and 'b'. If 'b' is negative, return 0; otherwise, return the product.
+RU  ‘a’ aur ‘b’ ko multiply karta hai. Agar ‘b’ negative ho, to 0 return karta hai; warna product return karta hai.
+
+
+# 28  output
+EN  Returns a Facet object constructed from the current object's properties.
+RU  Current object ki properties se ek Facet object construct karke return karta hai.
+
+
+# 29  purpose
+EN  This function sends a "done" reply containing a command name and an integer value.
+RU  Yeh function command name aur integer value ko contain karne wala "done" reply send karta hai.
+
+# 30  purpose
+EN  Compares a Gmpfi object with a double value to determine if it's uncertain.
+RU  Gmpfi object ko double value ke sath compare karta hai taake yeh determine kiya ja sake ke yeh uncertain hai ya nahi.
+
+
+# 31  algorithm   ⟦0⟧=`p`  ⟦1⟧=`s`
+EN  Shift the first value ⟦0⟧ left by 10 bits and then perform a bitwise OR operation with the second value ⟦1⟧. This effectively combines the two values into a single 32-bit value where the lower 10 bits represent ⟦1⟧ and the upper 22 bits represent ⟦0⟧.
+RU  Pehli value ⟦0⟧ ko 10 bits left shift karta hai aur phir doosri value ⟦1⟧ ke sath bitwise OR operation perform karta hai. Is tarah dono values ko ek single 32-bit value mein combine karta hai, jahan lower 10 bits ⟦1⟧ ko aur upper 22 bits ⟦0⟧ ko represent karte hain.
+
+
+# 32  algorithm
+EN  Recursively visits each node in the order: root, then left subtree, then right subtree.
+RU  Recursively har node ko is order mein visit karta hai: pehle root, phir left subtree, aur phir right subtree.
+
+
+# 33  algorithm
+EN  Iterates through each city, counts how many other cities it can reach within the distance threshold, and keeps track of the city with the minimum count.
+RU  Har city ke through iterate karta hai, yeh count karta hai ke distance threshold ke andar woh kitni doosri cities tak pohanch sakti hai, aur jis city ka count minimum ho usay track karta rehta hai.
+
+# 34  algorithm   ⟦0⟧=`s`  ⟦1⟧=`goal`  ⟦2⟧=`s + s`
+EN  Concatenate ⟦0⟧ with itself and check if ⟦1⟧ is a substring of this concatenated string. This works because any rotation of ⟦0⟧ will appear as a substring in ⟦2⟧.
+RU  ⟦0⟧ ko khud ke sath concatenate karta hai aur check karta hai ke kya ⟦1⟧ is concatenated string ka substring hai. Yeh is liye kaam karta hai kyun ke ⟦0⟧ ki koi bhi rotation ⟦2⟧ mein substring ke taur par mojood hogi.
+
+
+
+# 35  purpose
+EN  Calculate the smallest axis-aligned cuboid enclosing a given bounding box.
+RU  Di gayi bounding box ko enclose karne wala sab se chhota axis-aligned cuboid calculate karta hai.
+
+# 36  algorithm   ⟦0⟧=`new`
+EN  The function uses ⟦0⟧ to allocate memory for a new object of type T and then constructs the object in that memory using the arguments passed to the function, employing perfect forwarding to preserve the value category of the arguments.
+RU  Function ⟦0⟧ ka use karke type T ke naye object ke liye memory allocate karta hai aur phir function ko diye gaye arguments ko use karke us memory mein object construct karta hai. Is mein perfect forwarding ka use kiya jata hai taake arguments ki value category preserve rahe.
+
+
+# 37  purpose
+EN  To link two halfedges as previous and next in their shared face cycle.
+RU  Do halfedges ko unki shared face cycle mein previous aur next ke taur par link karna.
+
+
+# 38  algorithm   ⟦0⟧=`z`  ⟦1⟧=`comp`
+EN  Inserts the node ⟦0⟧ into the destination list at the appropriate position according to the comparison predicate ⟦1⟧, then erases ⟦0⟧ from the source list and updates the rebalance information.
+RU  Comparison predicate ⟦1⟧ ke mutabiq node ⟦0⟧ ko destination list mein munasib position par insert karta hai, phir ⟦0⟧ ko source list se erase karta hai aur rebalance information ko update karta hai.
+
+# 39  purpose   ⟦0⟧=Tree (BST)
+EN  This function checks if a given binary tree is a valid Binary Search ⟦0⟧.
+RU  Yeh function check karta hai ke di gayi binary tree ek valid Binary Search ⟦0⟧ hai ya nahi.
+
+# 40  output   ⟦0⟧=stream (`std::ostream&`)
+EN  Returns a reference to the modified output ⟦0⟧.
+RU  Modified output ⟦0⟧ ka reference return karta hai.
+
+
+# 41  algorithm
+EN  Reverse the entire string, then reverse the first 'b' characters, and finally reverse the remaining characters.
+RU  Puri string ko reverse karta hai, phir pehle ‘b’ characters ko reverse karta hai, aur aakhir mein baqi characters ko reverse karta hai.
+
+# 42  purpose
+EN  Calculate the missing number in a sequence of integers from 1 to n.
+RU 1 se n tak integers ki sequence mein missing number ko calculate karta hai. 
+# 43  algorithm   ⟦0⟧=load_combinatorial_map
+EN  Calls another overload of ⟦0⟧ with a default functor.
+RU Default functor ke sath ⟦0⟧ ke doosre overload ko call karta hai.
+
+# 44  algorithm   ⟦0⟧=invalid ('*')
+EN  Uses a stack to track unmatched '('. Marks excess ')' as ⟦0⟧. Removes '*' in final pass to construct valid string.
+RU Unmatched ‘(’ ko track karne ke liye stack ka use karta hai. Extra ‘)’ ko ⟦0⟧ ke taur par mark karta hai. Final pass mein ‘*’ ko remove karke valid string construct karta hai.
+
+
+# 45  purpose
+EN  To provide a formatted string representation of a Self object for easy printing.
+RU  Self object ki formatted string representation provide karta hai taake usay asani se print kiya ja sake.
+
+
+# 46  algorithm
+EN  Iterate through the source range, swapping each element with the corresponding element in the destination range using ADL-based move swap. Return the iterator pointing to the end of the destination range.
+RU  Source range ke through iterate karta hai aur har element ko destination range ke corresponding element ke sath ADL-based move swap ka use karke swap karta hai. Phir destination range ke end ki taraf point karne wala iterator return karta hai.
+
+
+# 47  output   ⟦0⟧=`int`
+EN  ⟦0⟧ - The minimum value found in the tree.
+RU  ⟦0⟧ - Tree mein milne wali minimum value.
+
+# 48  algorithm
+EN  Extracts the points at the ends of the edge from the PEdge object and its associated triangle. Prints the edge's priority and the coordinates of the two points.
+RU  PEdge object aur us se associated triangle se edge ke ends par mojood points ko extract karta hai. Edge ki priority aur dono points ke coordinates print karta hai.
+
+# 49  output
+EN  Returns a vector of vectors, where each inner vector represents a unique quadruplet that sums up to the target.
+RU  Vectors ke vectors ka ek vector return karta hai, jahan har inner vector ek unique quadruplet ko represent karta hai jo target ke barabar sum hota hai.
+
+# 50  output   ⟦0⟧=`int`
+EN  ⟦0⟧ - Error status indicating success or failure.
+RU  ⟦0⟧ - Error status jo success ya failure ko indicate karta hai.
+

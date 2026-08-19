@@ -200,6 +200,35 @@ def do_collect(args: argparse.Namespace) -> None:
           f"{len(pairs) / 2000:.0%} of the way to the lower bound.")
 
 
+def do_split(args: argparse.Namespace) -> None:
+    """Turn collected pairs into the train/validation/test files training wants.
+
+    Held-out sets are small because the corpus is: at a few hundred pairs a 10%
+    validation split costs more in training signal than it buys in confidence,
+    and the measurement that actually decides anything is reading the output.
+    """
+    import random
+
+    pairs = [json.loads(line) for line in Path(args.pairs).open(encoding="utf-8")]
+    random.Random(args.seed).shuffle(pairs)
+
+    held = max(10, len(pairs) // 20)
+    splits = {
+        "test": pairs[:held],
+        "validation": pairs[held : held * 2],
+        "train": pairs[held * 2 :],
+    }
+
+    outdir = Path(args.outdir)
+    outdir.mkdir(parents=True, exist_ok=True)
+    for name, rows in splits.items():
+        path = outdir / f"{name}.jsonl"
+        with path.open("w", encoding="utf-8") as handle:
+            for row in rows:
+                handle.write(json.dumps(row, ensure_ascii=False) + "\n")
+        print(f"  {name:<11} {len(rows):>6,}  -> {path}")
+
+
 def main() -> None:
     parser = argparse.ArgumentParser(description=__doc__)
     sub = parser.add_subparsers(dest="command", required=True)
@@ -217,6 +246,12 @@ def main() -> None:
     collect.add_argument("--outdir", default="roman_urdu/corpus")
     collect.add_argument("--pairs", default="roman_urdu/corpus/pairs.jsonl")
     collect.set_defaults(func=do_collect)
+
+    split = sub.add_parser("split", help="pairs.jsonl -> train/validation/test")
+    split.add_argument("--pairs", default="roman_urdu/corpus/pairs.jsonl")
+    split.add_argument("--outdir", default="roman_urdu/data_domain")
+    split.add_argument("--seed", type=int, default=13)
+    split.set_defaults(func=do_split)
 
     args = parser.parse_args()
     args.func(args)
