@@ -19,7 +19,7 @@ serving bugs. Work in one at a time.
 
 Both repos are on branch `language`, nothing merged.
 
-- training `6597bc3` · **150 tests**
+- training `c657951` · **169 tests**
 - backend `9086453` · **106 tests**
 
 Run before believing anything: `python3 -m pytest -q` and `ruff check`.
@@ -57,6 +57,17 @@ Other measured results worth not re-deriving:
 - **Defect blindness is capability, not prompting**: three phrasings moved one
   sample of eight. A verified buggy-code corpus is the only route, ~2 weeks,
   deliberately out of scope.
+- **Recursion into a loop, on 60 real submissions** with their authors' own
+  identifiers: shipped wording **3/60** (all three the same `gcd`), naming the
+  container **10/60**, a worked example 6/60. Hand-written samples said 47-100%
+  for the same model — a capability number measured on code you wrote yourself
+  is not a serving number.
+- **Comments and explanations, read back against the code**: format holds
+  (JSON 89/90, anchors 636/644 on 92 in-distribution programs) while nine of
+  twenty explanations on tree and graph code carry a false statement. That 45%
+  is a worst case: those programs are 45-58 lines against a corpus p50 of 14,
+  using shapes that are 1.6-1.9% of the training data. In-distribution the same
+  check gives 99% anchors and 1/46 loops wrongly called recursive.
 
 ## The anchoring design, which explains most of the code
 
@@ -67,6 +78,27 @@ quoted line is checked against the submission, so an invented comment is
 
 `needs_review` keeps its name and type because an Android client reads it.
 The response contract is additive only.
+
+**The same move now covers the other two fields.** `checked_response.check_response`
+composes three checks that each already existed alone: `repair_anchors` for the
+quoted line, `verification.verify` for `improved_code` (compile both, run both,
+compare), and `claim_checks.check_claims` for prose the source refutes.
+`verification.py` had 23 passing tests and **no callers** before this — the
+report already lists it as contribution 3.
+
+Over 112 saved responses it drops 20 anchors, 1 comment ("BFS queue for
+flood-filling" on a `stack<>` line) and flags 2 false recursion claims, all
+hand-checked. Precision was **1 in 3** until it ran on real output: `prints the
+phrase "I love Recursion"` is correct prose about a loop, and "stack overflow"
+is the runtime stack, not a `std::stack`. Both excluded, both tested. A filter
+that drops correct output is worse than no filter.
+
+It catches **1 of the 9** wrong explanations, and `docs/DETECTABILITY.md` says
+so in a heading rather than a footnote. Behaviour is decidable and a quote is a
+string; free prose is checkable only where it happens to make a claim the source
+answers.
+
+**Not wired into the backend yet** — separate repo, separate session.
 
 ## Language work — in progress, this is where you are
 
@@ -123,7 +155,15 @@ model can already do this, ask better" and twice it said "no, and here is the
 evidence". Both answers saved weeks. Do not start building a dataset without
 running the probe first.
 
-Scoring has been wrong three times, always flattering the model — a single word
+Scoring has now been wrong **seven** times, always flattering the model. The
+four found in one session: a keyword matched inside a comment ("// cache next
+node" scored an unchanged function as memoised), a closed list of verbs that
+missed "recursively sorting", a code pattern matched against prose so the check
+could only ever return zero, and a report naming pairs before filtering so it
+printed one program's source beside another's comments. Assume the next one
+exists and is in the same direction.
+
+The original three: scoring has been wrong three times, always flattering the model — a single word
 counted as understanding ("compute midpoint **to avoid overflow**" scored as
 finding an overflow bug). Every awarded point now ships with the phrase that
 earned it, and `tests/test_hard_scoring.py` guards it. Distrust any metric you
@@ -137,5 +177,14 @@ corpus.
 ## What is left
 
 The report. `docs/WRITEUP_GUIDE.md` maps every chapter to the file that already
-holds its material. All development phases in `PLAN.md` are finished or were
-measured into irrelevance. Do not start new capability work without asking.
+holds its material, and `docs/DETECTABILITY.md` is a written chapter waiting to
+be placed. All development phases in `PLAN.md` are finished or were measured
+into irrelevance. Do not start new capability work without asking.
+
+Two loose ends, both small and both outside the report:
+
+1. **Roman Urdu is still at 250 of 500 blocks** — that is where the work was
+   before the recursion detour, and the two known fixes in `batch_001` block 1
+   and `batch_002` block 156 are still unfixed.
+2. **The backend does not call `check_response`.** Until it does, contribution 3
+   is true of the repository and not of the product.
