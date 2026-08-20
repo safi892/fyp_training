@@ -163,7 +163,8 @@ class HFGenerator:
     prompt.
     """
 
-    def __init__(self, base: str, adapter: str | None, dtype: str = "float16"):
+    def __init__(self, base: str, adapter: str | None, dtype: str = "float16",
+                 batch: int = 4):
         import torch
         from transformers import AutoModelForCausalLM, AutoTokenizer
 
@@ -180,8 +181,9 @@ class HFGenerator:
             self.model = PeftModel.from_pretrained(self.model, adapter)
         self.model.eval()
         self.torch = torch
+        self.batch = batch
 
-    def samples(self, prompt: str, count: int, n_predict: int, temperature: float) -> list[str]:
+    def _generate(self, prompt: str, count: int, n_predict: int, temperature: float) -> list[str]:
         batch = self.tokenizer([prompt] * count, return_tensors="pt", padding=True).to(
             self.model.device
         )
@@ -193,6 +195,32 @@ class HFGenerator:
             )
         width = batch["input_ids"].shape[1]
         return [self.tokenizer.decode(row[width:], skip_special_tokens=True) for row in out]
+
+    def samples(self, prompt: str, count: int, n_predict: int, temperature: float) -> list[str]:
+        """`count` samples, in sub-batches small enough to fit.
+
+        Sixteen sequences of a long function plus 700 new tokens each is a large
+        KV cache, and a T4 has 15GB. Running out of it raises inside CUDA and
+        takes the process with it, which looks exactly like the run "stopping by
+        itself" partway through - no traceback worth reading, no partial result
+        beyond what was already flushed to disk.
+
+        So the batch is bounded, and halved again on the first failure. Slower
+        than one big batch by a little, and it finishes.
+        """
+        produced: list[str] = []
+        size = min(count, self.batch)
+        while len(produced) < count:
+            want = min(size, count - len(produced))
+            try:
+                produced += self._generate(prompt, want, n_predict, temperature)
+            except Exception as error:                    # noqa: BLE001 - torch OOM types vary
+                if "out of memory" not in str(error).lower() or want == 1:
+                    raise
+                self.torch.cuda.empty_cache()
+                size = max(1, want // 2)
+                print(f"    (out of memory at batch {want}, retrying at {size})", flush=True)
+        return produced[:count]
 
 
 def drivable_recursive(corpus: Path, max_lines: int) -> list[str]:
@@ -246,6 +274,8 @@ def main() -> None:
     parser.add_argument("--port", type=int, default=8101)
     parser.add_argument("--n-predict", type=int, default=700)
     parser.add_argument("--backend", choices=("llama", "hf"), default="llama")
+    parser.add_argument("--batch", type=int, default=4,
+                        help="hf backend: sequences per forward pass, halved on OOM")
     parser.add_argument("--base", default="Qwen/Qwen2.5-Coder-1.5B-Instruct",
                         help="hf backend: base model the adapter was trained on")
     parser.add_argument("--adapter", default=None,
@@ -272,7 +302,7 @@ def main() -> None:
     process = None
     generator = None
     if args.backend == "hf":
-        generator = HFGenerator(args.base, args.adapter)
+        generator = HFGenerator(args.base, args.adapter, batch=args.batch)
     else:
         process = subprocess.Popen(
             ["llama-server", "-m", args.gguf, "--port", str(args.port), "-c", "4096",
