@@ -3,7 +3,7 @@ import re
 
 import pytest
 
-from qwen_cpp_review.obfuscation import STRATEGIES, mixed, obfuscate
+from qwen_cpp_review.obfuscation import STRATEGIES, mixed, obfuscate, renameable
 from qwen_cpp_review.robustness_samples import SAMPLES
 
 IDENTIFIER_RE = re.compile(r"^[A-Za-z_][A-Za-z0-9_]*$")
@@ -93,3 +93,36 @@ def test_samples_survive_every_renaming():
         for strategy in STRATEGIES:
             renamed = obfuscate(sample["code"], strategy, random.Random(1))
             assert renamed.count("\n") == sample["code"].count("\n")
+
+
+def test_pointer_declarations_are_renameable():
+    """Linked-list and tree code renamed to nothing before the pointer pass existed.
+
+    `Node* reverse(Node* head)` matches neither the built-in-type function regex
+    nor the declaration regex, so `obfuscate` returned such samples untouched and
+    a robustness run scored them as having survived a rename that never happened.
+    """
+    code = (
+        "Node* reverse(Node* head, Node* prev = nullptr)\n"
+        "{\n"
+        "  if (head == nullptr) return prev;\n"
+        "  Node* next = head->next;\n"
+        "  return reverse(next, head);\n"
+        "}"
+    )
+    names = renameable(code)
+    assert "reverse" in names and "head" in names and "prev" in names
+
+    renamed = obfuscate(code, "misleading", random.Random(0))
+    assert renamed != code
+    assert "head" not in renamed and "reverse" not in renamed
+
+
+def test_builtin_pointer_types_are_renameable():
+    assert "buffer" in renameable("void fill(int* buffer, int n) { buffer[0] = n; }")
+
+
+def test_statements_are_not_mistaken_for_declarations():
+    """The pointer pass requires a `*` or `&`, so ordinary code must stay untouched."""
+    for statement in ("return prev;", "if (a && b) return c;", "x = y * z;", "cout << a * b;"):
+        assert renameable(statement) == [], statement

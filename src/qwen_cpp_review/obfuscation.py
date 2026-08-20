@@ -33,8 +33,17 @@ from qwen_cpp_review.identifier_augmentation import (
 #: `identifier_augmentation` only finds variables, so function names are
 #: collected separately here.
 FUNCTION_RE = re.compile(
-    r"\b(?:int|long|short|float|double|bool|char|void|string|auto|size_t)\s+"
+    r"\b(?:int|long|short|float|double|bool|char|void|string|auto|size_t)\s*[*&]*\s*"
     r"([A-Za-z_][A-Za-z0-9_]*)\s*\(",
+)
+
+#: Names declared with a user-defined type - `Node* reverse(...)`, `ListNode* head`.
+#: The built-in-type passes cannot see these, which left every linked-list and tree
+#: sample renaming to nothing: `obfuscate` returned the input untouched and the
+#: model still read `head`, `next` and `reverse`. A `*` or `&` is required rather
+#: than any two adjacent words, so this matches declarations and not `return prev`.
+POINTER_DECL_RE = re.compile(
+    r"\b([A-Z][A-Za-z0-9_]*)\s*[*&]+\s*([A-Za-z_][A-Za-z0-9_]*)",
 )
 
 #: Renaming these would change what the program does, or read as nonsense.
@@ -45,7 +54,7 @@ PROTECTED_FUNCTIONS = {"main", "printf", "scanf", "malloc", "free", "sizeof"}
 #: that name would keep its meaning through an obfuscation and quietly make the
 #: model look more robust than it is. This catches the declaration directly.
 DECLARED_RE = re.compile(
-    r"\b(?:int|long|short|float|double|bool|char|void|string|auto|size_t|unsigned)\s+"
+    r"\b(?:int|long|short|float|double|bool|char|void|string|auto|size_t|unsigned)\s*[*&]*\s*"
     r"([A-Za-z_][A-Za-z0-9_]*)\s*(?:=|;|\[|,|\)|$)",
     re.MULTILINE,
 )
@@ -107,7 +116,8 @@ def renameable(code: str) -> list[str]:
     name left behind is a name the model can still read.
     """
     names = collect_function_names(code)
-    for candidate in DECLARED_RE.findall(code) + collect_declared_identifiers(code):
+    pointer_names = [name for match in POINTER_DECL_RE.findall(code) for name in match[1:]]
+    for candidate in DECLARED_RE.findall(code) + collect_declared_identifiers(code) + pointer_names:
         if (
             candidate not in names
             and candidate not in CPP_KEYWORDS

@@ -1,0 +1,835 @@
+[
+  {
+    "sample": "fibonacci",
+    "difficulty": "easy",
+    "phrasing": "trained_wording",
+    "strategy": "original",
+    "verdict": "unchanged algorithm",
+    "wanted": [
+      "MEMOISED",
+      "TABULATED"
+    ],
+    "signals": [
+      "has a loop",
+      "still recursive"
+    ],
+    "json_ok": true,
+    "improved_code": "int fib(int n)\n{\n    // Base case: the first two Fibonacci numbers are defined as 0 and 1.\n    if (n <= 1)\n        return n;\n\n    // Recursive call with the next index; the loop invariant guarantees termination.\n    for (int i = 2; i <= n; ++i) {\n        auto a = fib(i - 1);\n        auto b = fib(i - 2);\n        fib(i) = a + b;\n    }\n    return fib(n);\n}"
+  },
+  {
+    "sample": "fibonacci",
+    "difficulty": "easy",
+    "phrasing": "explicit_faster",
+    "strategy": "original",
+    "verdict": "ITERATIVE (no table)",
+    "wanted": [
+      "MEMOISED",
+      "TABULATED"
+    ],
+    "signals": [
+      "has a loop"
+    ],
+    "json_ok": true,
+    "improved_code": "int fib(int n)\n{\n    if (n <= 1)\n        return n;\n    int a = 0, b = 1;\n    for (int i = 2; i <= n; ++i) {\n        int next = a + b;\n        a = b;\n        b = next;\n    }\n    return b;\n}"
+  },
+  {
+    "sample": "fibonacci",
+    "difficulty": "easy",
+    "phrasing": "explicit_memo",
+    "strategy": "original",
+    "verdict": "MEMOISED (top-down)",
+    "wanted": [
+      "MEMOISED",
+      "TABULATED"
+    ],
+    "signals": [
+      "stores results",
+      "still recursive",
+      "static storage"
+    ],
+    "json_ok": true,
+    "improved_code": "int fib(int n)\n{\n    // Memoization table for the first 1000 values to avoid exponential time\n    static std::vector<int> memo(1000, -1);\n\n    // Return cached result if available\n    if (memo[n] != -1)\n        return memo[n];\n\n    // Base case: F(0) = 0, F(1) = 1\n    if (n <= 1)\n        return n;\n\n    // Recursive call with memoization\n    memo[n] = fib(n - 1) + fib(n - 2);\n    return memo[n];\n}"
+  },
+  {
+    "sample": "fibonacci",
+    "difficulty": "easy",
+    "phrasing": "explicit_loop",
+    "strategy": "original",
+    "verdict": "ITERATIVE (no table)",
+    "wanted": [
+      "MEMOISED",
+      "TABULATED"
+    ],
+    "signals": [
+      "has a loop"
+    ],
+    "json_ok": true,
+    "improved_code": "int fib(int n)\n{\n    if (n <= 1)\n        return n;\n\n    int a = 0, b = 1;\n    for (int i = 2; i <= n; ++i) {\n        int next = a + b;\n        a = b;\n        b = next;\n    }\n    return b;\n}"
+  },
+  {
+    "sample": "grid_paths",
+    "difficulty": "medium",
+    "phrasing": "trained_wording",
+    "strategy": "original",
+    "verdict": "unchanged algorithm",
+    "wanted": [
+      "MEMOISED",
+      "TABULATED"
+    ],
+    "signals": [
+      "still recursive"
+    ],
+    "json_ok": true,
+    "improved_code": "int paths(int rows, int cols)\n{\n    // Base case: a single\u2011row or single\u2011column grid has exactly one path.\n    if (rows == 1 || cols == 1)\n        return 1;\n\n    // Recursive case: sum paths from the top and from the left.\n    return paths(rows - 1, cols) + paths(rows, cols - 1);\n}"
+  },
+  {
+    "sample": "grid_paths",
+    "difficulty": "medium",
+    "phrasing": "explicit_faster",
+    "strategy": "original",
+    "verdict": "unchanged algorithm",
+    "wanted": [
+      "MEMOISED",
+      "TABULATED"
+    ],
+    "signals": [
+      "still recursive"
+    ],
+    "json_ok": true,
+    "improved_code": "int paths(int rows, int cols)\n{\n    // Base case: a single\u2011row or single\u2011column grid has exactly one path.\n    if (rows == 1 || cols == 1)\n        return 1;\n\n    // Recursive case: sum paths from the top and from the left.\n    return paths(rows - 1, cols) + paths(rows, cols - 1);\n}"
+  },
+  {
+    "sample": "grid_paths",
+    "difficulty": "medium",
+    "phrasing": "explicit_memo",
+    "strategy": "original",
+    "verdict": "TABULATED (bottom-up)",
+    "wanted": [
+      "MEMOISED",
+      "TABULATED"
+    ],
+    "signals": [
+      "stores results",
+      "has a loop"
+    ],
+    "json_ok": true,
+    "improved_code": "int paths(int rows, int cols)\n{\n    // Memoization table: dp[i][j] stores the number of paths from (1,1) to (i,j)\n    std::vector<std::vector<int>> dp(rows + 1, std::vector<int>(cols + 1, 0));\n\n    // Base case: only one way to reach the top\u2011left corner\n    dp[1][1] = 1;\n\n    // Fill the table using the recurrence dp[i][j] = dp[i\u20111][j] + dp[i][j\u20111]\n    for (int i = 1; i <= rows; ++i) {\n        for (int j = 1; j <= cols; ++j) {\n            dp[i][j] = dp[i-1][j] + dp[i][j-1];\n        }\n    }\n\n    // The answer is the number of paths from (1,1) to (rows,cols)\n    return dp[rows][cols];\n}"
+  },
+  {
+    "sample": "grid_paths",
+    "difficulty": "medium",
+    "phrasing": "explicit_loop",
+    "strategy": "original",
+    "verdict": "unchanged algorithm",
+    "wanted": [
+      "MEMOISED",
+      "TABULATED"
+    ],
+    "signals": [
+      "still recursive"
+    ],
+    "json_ok": true,
+    "improved_code": "int paths(int rows, int cols)\n{\n    // Base case: a single\u2011row or single\u2011column grid has exactly one path.\n    if (rows == 1 || cols == 1)\n        return 1;\n\n    // Recursive case: sum paths from the top\u2011left to the bottom\u2011right.\n    return paths(rows - 1, cols) + paths(rows, cols - 1);\n}"
+  },
+  {
+    "sample": "coin_change",
+    "difficulty": "hard",
+    "phrasing": "trained_wording",
+    "strategy": "original",
+    "verdict": "unchanged algorithm",
+    "wanted": [
+      "MEMOISED",
+      "TABULATED"
+    ],
+    "signals": [
+      "still recursive"
+    ],
+    "json_ok": true,
+    "improved_code": "int ways(int coins[], int count, int amount)\n{\n    // Base case: exact amount achieved.\n    if (amount == 0)\n        return 1;\n\n    // No more coins or insufficient remaining amount.\n    if (amount < 0 || count == 0)\n        return 0;\n\n    // Recursive case: either exclude the current coin or include it.\n    return ways(coins, count - 1, amount) + ways(coins, count, amount - coins[count - 1]);\n}"
+  },
+  {
+    "sample": "coin_change",
+    "difficulty": "hard",
+    "phrasing": "explicit_faster",
+    "strategy": "original",
+    "verdict": "unchanged algorithm",
+    "wanted": [
+      "MEMOISED",
+      "TABULATED"
+    ],
+    "signals": [
+      "still recursive"
+    ],
+    "json_ok": true,
+    "improved_code": "int ways(int coins[], int count, int amount)\n{\n    // Base case: exact amount achieved.\n    if (amount == 0)\n        return 1;\n\n    // No more coins to consider \u2192 impossible to reach amount.\n    if (amount < 0 || count == 0)\n        return 0;\n\n    // Recursive case: either exclude the current coin or include it.\n    return ways(coins, count - 1, amount) + ways(coins, count, amount - coins[count - 1]);\n}"
+  },
+  {
+    "sample": "coin_change",
+    "difficulty": "hard",
+    "phrasing": "explicit_memo",
+    "strategy": "original",
+    "verdict": "TABULATED (bottom-up)",
+    "wanted": [
+      "MEMOISED",
+      "TABULATED"
+    ],
+    "signals": [
+      "stores results",
+      "has a loop"
+    ],
+    "json_ok": true,
+    "improved_code": "int ways(int coins[], int count, int amount)\n{\n    // Guard against null pointer or invalid count.\n    if (!coins || count <= 0) return 0;\n\n    // Memoization table: dp[i][j] stores the number of ways to make j with the first i coins.\n    std::vector<std::vector<int>> dp(count + 1, std::vector<int>(amount + 1, 0));\n\n    // Fill the table using the original recursive logic.\n    for (int i = 1; i <= count; ++i) {\n        for (int j = 0; j <= amount; ++j) {\n            if (j == 0) {\n                dp[i][j] = 1; // Only one way to make amount 0.\n            } else if (j < coins[i - 1]) {\n                dp[i][j] = dp[i - 1][j]; // Cannot use coin i.\n            } else {\n                dp[i][j] = dp[i - 1][j] + dp[i][j - coins[i - 1]]; // Use coin i or skip it.\n            }\n        }\n    }\n\n    return dp[count][amount];\n}"
+  },
+  {
+    "sample": "coin_change",
+    "difficulty": "hard",
+    "phrasing": "explicit_loop",
+    "strategy": "original",
+    "verdict": "unchanged algorithm",
+    "wanted": [
+      "MEMOISED",
+      "TABULATED"
+    ],
+    "signals": [
+      "has a loop",
+      "still recursive"
+    ],
+    "json_ok": true,
+    "improved_code": "int ways(int coins[], int count, int amount)\n{\n    // Base case: exact amount achieved.\n    if (amount == 0)\n        return 1;\n\n    // No coins left or insufficient amount \u2192 no solution.\n    if (amount < 0 || count == 0)\n        return 0;\n\n    // Use a loop to avoid deep recursion and keep the same result.\n    int result = 0;\n    for (int i = 0; i < count; ++i) {\n        // Skip the current coin if it is larger than the remaining amount.\n        if (coins[i] > amount)\n            continue;\n        // Recurse with one fewer coin and the reduced amount.\n        result += ways(coins, count - 1, amount - coins[i]);\n    }\n    return result;\n}"
+  },
+  {
+    "sample": "factorial",
+    "difficulty": "easy",
+    "phrasing": "trained_wording",
+    "strategy": "original",
+    "verdict": "unchanged algorithm",
+    "wanted": [
+      "ITERATIVE"
+    ],
+    "signals": [
+      "still recursive"
+    ],
+    "json_ok": true,
+    "improved_code": "long long fact(int n)\n{\n    // Base case: factorial of 0 or 1 is 1.\n    if (n <= 1)\n        return 1;\n\n    // Recursive call; assumes n is non\u2011negative.\n    return n * fact(n - 1);\n}"
+  },
+  {
+    "sample": "factorial",
+    "difficulty": "easy",
+    "phrasing": "explicit_faster",
+    "strategy": "original",
+    "verdict": "ITERATIVE (no table)",
+    "wanted": [
+      "ITERATIVE"
+    ],
+    "signals": [
+      "has a loop"
+    ],
+    "json_ok": true,
+    "improved_code": "long long fact(int n)\n{\n    if (n <= 1)\n        return 1; // base case: factorial of 0 or 1 is 1\n\n    long long result = 1; // accumulator for the product\n    for (int i = 2; i <= n; ++i) {\n        result *= i; // multiply by each integer up to n\n    }\n    return result;\n}"
+  },
+  {
+    "sample": "factorial",
+    "difficulty": "easy",
+    "phrasing": "explicit_memo",
+    "strategy": "original",
+    "verdict": "MEMOISED (top-down)",
+    "wanted": [
+      "ITERATIVE"
+    ],
+    "signals": [
+      "stores results",
+      "still recursive",
+      "static storage"
+    ],
+    "json_ok": true,
+    "improved_code": "long long fact(int n)\n{\n    // Base case: factorial of 0 or 1 is 1.\n    if (n <= 1)\n        return 1;\n\n    // Memoization table: store results for each n to avoid redundant calls.\n    static std::vector<long long> memo(n + 1, 0);\n    if (memo[n] == 0) {\n        memo[n] = n * fact(n - 1); // Recursive call; memoization saves time.\n    }\n    return memo[n];\n}"
+  },
+  {
+    "sample": "factorial",
+    "difficulty": "easy",
+    "phrasing": "explicit_loop",
+    "strategy": "original",
+    "verdict": "ITERATIVE (no table)",
+    "wanted": [
+      "ITERATIVE"
+    ],
+    "signals": [
+      "has a loop"
+    ],
+    "json_ok": true,
+    "improved_code": "long long fact(int n)\n{\n    if (n <= 1)\n        return 1;\n    long long result = 1;\n    for (int i = 2; i <= n; ++i) {\n        result *= i;\n    }\n    return result;\n}"
+  },
+  {
+    "sample": "array_sum",
+    "difficulty": "easy",
+    "phrasing": "trained_wording",
+    "strategy": "original",
+    "verdict": "ITERATIVE (no table)",
+    "wanted": [
+      "ITERATIVE"
+    ],
+    "signals": [
+      "has a loop"
+    ],
+    "json_ok": true,
+    "improved_code": "int total(const int arr[], int n)\n{\n    // Guard against null pointer or non\u2011positive length.\n    if (arr == nullptr || n <= 0) {\n        return 0;\n    }\n\n    // Use a local variable for clarity and to avoid modifying the caller's array.\n    const int* p = arr;\n    int sum = 0;\n\n    // Iterate from the last element to the first.\n    for (int i = n; i > 0; --i) {\n        sum += p[i - 1];\n    }\n\n    return sum;\n}"
+  },
+  {
+    "sample": "array_sum",
+    "difficulty": "easy",
+    "phrasing": "explicit_faster",
+    "strategy": "original",
+    "verdict": "unchanged algorithm",
+    "wanted": [
+      "ITERATIVE"
+    ],
+    "signals": [
+      "still recursive"
+    ],
+    "json_ok": true,
+    "improved_code": "int total(const int arr[], int n)\n{\n    // Base case: empty array yields zero sum.\n    if (n == 0)\n        return 0;\n\n    // Recursive step: add the last element and recurse on the rest.\n    return arr[n - 1] + total(arr, n - 1);\n}"
+  },
+  {
+    "sample": "array_sum",
+    "difficulty": "easy",
+    "phrasing": "explicit_memo",
+    "strategy": "original",
+    "verdict": "MEMOISED (top-down)",
+    "wanted": [
+      "ITERATIVE"
+    ],
+    "signals": [
+      "stores results",
+      "still recursive",
+      "static storage"
+    ],
+    "json_ok": true,
+    "improved_code": "int total(const int arr[], int n)\n{\n    // Base case: empty array yields zero sum.\n    if (n == 0)\n        return 0;\n\n    // Use a static array to store previously computed results.\n    static std::array<int, 100> memo{}; // size chosen to avoid frequent reallocations\n    if (memo[n] == 0) { // first call for this n\n        memo[n] = arr[n - 1] + total(arr, n - 1); // compute and cache\n    }\n    return memo[n]; // reuse cached value\n}"
+  },
+  {
+    "sample": "array_sum",
+    "difficulty": "easy",
+    "phrasing": "explicit_loop",
+    "strategy": "original",
+    "verdict": "ITERATIVE (no table)",
+    "wanted": [
+      "ITERATIVE"
+    ],
+    "signals": [
+      "has a loop"
+    ],
+    "json_ok": true,
+    "improved_code": "int total(const int arr[], int n)\n{\n    int sum = 0;\n    for (int i = 0; i < n; ++i) {\n        sum += arr[i];\n    }\n    return sum;\n}"
+  },
+  {
+    "sample": "reverse_list",
+    "difficulty": "medium",
+    "phrasing": "trained_wording",
+    "strategy": "original",
+    "verdict": "unchanged algorithm",
+    "wanted": [
+      "ITERATIVE"
+    ],
+    "signals": [
+      "still recursive"
+    ],
+    "json_ok": true,
+    "improved_code": "Node* reverse(Node* head, Node* prev = nullptr)\n{\n    if (head == nullptr)\n        return prev;\n\n    auto next = head->next;               // cache next node to avoid mutating the original list\n    head->next = prev;                    // reverse link\n    return reverse(next, head);           // recurse with current node as new head\n}"
+  },
+  {
+    "sample": "reverse_list",
+    "difficulty": "medium",
+    "phrasing": "explicit_faster",
+    "strategy": "original",
+    "verdict": "unchanged algorithm",
+    "wanted": [
+      "ITERATIVE"
+    ],
+    "signals": [
+      "still recursive"
+    ],
+    "json_ok": true,
+    "improved_code": "Node* reverse(Node* head, Node* prev = nullptr)\n{\n    if (head == nullptr)\n        return prev;\n\n    auto next = head->next;               // cache next node to avoid repeated dereferencing\n    head->next = prev;                    // reverse link\n    return reverse(next, head);           // recurse with reversed link and current node as new prev\n}"
+  },
+  {
+    "sample": "reverse_list",
+    "difficulty": "medium",
+    "phrasing": "explicit_memo",
+    "strategy": "original",
+    "verdict": "unchanged algorithm",
+    "wanted": [
+      "ITERATIVE"
+    ],
+    "signals": [
+      "still recursive"
+    ],
+    "json_ok": true,
+    "improved_code": "Node* reverse(Node* head, Node* prev = nullptr)\n{\n    if (head == nullptr)\n        return prev;\n\n    auto next = head->next;               // cache next node to avoid repeated dereferencing\n    head->next = prev;                    // reverse link\n    return reverse(next, head);           // recurse with reversed link and current node as new prev\n}"
+  },
+  {
+    "sample": "reverse_list",
+    "difficulty": "medium",
+    "phrasing": "explicit_loop",
+    "strategy": "original",
+    "verdict": "unchanged algorithm",
+    "wanted": [
+      "ITERATIVE"
+    ],
+    "signals": [
+      "still recursive"
+    ],
+    "json_ok": true,
+    "improved_code": "Node* reverse(Node* head, Node* prev = nullptr)\n{\n    if (head == nullptr)\n        return prev;\n\n    auto next = head->next;               // cache next node to avoid repeated dereferencing\n    head->next = prev;                    // reverse link\n    return reverse(next, head);           // recurse with current node as new head\n}"
+  },
+  {
+    "sample": "inorder_walk",
+    "difficulty": "hard",
+    "phrasing": "trained_wording",
+    "strategy": "original",
+    "verdict": "unchanged algorithm",
+    "wanted": [
+      "ITERATIVE"
+    ],
+    "signals": [
+      "still recursive"
+    ],
+    "json_ok": true,
+    "improved_code": "void inorder(Node* node)\n{\n    if (node == nullptr)\n        return; // empty subtree\n\n    inorder(node->left); // traverse left subtree\n    visit(node->value); // process current node\n    inorder(node->right); // traverse right subtree\n}"
+  },
+  {
+    "sample": "inorder_walk",
+    "difficulty": "hard",
+    "phrasing": "explicit_faster",
+    "strategy": "original",
+    "verdict": "unchanged algorithm",
+    "wanted": [
+      "ITERATIVE"
+    ],
+    "signals": [
+      "still recursive"
+    ],
+    "json_ok": true,
+    "improved_code": "void inorder(Node* node)\n{\n    if (node == nullptr)\n        return; // empty subtree \u2013 nothing to visit\n\n    // left subtree (in\u2011order)\n    inorder(node->left);\n\n    // visit current node\n    visit(node->value);\n\n    // right subtree (in\u2011order)\n    inorder(node->right);\n}"
+  },
+  {
+    "sample": "inorder_walk",
+    "difficulty": "hard",
+    "phrasing": "explicit_memo",
+    "strategy": "original",
+    "verdict": "unchanged algorithm",
+    "wanted": [
+      "ITERATIVE"
+    ],
+    "signals": [
+      "still recursive",
+      "static storage"
+    ],
+    "json_ok": true,
+    "improved_code": "void inorder(Node* node)\n{\n    if (node == nullptr)\n        return;\n\n    // Use a static array to store results of previously visited nodes.\n    static std::array<bool, 1000> visited{}; // Assuming a reasonable limit for the tree.\n\n    // Mark the current node as visited.\n    visited[static_cast<std::size_t>(node)] = true;\n\n    // Recurse left subtree.\n    inorder(node->left);\n\n    // Visit only if the node has not been visited before.\n    if (!visited[static_cast<std::size_t>(node->value)]) {\n        visit(node->value);\n    }\n\n    // Recurse right subtree.\n    inorder(node->right);\n}"
+  },
+  {
+    "sample": "inorder_walk",
+    "difficulty": "hard",
+    "phrasing": "explicit_loop",
+    "strategy": "original",
+    "verdict": "unchanged algorithm",
+    "wanted": [
+      "ITERATIVE"
+    ],
+    "signals": [
+      "still recursive"
+    ],
+    "json_ok": true,
+    "improved_code": "void inorder(Node* node)\n{\n    if (node == nullptr)\n        return; // empty subtree\n\n    // left subtree\n    inorder(node->left);\n\n    // visit current node\n    visit(node->value);\n\n    // right subtree\n    inorder(node->right);\n}"
+  },
+  {
+    "sample": "fibonacci",
+    "difficulty": "easy",
+    "phrasing": "explicit_memo",
+    "strategy": "clear",
+    "verdict": "MEMOISED (top-down)",
+    "wanted": [
+      "MEMOISED",
+      "TABULATED"
+    ],
+    "signals": [
+      "stores results",
+      "still recursive",
+      "static storage"
+    ],
+    "json_ok": true,
+    "improved_code": "int total(int count)\n{\n    // Base case: count \u2264 1 yields the same result as the original recursion.\n    if (count <= 1)\n        return count;\n\n    // Memoization table: store results for each count from 0 to count.\n    static std::vector<int> memo(count + 1, 0);\n\n    // Return cached result if available; otherwise compute and cache.\n    if (memo[count] == 0)\n        memo[count] = total(count - 1) + total(count - 2);\n\n    return memo[count];\n}"
+  },
+  {
+    "sample": "fibonacci",
+    "difficulty": "easy",
+    "phrasing": "explicit_memo",
+    "strategy": "terse",
+    "verdict": "MEMOISED (top-down)",
+    "wanted": [
+      "MEMOISED",
+      "TABULATED"
+    ],
+    "signals": [
+      "stores results",
+      "still recursive",
+      "static storage"
+    ],
+    "json_ok": true,
+    "improved_code": "int a(int b)\n{\n    // Base case: a(0) and a(1) are defined as 0 and 1 respectively.\n    if (b <= 1)\n        return b;\n\n    // Memoization table to store previously computed values.\n    static std::vector<int> memo;\n    memo.reserve(b + 1); // Reserve space to avoid reallocations.\n\n    // Lookup the result from the memoization table.\n    if (memo[b] != 0)\n        return memo[b];\n\n    // Compute the value and store it in the table.\n    memo[b] = a(b - 1) + a(b - 2);\n    return memo[b];\n}"
+  },
+  {
+    "sample": "fibonacci",
+    "difficulty": "easy",
+    "phrasing": "explicit_memo",
+    "strategy": "misleading",
+    "verdict": "MEMOISED (top-down)",
+    "wanted": [
+      "MEMOISED",
+      "TABULATED"
+    ],
+    "signals": [
+      "stores results",
+      "still recursive",
+      "static storage"
+    ],
+    "json_ok": true,
+    "improved_code": "int product(int average)\n{\n    // Base case: for average \u2264 1 the product is simply the average itself.\n    if (average <= 1)\n        return average;\n\n    // Memoization table to store previously computed results.\n    static std::unordered_map<int, int> memo;\n\n    // Lookup the result; if absent, compute and store it.\n    auto it = memo.find(average);\n    if (it == memo.end()) {\n        const int result = product(average - 1) + product(average - 2);\n        memo[average] = result;\n        return result;\n    }\n\n    // Return the cached value.\n    return it->second;\n}"
+  },
+  {
+    "sample": "fibonacci",
+    "difficulty": "easy",
+    "phrasing": "explicit_memo",
+    "strategy": "noise",
+    "verdict": "MEMOISED (top-down)",
+    "wanted": [
+      "MEMOISED",
+      "TABULATED"
+    ],
+    "signals": [
+      "stores results",
+      "still recursive",
+      "static storage"
+    ],
+    "json_ok": true,
+    "improved_code": "int lllIII(int IllIlI)\n{\n    // Base case: for n \u2264 1 the sequence is trivially defined.\n    if (IllIlI <= 1)\n        return IllIlI;\n\n    // Memoization table: store results for each index to avoid recomputation.\n    static std::vector<int> memo;\n    if (memo.empty())\n        memo.reserve(100); // Initial capacity; can be increased as needed.\n\n    // Lookup the previously computed value; if absent, compute and store it.\n    auto it = memo.find(IllIlI);\n    if (it == memo.end())\n    {\n        memo[IllIlI] = lllIII(IllIlI - 1) + lllIII(IllIlI - 2);\n    }\n    return memo[IllIlI];\n}"
+  },
+  {
+    "sample": "grid_paths",
+    "difficulty": "medium",
+    "phrasing": "explicit_memo",
+    "strategy": "clear",
+    "verdict": "MEMOISED (top-down)",
+    "wanted": [
+      "MEMOISED",
+      "TABULATED"
+    ],
+    "signals": [
+      "stores results",
+      "still recursive",
+      "static storage"
+    ],
+    "json_ok": true,
+    "improved_code": "int total(int count, int index)\n{\n    // Base case: only one element can be placed at the first position.\n    if (count == 1 || index == 1)\n        return 1;\n\n    // Use a 2\u2011D table to store previously computed results.\n    static std::vector<std::vector<int>> memo;\n    if (memo.empty())\n        memo.resize(count + 1, std::vector<int>(index + 1, 0));\n\n    // Return cached result if available; otherwise compute and cache.\n    if (memo[count][index] == 0)\n        memo[count][index] = total(count - 1, index) + total(count, index - 1);\n\n    return memo[count][index];\n}"
+  },
+  {
+    "sample": "grid_paths",
+    "difficulty": "medium",
+    "phrasing": "explicit_memo",
+    "strategy": "terse",
+    "verdict": "unclear",
+    "wanted": [
+      "MEMOISED",
+      "TABULATED"
+    ],
+    "signals": [
+      "stores results"
+    ],
+    "json_ok": true,
+    "improved_code": "int a(int b, int c)\n{\n    // Memoization table: dp[i][j] stores the result for (i, j)\n    std::vector<std::vector<int>> dp(b + 1, std::vector<int>(c + 1, 0));\n\n    // Helper function that fills the table\n    auto fill = [&](int i, int j) -> int {\n        if (i == 1 || j == 1)\n            return 1;\n        return dp[i][j] = fill(i - 1, j) + fill(i, j - 1);\n    };\n\n    // Start filling from the smallest dimension\n    if (b < c)\n        fill(b, c);\n    else\n        fill(c, b);\n\n    return dp[b][c];\n}"
+  },
+  {
+    "sample": "grid_paths",
+    "difficulty": "medium",
+    "phrasing": "explicit_memo",
+    "strategy": "misleading",
+    "verdict": "MEMOISED (top-down)",
+    "wanted": [
+      "MEMOISED",
+      "TABULATED"
+    ],
+    "signals": [
+      "stores results",
+      "still recursive",
+      "static storage"
+    ],
+    "json_ok": true,
+    "improved_code": "int product(int average, int maximum)\n{\n    // Base case: only one element can be chosen.\n    if (average == 1 || maximum == 1)\n        return 1;\n\n    // Memoization table: dp[average][maximum] stores the product for that pair.\n    static std::vector<std::vector<int>> dp;\n    if (dp.empty())\n        dp.resize(average + 1, std::vector<int>(maximum + 1, 0));\n\n    // Return cached result if available.\n    if (dp[average][maximum] != 0)\n        return dp[average][maximum];\n\n    // Recursive case: choose the smaller element first.\n    const int result = product(average - 1, maximum) + product(average, maximum - 1);\n    dp[average][maximum] = result;\n    return result;\n}"
+  },
+  {
+    "sample": "grid_paths",
+    "difficulty": "medium",
+    "phrasing": "explicit_memo",
+    "strategy": "noise",
+    "verdict": "MEMOISED (top-down)",
+    "wanted": [
+      "MEMOISED",
+      "TABULATED"
+    ],
+    "signals": [
+      "stores results",
+      "still recursive",
+      "static storage"
+    ],
+    "json_ok": true,
+    "improved_code": "int lllIII(int IllIlI, int l1lIl1)\n{\n    // Base case: only one of the two parameters is 1 \u2192 exactly one way.\n    if (IllIlI == 1 || l1lIl1 == 1)\n        return 1;\n\n    // Memoization table: dp[i][j] stores the count for (i, j).\n    static std::vector<std::vector<int>> dp;\n    if (dp.empty())\n        dp.resize(IllIlI + 1, std::vector<int>(l1lIl1 + 1, 0));\n\n    // Return cached result if available; otherwise compute and cache.\n    if (dp[IllIlI][l1lIl1] == 0)\n        dp[IllIlI][l1lIl1] = lllIII(IllIlI - 1, l1lIl1) + lllIII(IllIlI, l1lIl1 - 1);\n\n    return dp[IllIlI][l1lIl1];\n}"
+  },
+  {
+    "sample": "coin_change",
+    "difficulty": "hard",
+    "phrasing": "explicit_memo",
+    "strategy": "clear",
+    "verdict": "MEMOISED (top-down)",
+    "wanted": [
+      "MEMOISED",
+      "TABULATED"
+    ],
+    "signals": [
+      "stores results",
+      "still recursive",
+      "static storage"
+    ],
+    "json_ok": true,
+    "improved_code": "int total(int count_1[], int index, int result)\n{\n    // Base case: exactly zero elements match the required sum.\n    if (result == 0)\n        return 1;\n\n    // No elements left or sum cannot be achieved.\n    if (result < 0 || index == 0)\n        return 0;\n\n    // Use memoization: store the computed count for (index, result).\n    static std::unordered_map<std::pair<int,int>, int> memo;\n    auto it = memo.find({index, result});\n    if (it != memo.end())\n        return it->second;\n\n    // Count using the current element and skip it.\n    int count = total(count_1, index - 1, result) +\n                total(count_1, index, result - count_1[index - 1]);\n\n    // Cache the result for future calls.\n    memo[{index, result}] = count;\n    return count;\n}"
+  },
+  {
+    "sample": "coin_change",
+    "difficulty": "hard",
+    "phrasing": "explicit_memo",
+    "strategy": "terse",
+    "verdict": "unclear",
+    "wanted": [
+      "MEMOISED",
+      "TABULATED"
+    ],
+    "signals": [
+      "stores results"
+    ],
+    "json_ok": true,
+    "improved_code": "int a(int b[], int c, int d)\n{\n    // Memoization table: dp[i][j][k] stores the count for the last i elements,\n    // remaining capacity j, and remaining elements k.\n    std::vector<std::vector<std::vector<int>>> dp(b[0] + 1, std::vector<std::vector<int>>(c + 1, std::vector<int>(d + 1, 0)));\n\n    // Helper function that fills the DP table.\n    auto fillDP = [&](int i, int j, int k) -> int {\n        if (j == 0) return 1;                     // base case: exactly d elements used\n        if (j < 0 || k == 0) return 0;            // invalid state\n        // Use cached result if available; otherwise compute and store.\n        if (dp[i][j][k] == 0) {\n            dp[i][j][k] = fillDP(i - 1, j, k) + fillDP(i - 1, j - b[i - 1], k - 1);\n        }\n        return dp[i][j][k];\n    };\n\n    // Start filling from the last element.\n    return fillDP(b[0], d, c);\n}"
+  },
+  {
+    "sample": "coin_change",
+    "difficulty": "hard",
+    "phrasing": "explicit_memo",
+    "strategy": "misleading",
+    "verdict": "unchanged algorithm",
+    "wanted": [
+      "MEMOISED",
+      "TABULATED"
+    ],
+    "signals": [
+      "still recursive"
+    ],
+    "json_ok": true,
+    "improved_code": "int product(int average[], int maximum, int minimum)\n{\n    // Base case: if the smallest element is zero, the product is 1.\n    if (minimum == 0)\n        return 1;\n\n    // Early exit: if the smallest element is negative or the maximum is zero,\n    // the product is zero.\n    if (minimum < 0 || maximum == 0)\n        return 0;\n\n    // Recursive case: compute the product for the current maximum and the\n    // remaining elements, then add the product for the current maximum and\n    // the remaining elements after subtracting the average of the last element.\n    return product(average, maximum - 1, minimum) + product(average, maximum, minimum - average[maximum - 1]);\n}"
+  },
+  {
+    "sample": "coin_change",
+    "difficulty": "hard",
+    "phrasing": "explicit_memo",
+    "strategy": "noise",
+    "verdict": "MEMOISED (top-down)",
+    "wanted": [
+      "MEMOISED",
+      "TABULATED"
+    ],
+    "signals": [
+      "stores results",
+      "still recursive",
+      "static storage"
+    ],
+    "json_ok": true,
+    "improved_code": "int lllIII(int IllIlI[], int l1lIl1, int O0OoO0)\n{\n    // Base case: empty array cannot contribute to sum\n    if (O0OoO0 == 0)\n        return 1;\n\n    // Invalid or empty prefix \u2192 no way to reach sum\n    if (O0OoO0 < 0 || l1lIl1 == 0)\n        return 0;\n\n    // Use a 2\u2011D DP table to store subproblem results\n    static std::vector<std::vector<int>> dp;\n    if (dp.empty())\n        dp.resize(l1lIl1 + 1, std::vector<int>(O0OoO0 + 1, 0));\n\n    // Return cached result if already computed\n    if (dp[l1lIl1][O0OoO0] != 0)\n        return dp[l1lIl1][O0OoO0];\n\n    // Recursive case: either take the current element or skip it\n    int result = lllIII(IllIlI, l1lIl1 - 1, O0OoO0) +\n                 lllIII(IllIlI, l1lIl1, O0OoO0 - IllIlI[l1lIl1 - 1]);\n\n    // Cache and return the computed value\n    dp[l1lIl1][O0OoO0] = result;\n    return result;\n}"
+  },
+  {
+    "sample": "factorial",
+    "difficulty": "easy",
+    "phrasing": "explicit_loop",
+    "strategy": "clear",
+    "verdict": "ITERATIVE (no table)",
+    "wanted": [
+      "ITERATIVE"
+    ],
+    "signals": [
+      "has a loop"
+    ],
+    "json_ok": true,
+    "improved_code": "long long total(int count)\n{\n    if (count <= 1)\n        return 1;\n    long long result = 1;\n    for (int i = 2; i <= count; ++i) {\n        result *= i;\n    }\n    return result;\n}"
+  },
+  {
+    "sample": "factorial",
+    "difficulty": "easy",
+    "phrasing": "explicit_loop",
+    "strategy": "terse",
+    "verdict": "ITERATIVE (no table)",
+    "wanted": [
+      "ITERATIVE"
+    ],
+    "signals": [
+      "has a loop"
+    ],
+    "json_ok": true,
+    "improved_code": "long long a(int b)\n{\n    if (b <= 1)\n        return 1;\n    long long result = 1;\n    for (int i = 2; i <= b; ++i) {\n        result *= i;\n    }\n    return result;\n}"
+  },
+  {
+    "sample": "factorial",
+    "difficulty": "easy",
+    "phrasing": "explicit_loop",
+    "strategy": "misleading",
+    "verdict": "ITERATIVE (no table)",
+    "wanted": [
+      "ITERATIVE"
+    ],
+    "signals": [
+      "has a loop"
+    ],
+    "json_ok": true,
+    "improved_code": "long long product(int average)\n{\n    if (average <= 1)\n        return 1;\n    long long result = 1;\n    for (int i = 1; i <= average; ++i) {\n        result *= i;\n    }\n    return result;\n}"
+  },
+  {
+    "sample": "factorial",
+    "difficulty": "easy",
+    "phrasing": "explicit_loop",
+    "strategy": "noise",
+    "verdict": "ITERATIVE (no table)",
+    "wanted": [
+      "ITERATIVE"
+    ],
+    "signals": [
+      "has a loop"
+    ],
+    "json_ok": true,
+    "improved_code": "long long lllIII(int IllIlI)\n{\n    if (IllIlI <= 1)\n        return 1;\n    long long result = 1;\n    for (int i = 2; i <= IllIlI; ++i) {\n        result *= i;\n    }\n    return result;\n}"
+  },
+  {
+    "sample": "array_sum",
+    "difficulty": "easy",
+    "phrasing": "explicit_loop",
+    "strategy": "clear",
+    "verdict": "unchanged algorithm",
+    "wanted": [
+      "ITERATIVE"
+    ],
+    "signals": [
+      "still recursive"
+    ],
+    "json_ok": true,
+    "improved_code": "int total_0(const int count[], int index)\n{\n    // Base case: the first element contributes nothing.\n    if (index == 0)\n        return 0;\n\n    // Recursive case: add the current element to the sum of the rest.\n    return count[index - 1] + total_0(count, index - 1);\n}"
+  },
+  {
+    "sample": "array_sum",
+    "difficulty": "easy",
+    "phrasing": "explicit_loop",
+    "strategy": "terse",
+    "verdict": "unchanged algorithm",
+    "wanted": [
+      "ITERATIVE"
+    ],
+    "signals": [
+      "still recursive"
+    ],
+    "json_ok": true,
+    "improved_code": "int a(const int b[], int c)\n{\n    if (c == 0)\n        return 0;\n    return b[c - 1] + a(b, c - 1);\n}"
+  },
+  {
+    "sample": "array_sum",
+    "difficulty": "easy",
+    "phrasing": "explicit_loop",
+    "strategy": "misleading",
+    "verdict": "unchanged algorithm",
+    "wanted": [
+      "ITERATIVE"
+    ],
+    "signals": [
+      "still recursive"
+    ],
+    "json_ok": true,
+    "improved_code": "int product(const int average[], int maximum)\n{\n    if (maximum == 0)\n        return 0;\n    return average[maximum - 1] + product(average, maximum - 1);\n}"
+  },
+  {
+    "sample": "array_sum",
+    "difficulty": "easy",
+    "phrasing": "explicit_loop",
+    "strategy": "noise",
+    "verdict": "unchanged algorithm",
+    "wanted": [
+      "ITERATIVE"
+    ],
+    "signals": [
+      "still recursive"
+    ],
+    "json_ok": true,
+    "improved_code": "int lllIII(const int IllIlI[], int l1lIl1)\n{\n    // Base case: empty array yields 0.\n    if (l1lIl1 == 0)\n        return 0;\n\n    // Recursive call with the tail element removed.\n    return IllIlI[l1lIl1 - 1] + lllIII(IllIlI, l1lIl1 - 1);\n}"
+  },
+  {
+    "sample": "inorder_walk",
+    "difficulty": "hard",
+    "phrasing": "explicit_loop",
+    "strategy": "clear",
+    "verdict": "unchanged algorithm",
+    "wanted": [
+      "ITERATIVE"
+    ],
+    "signals": [
+      "still recursive"
+    ],
+    "json_ok": true,
+    "improved_code": "void total(Node* node)\n{\n    if (node == nullptr)\n        return; // empty subtree \u2192 nothing to visit\n\n    // left subtree\n    total(node->left);\n\n    // visit current node\n    visit(node->value);\n\n    // right subtree\n    total(node->right);\n}"
+  },
+  {
+    "sample": "inorder_walk",
+    "difficulty": "hard",
+    "phrasing": "explicit_loop",
+    "strategy": "terse",
+    "verdict": "unchanged algorithm",
+    "wanted": [
+      "ITERATIVE"
+    ],
+    "signals": [
+      "still recursive"
+    ],
+    "json_ok": true,
+    "improved_code": "void a(Node* node)\n{\n    if (node == nullptr)\n        return;\n\n    a(node->left);   // traverse left subtree\n    visit(node->value); // process current node\n    a(node->right);  // traverse right subtree\n}"
+  },
+  {
+    "sample": "inorder_walk",
+    "difficulty": "hard",
+    "phrasing": "explicit_loop",
+    "strategy": "misleading",
+    "verdict": "unchanged algorithm",
+    "wanted": [
+      "ITERATIVE"
+    ],
+    "signals": [
+      "still recursive"
+    ],
+    "json_ok": true,
+    "improved_code": "void product(Node* node)\n{\n    if (node == nullptr)\n        return;\n\n    // Process left subtree first to ensure leftmost node is visited before the current node.\n    product(node->left);\n\n    // Visit the current node's value.\n    visit(node->value);\n\n    // Process right subtree.\n    product(node->right);\n}"
+  },
+  {
+    "sample": "inorder_walk",
+    "difficulty": "hard",
+    "phrasing": "explicit_loop",
+    "strategy": "noise",
+    "verdict": "unchanged algorithm",
+    "wanted": [
+      "ITERATIVE"
+    ],
+    "signals": [
+      "still recursive"
+    ],
+    "json_ok": true,
+    "improved_code": "void lllIII(Node* node)\n{\n    if (node == nullptr)\n        return;\n\n    // Traverse left subtree first to ensure leftmost node is processed before the current node.\n    lllIII(node->left);\n\n    // Process the current node.\n    visit(node->value);\n\n    // Traverse right subtree.\n    lllIII(node->right);\n}"
+  }
+]
