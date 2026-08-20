@@ -56,6 +56,26 @@ TASK_FIELD_HINTS = {
             "constant. If there are no overlapping subproblems, return the code unchanged"
         ),
     },
+    #: Removing recursion is a different request from removing recomputation, and
+    #: the wording that wins is different too. Measured on 60 real submissions from
+    #: the corpus, with their authors' own identifiers:
+    #:
+    #:     the trained wording            3/60   (and all three were the same gcd)
+    #:     naming the container          10/60
+    #:     a worked before/after example  6/60
+    #:
+    #: This is the middle line verbatim. It is not a large number - see
+    #: `docs/DETECTABILITY.md` for why the answer to that is checking the output
+    #: rather than asking harder - but it is three times the wording that ships.
+    "iterate": {
+        "improved_code": (
+            "the call stack is what makes this function work. Replace it with an explicit "
+            "std::stack (or std::queue where order allows), declared inside the function. Push "
+            "the starting item, then loop while it is not empty, popping one item and pushing "
+            "the items the recursive calls would have been made on. Keep the signature and the "
+            "results identical"
+        ),
+    },
 }
 
 #: Which output fields each task asks for. A dataset row names its task in a
@@ -67,6 +87,7 @@ TASKS = {
     "complexity": ["complexity_analysis"],
     "improve": ["improved_code"],
     "optimize": ["improved_code"],
+    "iterate": ["improved_code"],
     "review": ["line_comments", "explanation", "improved_code", "complexity_analysis"],
 }
 
