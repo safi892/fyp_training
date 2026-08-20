@@ -1,0 +1,600 @@
+[
+  {
+    "sample": "binary_search",
+    "kind": "accumulator",
+    "difficulty": "medium",
+    "wording": "baseline",
+    "verdict": "MEMOISED (top-down)",
+    "won": false,
+    "signals": [
+      "stores results",
+      "still recursive"
+    ],
+    "json_ok": true,
+    "improved_code": "int search(const int* table, int low, int high, int wanted)\n{\n    // Guard against an empty table or a requested element that cannot be found.\n    if (low > high || !table) {\n        return -1;\n    }\n\n    // Binary search: compute middle index safely.\n    const int mid = low + (high - low) / 2;\n\n    // Compare the target with the middle element.\n    if (table[mid] == wanted) {\n        return mid;\n    }\n    if (table[mid] < wanted) {\n        // Target lies in the right half.\n        return search(table, mid + 1, high, wanted);\n    }\n    // Target lies in the left half.\n    return search(table, low, mid - 1, wanted);\n}"
+  },
+  {
+    "sample": "binary_search",
+    "kind": "accumulator",
+    "difficulty": "medium",
+    "wording": "numbered_recipe",
+    "verdict": "unclear",
+    "won": false,
+    "signals": [
+      "stores results"
+    ],
+    "json_ok": true,
+    "improved_code": "int search(const int* table, int low, int high, int wanted)\n{\n    // Guard against an empty table; no element can match.\n    if (low > high)\n        return -1;\n\n    // Use the standard library algorithm for clarity and potential optimizations.\n    auto it = std::lower_bound(table + low, table + high + 1, wanted);\n    if (it != table + high + 1 && *it == wanted)\n        return static_cast<int>(it - table);\n    else\n        return -1;\n}"
+  },
+  {
+    "sample": "binary_search",
+    "kind": "accumulator",
+    "difficulty": "medium",
+    "wording": "name_the_structure",
+    "verdict": "MEMOISED (top-down)",
+    "won": false,
+    "signals": [
+      "stores results",
+      "still recursive"
+    ],
+    "json_ok": true,
+    "improved_code": "int search(const int* table, int low, int high, int wanted)\n{\n    // Guard against an empty table; no element can be found.\n    if (low > high)\n        return -1;\n\n    // Use std::size_t for indices to avoid signed/unsigned warnings.\n    const std::size_t mid = static_cast<std::size_t>(low) + (static_cast<std::size_t>(high) - low) / 2;\n\n    // Compare the target with the middle element.\n    if (table[mid] == wanted)\n        return static_cast<int>(mid);\n\n    // If the target is larger, search the right half.\n    if (table[mid] < wanted)\n        return search(table, mid + 1, high, wanted);\n\n    // Otherwise, search the left half.\n    return search(table, low, mid - 1, wanted);\n}"
+  },
+  {
+    "sample": "binary_search",
+    "kind": "accumulator",
+    "difficulty": "medium",
+    "wording": "worked_example",
+    "verdict": "MEMOISED (top-down)",
+    "won": false,
+    "signals": [
+      "stores results",
+      "still recursive"
+    ],
+    "json_ok": true,
+    "improved_code": "int search(const int* table, int low, int high, int wanted)\n{\n    if (low > high)\n        return -1;\n\n    const int mid = low + (high - low) / 2; // avoid overflow\n    if (table[mid] == wanted)\n        return mid;\n\n    if (table[mid] < wanted)\n        return search(table, mid + 1, high, wanted);\n    else\n        return search(table, low, mid - 1, wanted);\n}"
+  },
+  {
+    "sample": "binary_search",
+    "kind": "accumulator",
+    "difficulty": "medium",
+    "wording": "forbid_self_call",
+    "verdict": "MEMOISED (top-down)",
+    "won": false,
+    "signals": [
+      "stores results",
+      "still recursive"
+    ],
+    "json_ok": true,
+    "improved_code": "int search(const int* table, int low, int high, int wanted)\n{\n    if (low > high)\n        return -1;\n\n    const int mid = low + (high - low) / 2; // avoid overflow\n    if (table[mid] == wanted)\n        return mid;\n\n    if (table[mid] < wanted)\n        return search(table, mid + 1, high, wanted);\n\n    return search(table, low, mid - 1, wanted);\n}"
+  },
+  {
+    "sample": "binomial",
+    "kind": "table",
+    "difficulty": "medium",
+    "wording": "baseline",
+    "verdict": "unchanged algorithm",
+    "won": false,
+    "signals": [
+      "still recursive"
+    ],
+    "json_ok": true,
+    "improved_code": "int choose(int n, int k)\n{\n    // Base case: empty set or selecting all elements\n    if (k == 0 || k == n)\n        return 1;\n\n    // Recursive case: choose k elements from n\u20111 and add the case where the last element is chosen\n    return choose(n - 1, k - 1) + choose(n - 1, k);\n}"
+  },
+  {
+    "sample": "binomial",
+    "kind": "table",
+    "difficulty": "medium",
+    "wording": "numbered_recipe",
+    "verdict": "TABULATED (bottom-up)",
+    "won": true,
+    "signals": [
+      "stores results",
+      "has a loop"
+    ],
+    "json_ok": true,
+    "improved_code": "int choose(int n, int k)\n{\n    // Base case: empty selection or selecting all elements.\n    if (k == 0 || k == n)\n        return 1;\n\n    // Container for future work; holds the next recursion call.\n    std::vector<std::pair<int, int>> work;\n    work.emplace_back(n - 1, k - 1);\n    work.emplace_back(n - 1, k);\n\n    // Process each pending work item.\n    while (!work.empty())\n    {\n        const auto& [remaining, selected] = work.front();\n        work.erase(work.begin());\n\n        // Recurse only if the remaining elements allow a selection.\n        if (selected < remaining)\n        {\n            work.emplace_back(remaining - 1, selected + 1);\n            work.emplace_back(remaining - 1, selected);\n        }\n    }\n\n    // The container now holds the final result.\n    return work.front().second;\n}"
+  },
+  {
+    "sample": "binomial",
+    "kind": "table",
+    "difficulty": "medium",
+    "wording": "name_the_structure",
+    "verdict": "ITERATIVE (no table)",
+    "won": false,
+    "signals": [
+      "has a loop"
+    ],
+    "json_ok": true,
+    "improved_code": "int choose(int n, int k)\n{\n    // Guard against invalid parameters; choose is undefined for k > n.\n    if (k > n) return 0;\n\n    std::stack<int> stack;\n    stack.push(n); // start with the total number of items\n\n    while (!stack.empty()) {\n        int current = stack.top();\n        stack.pop();\n\n        // Base case: choose 0 or n items from a set of current items.\n        if (k == 0 || k == current) {\n            return 1;\n        }\n\n        // Recurse for choosing k\u20111 items from the remaining items.\n        stack.push(current - 1);\n        stack.push(current - 1);\n    }\n\n    // Should never reach here; original code would return 0.\n    return 0;\n}"
+  },
+  {
+    "sample": "binomial",
+    "kind": "table",
+    "difficulty": "medium",
+    "wording": "worked_example",
+    "verdict": "unchanged algorithm",
+    "won": false,
+    "signals": [
+      "has a loop",
+      "still recursive"
+    ],
+    "json_ok": true,
+    "improved_code": "int choose(int n, int k)\n{\n    if (k == 0 || k == n)\n        return 1;\n    int result = 0;\n    for (int i = 0; i <= k; ++i) {\n        result += choose(n - 1, i);\n    }\n    return result;\n}"
+  },
+  {
+    "sample": "binomial",
+    "kind": "table",
+    "difficulty": "medium",
+    "wording": "forbid_self_call",
+    "verdict": "unchanged algorithm",
+    "won": false,
+    "signals": [
+      "still recursive"
+    ],
+    "json_ok": true,
+    "improved_code": "int choose(int n, int k)\n{\n    // Base case: empty selection or selecting all elements.\n    if (k == 0 || k == n)\n        return 1;\n\n    // Recursive case: sum of choosing k\u20111 from n\u20111 and choosing k from n\u20111.\n    return choose(n - 1, k - 1) + choose(n - 1, k);\n}"
+  },
+  {
+    "sample": "flood_fill",
+    "kind": "stack",
+    "difficulty": "hard",
+    "wording": "baseline",
+    "verdict": "unchanged algorithm",
+    "won": false,
+    "signals": [
+      "still recursive"
+    ],
+    "json_ok": true,
+    "improved_code": "void fill(int** grid, int row, int col, int from, int to)\n{\n    // Guard against null pointer or out\u2011of\u2011bounds access.\n    if (!grid || row < 0 || col < 0 || grid[row][col] != from)\n        return;\n\n    // Replace the target cell with the replacement value.\n    grid[row][col] = to;\n\n    // Recursively fill the four adjacent cells.\n    fill(grid, row + 1, col, from, to);\n    fill(grid, row - 1, col, from, to);\n    fill(grid, row, col + 1, from, to);\n    fill(grid, row, col - 1, from, to);\n}"
+  },
+  {
+    "sample": "flood_fill",
+    "kind": "stack",
+    "difficulty": "hard",
+    "wording": "numbered_recipe",
+    "verdict": "unchanged algorithm",
+    "won": false,
+    "signals": [
+      "still recursive"
+    ],
+    "json_ok": true,
+    "improved_code": "void fill(int** grid, int row, int col, int from, int to)\n{\n    // Guard against null pointer or out\u2011of\u2011bounds coordinates.\n    if (!grid || row < 0 || col < 0 || !grid[row] || grid[row][col] != from)\n        return;\n\n    // Mark the cell as visited.\n    grid[row][col] = to;\n\n    // Recurse on all four orthogonal neighbours.\n    fill(grid, row + 1, col, from, to);\n    fill(grid, row - 1, col, from, to);\n    fill(grid, row, col + 1, from, to);\n    fill(grid, row, col - 1, from, to);\n}"
+  },
+  {
+    "sample": "flood_fill",
+    "kind": "stack",
+    "difficulty": "hard",
+    "wording": "name_the_structure",
+    "verdict": "unchanged algorithm",
+    "won": false,
+    "signals": [
+      "still recursive"
+    ],
+    "json_ok": true,
+    "improved_code": "void fill(int** grid, int row, int col, int from, int to)\n{\n    // Guard against null pointer or out\u2011of\u2011bounds coordinates.\n    if (!grid || row < 0 || col < 0 || !grid[row] || grid[row][col] != from)\n        return;\n\n    // Mark the cell as visited.\n    grid[row][col] = to;\n\n    // Recursively fill the four orthogonal neighbours.\n    fill(grid, row + 1, col, from, to);\n    fill(grid, row - 1, col, from, to);\n    fill(grid, row, col + 1, from, to);\n    fill(grid, row, col - 1, from, to);\n}"
+  },
+  {
+    "sample": "flood_fill",
+    "kind": "stack",
+    "difficulty": "hard",
+    "wording": "worked_example",
+    "verdict": "ITERATIVE (no table)",
+    "won": true,
+    "signals": [
+      "has a loop"
+    ],
+    "json_ok": true,
+    "improved_code": "void fill(int** grid, int row, int col, int from, int to)\n{\n    if (row < 0 || col < 0 || !grid[row] || grid[row][col] != from)\n        return;\n\n    grid[row][col] = to;\n\n    // Use a 2\u2011D array for the stack; each element holds the next cell to visit.\n    std::array<std::pair<int,int>, 4> stack;\n    int idx = 0;\n\n    stack[idx++] = {row + 1, col};\n    stack[idx++] = {row - 1, col};\n    stack[idx++] = {row, col + 1};\n    stack[idx++] = {row, col - 1};\n\n    while (idx > 0) {\n        const auto& cell = stack[--idx];\n        int r = cell.first;\n        int c = cell.second;\n\n        if (r < 0 || r >= static_cast<int>(std::size(grid)) ||\n            c < 0 || c >= static_cast<int>(std::size(grid[0])) ||\n            !grid[r] || grid[r][c] != from)\n            continue;\n\n        grid[r][c] = to;\n\n        stack[idx++] = {r + 1, c};\n        stack[idx++] = {r - 1, c};\n        stack[idx++] = {r, c + 1};\n        stack[idx++] = {r, c - 1};\n    }\n}"
+  },
+  {
+    "sample": "flood_fill",
+    "kind": "stack",
+    "difficulty": "hard",
+    "wording": "forbid_self_call",
+    "verdict": "unchanged algorithm",
+    "won": false,
+    "signals": [
+      "still recursive"
+    ],
+    "json_ok": true,
+    "improved_code": "void fill(int** grid, int row, int col, int from, int to)\n{\n    // Guard against null pointer or out\u2011of\u2011bounds coordinates.\n    if (!grid || row < 0 || col < 0 || grid[row][col] != from)\n        return;\n\n    // Replace the target cell with the replacement value.\n    grid[row][col] = to;\n\n    // Recursively fill the four orthogonal neighbours.\n    fill(grid, row + 1, col, from, to);\n    fill(grid, row - 1, col, from, to);\n    fill(grid, row, col + 1, from, to);\n    fill(grid, row, col - 1, from, to);\n}"
+  },
+  {
+    "sample": "gcd_euclid",
+    "kind": "accumulator",
+    "difficulty": "easy",
+    "wording": "baseline",
+    "verdict": "unchanged algorithm",
+    "won": false,
+    "signals": [
+      "still recursive"
+    ],
+    "json_ok": true,
+    "improved_code": "int gcd(int a, int b)\n{\n    // Base case: when b becomes zero, a is the greatest common divisor.\n    if (b == 0)\n        return a;\n\n    // Recursive step: apply Euclid's algorithm.\n    return gcd(b, a % b);\n}"
+  },
+  {
+    "sample": "gcd_euclid",
+    "kind": "accumulator",
+    "difficulty": "easy",
+    "wording": "numbered_recipe",
+    "verdict": "unchanged algorithm",
+    "won": false,
+    "signals": [
+      "still recursive"
+    ],
+    "json_ok": true,
+    "improved_code": "int gcd(int a, int b)\n{\n    // Guard against division by zero; the original code would recurse forever.\n    if (b == 0)\n        return a;\n\n    // Use a temporary container to hold the next work item.\n    int next = b;\n\n    // Process the current pair (a, b).\n    int result = a % b;\n\n    // Continue with the remainder as the next pair.\n    return gcd(next, result);\n}"
+  },
+  {
+    "sample": "gcd_euclid",
+    "kind": "accumulator",
+    "difficulty": "easy",
+    "wording": "name_the_structure",
+    "verdict": "ITERATIVE (no table)",
+    "won": true,
+    "signals": [
+      "has a loop"
+    ],
+    "json_ok": true,
+    "improved_code": "int gcd(int a, int b)\n{\n    // Use a std::stack for explicit control over the call stack.\n    std::stack<int> stack;\n    stack.push(a);\n    stack.push(b);\n\n    while (!stack.empty()) {\n        int current = stack.top();\n        stack.pop();\n\n        if (current == 0) {\n            continue; // Zero divisor yields zero.\n        }\n\n        int next = stack.top();\n        stack.pop();\n\n        // Compute next gcd using the standard Euclidean algorithm.\n        stack.push(next % current);\n    }\n\n    // The final element in the stack is the greatest common divisor.\n    return stack.top();\n}"
+  },
+  {
+    "sample": "gcd_euclid",
+    "kind": "accumulator",
+    "difficulty": "easy",
+    "wording": "worked_example",
+    "verdict": "unchanged algorithm",
+    "won": false,
+    "signals": [
+      "still recursive"
+    ],
+    "json_ok": true,
+    "improved_code": "int gcd(int a, int b)\n{\n    if (b == 0)\n        return a;\n    return gcd(b, a % b);\n}"
+  },
+  {
+    "sample": "gcd_euclid",
+    "kind": "accumulator",
+    "difficulty": "easy",
+    "wording": "forbid_self_call",
+    "verdict": "unchanged algorithm",
+    "won": false,
+    "signals": [
+      "still recursive"
+    ],
+    "json_ok": true,
+    "improved_code": "int gcd(int a, int b)\n{\n    // Base case: when b is zero, a is the greatest common divisor.\n    if (b == 0)\n        return a;\n\n    // Recursive step: compute gcd of b and the remainder of a divided by b.\n    return gcd(b, a % b);\n}"
+  },
+  {
+    "sample": "inorder_walk",
+    "kind": "stack",
+    "difficulty": "hard",
+    "wording": "baseline",
+    "verdict": "unchanged algorithm",
+    "won": false,
+    "signals": [
+      "still recursive"
+    ],
+    "json_ok": true,
+    "improved_code": "void inorder(Node* node)\n{\n    if (node == nullptr)\n        return; // empty subtree\n\n    // left subtree\n    inorder(node->left);\n\n    // visit current node\n    visit(node->value);\n\n    // right subtree\n    inorder(node->right);\n}"
+  },
+  {
+    "sample": "inorder_walk",
+    "kind": "stack",
+    "difficulty": "hard",
+    "wording": "numbered_recipe",
+    "verdict": "TABULATED (bottom-up)",
+    "won": false,
+    "signals": [
+      "stores results",
+      "has a loop"
+    ],
+    "json_ok": true,
+    "improved_code": "void inorder(Node* node)\n{\n    if (node == nullptr)\n        return; // empty subtree \u2013 nothing to visit\n\n    // container for work that would have been done by recursion\n    std::vector<Node*> work;\n\n    // first piece of work: visit left child\n    work.emplace_back(node->left);\n\n    while (!work.empty()) {\n        Node* current = work.back(); // current node to process\n        work.pop_back(); // remove it from the queue\n\n        visit(current->value); // visit the node\n\n        // enqueue right child if it exists\n        if (current->right != nullptr) {\n            work.emplace_back(current->right);\n        }\n    }\n}"
+  },
+  {
+    "sample": "inorder_walk",
+    "kind": "stack",
+    "difficulty": "hard",
+    "wording": "name_the_structure",
+    "verdict": "ITERATIVE (no table)",
+    "won": true,
+    "signals": [
+      "has a loop"
+    ],
+    "json_ok": true,
+    "improved_code": "void inorder(Node* node)\n{\n    if (node == nullptr)\n        return;\n\n    std::stack<Node*> s;\n    s.push(node);\n\n    while (!s.empty()) {\n        Node* current = s.top();\n        s.pop();\n\n        if (current->right != nullptr) {\n            s.push(current->right);\n        }\n        visit(current->value);\n        if (current->left != nullptr) {\n            s.push(current->left);\n        }\n    }\n}"
+  },
+  {
+    "sample": "inorder_walk",
+    "kind": "stack",
+    "difficulty": "hard",
+    "wording": "worked_example",
+    "verdict": "ITERATIVE (no table)",
+    "won": true,
+    "signals": [
+      "has a loop"
+    ],
+    "json_ok": true,
+    "improved_code": "void inorder(Node* node) {\n    if (node == nullptr) return;                     // empty subtree\n    std::stack<Node*> pending;                       // use std::stack for explicit control\n    pending.push(node);\n    while (!pending.empty()) {\n        Node* c = pending.top();                     // current node\n        pending.pop();\n        visit(c->value);                             // visit node's value\n        if (c->right) pending.push(c->right);       // push right child before left to preserve left\u2011to\u2011right order\n        if (c->left) pending.push(c->left);         // push left child\n    }\n}"
+  },
+  {
+    "sample": "inorder_walk",
+    "kind": "stack",
+    "difficulty": "hard",
+    "wording": "forbid_self_call",
+    "verdict": "unchanged algorithm",
+    "won": false,
+    "signals": [
+      "still recursive"
+    ],
+    "json_ok": true,
+    "improved_code": "void inorder(Node* node)\n{\n    if (node == nullptr)\n        return;\n\n    inorder(node->left);\n    visit(node->value);\n    inorder(node->right);\n}"
+  },
+  {
+    "sample": "preorder_walk",
+    "kind": "stack",
+    "difficulty": "hard",
+    "wording": "baseline",
+    "verdict": "unchanged algorithm",
+    "won": false,
+    "signals": [
+      "still recursive"
+    ],
+    "json_ok": true,
+    "improved_code": "void preorder(Node* node)\n{\n    if (node == nullptr)\n        return; // empty subtree \u2192 nothing to visit\n\n    visit(node->value); // visit current node\n\n    // Recursively process left child; if it is nullptr, the call is a no\u2011op.\n    preorder(node->left);\n\n    // Recursively process right child; if it is nullptr, the call is a no\u2011op.\n    preorder(node->right);\n}"
+  },
+  {
+    "sample": "preorder_walk",
+    "kind": "stack",
+    "difficulty": "hard",
+    "wording": "numbered_recipe",
+    "verdict": "TABULATED (bottom-up)",
+    "won": false,
+    "signals": [
+      "stores results",
+      "has a loop"
+    ],
+    "json_ok": true,
+    "improved_code": "void preorder(Node* node)\n{\n    if (node == nullptr)\n        return; // empty subtree \u2192 nothing to visit\n\n    // store work for the current node\n    auto work = std::vector<std::function<void(Node*)>>{visit(node->value)};\n\n    // collect work for children\n    work.emplace_back(preorder, node->left);\n    work.emplace_back(preorder, node->right);\n\n    // execute collected work in order\n    for (auto& f : work)\n        f(node);\n}"
+  },
+  {
+    "sample": "preorder_walk",
+    "kind": "stack",
+    "difficulty": "hard",
+    "wording": "name_the_structure",
+    "verdict": "ITERATIVE (no table)",
+    "won": true,
+    "signals": [
+      "has a loop"
+    ],
+    "json_ok": true,
+    "improved_code": "void preorder(Node* node)\n{\n    if (node == nullptr)\n        return;\n\n    // Use a std::stack for explicit control over the call stack.\n    std::stack<Node*> stack;\n    stack.push(node);\n\n    while (!stack.empty()) {\n        Node* current = stack.top();\n        stack.pop();\n\n        visit(current->value);\n\n        // Push right child first so left child is processed before right.\n        if (current->right != nullptr)\n            stack.push(current->right);\n        if (current->left != nullptr)\n            stack.push(current->left);\n    }\n}"
+  },
+  {
+    "sample": "preorder_walk",
+    "kind": "stack",
+    "difficulty": "hard",
+    "wording": "worked_example",
+    "verdict": "ITERATIVE (no table)",
+    "won": true,
+    "signals": [
+      "has a loop"
+    ],
+    "json_ok": true,
+    "improved_code": "void preorder(Node* node) {\n    if (node == nullptr) return;                     // empty subtree\n    std::stack<Node*> pending;                       // use std::stack for explicit control\n    pending.push(node);\n    while (!pending.empty()) {\n        Node* c = pending.top(); pending.pop();     // current node\n        visit(c->value);                             // visit node's payload\n        if (c->right) pending.push(c->right);       // push right child before left to preserve left\u2011to\u2011right order\n        if (c->left) pending.push(c->left);         // push left child\n    }\n}"
+  },
+  {
+    "sample": "preorder_walk",
+    "kind": "stack",
+    "difficulty": "hard",
+    "wording": "forbid_self_call",
+    "verdict": "unchanged algorithm",
+    "won": false,
+    "signals": [
+      "still recursive"
+    ],
+    "json_ok": true,
+    "improved_code": "void preorder(Node* node)\n{\n    if (node == nullptr)\n        return;\n\n    visit(node->value);\n    preorder(node->left);\n    preorder(node->right);\n}"
+  },
+  {
+    "sample": "quicksort",
+    "kind": "stack",
+    "difficulty": "hard",
+    "wording": "baseline",
+    "verdict": "unchanged algorithm",
+    "won": false,
+    "signals": [
+      "still recursive"
+    ],
+    "json_ok": true,
+    "improved_code": "void quicksort(int* values, int low, int high)\n{\n    if (low >= high)\n        return; // base case: nothing to sort\n\n    const int split = partition(values, low, high); // partition index\n    // Recursively sort the left sub\u2011array\n    quicksort(values, low, split - 1);\n    // Recursively sort the right sub\u2011array\n    quicksort(values, split + 1, high);\n}"
+  },
+  {
+    "sample": "quicksort",
+    "kind": "stack",
+    "difficulty": "hard",
+    "wording": "numbered_recipe",
+    "verdict": "MEMOISED (top-down)",
+    "won": false,
+    "signals": [
+      "stores results",
+      "has a loop",
+      "still recursive"
+    ],
+    "json_ok": true,
+    "improved_code": "void quicksort(int* values, int low, int high)\n{\n    if (low >= high)\n        return; // empty or already sorted\n\n    // Use a std::vector for temporary storage; it avoids manual memory management.\n    std::vector<int> work;\n    work.reserve(high - low + 1); // avoid reallocations\n\n    // Insert the first element as the first piece of work.\n    work.push_back(values[low]);\n\n    // Process the rest of the array in a single pass.\n    for (int i = low + 1; i <= high; ++i) {\n        if (values[i] < work.back()) {\n            // Insert into the front of the work vector.\n            work.insert(work.begin(), values[i]);\n        } else {\n            // Insert into the back of the work vector.\n            work.push_back(values[i]);\n        }\n    }\n\n    // Copy the partitioned pivot back to the original array.\n    values[low] = work.front();\n\n    // Recursively sort the two sub\u2011arrays.\n    quicksort(values, low + 1, work.size() - 2);\n    quicksort(values, work.size() + 1, high);\n}"
+  },
+  {
+    "sample": "quicksort",
+    "kind": "stack",
+    "difficulty": "hard",
+    "wording": "name_the_structure",
+    "verdict": "unchanged algorithm",
+    "won": false,
+    "signals": [
+      "still recursive"
+    ],
+    "json_ok": true,
+    "improved_code": "void quicksort(int* values, int low, int high)\n{\n    if (low >= high)\n        return; // base case: nothing to sort\n\n    // partition returns the index of the pivot element\n    const int split = partition(values, low, high);\n\n    // left sub\u2011array\n    quicksort(values, low, split - 1);\n\n    // right sub\u2011array\n    quicksort(values, split + 1, high);\n}"
+  },
+  {
+    "sample": "quicksort",
+    "kind": "stack",
+    "difficulty": "hard",
+    "wording": "worked_example",
+    "verdict": "unchanged algorithm",
+    "won": false,
+    "signals": [
+      "still recursive"
+    ],
+    "json_ok": true,
+    "improved_code": "void quicksort(int* values, int low, int high) {\n    if (low >= high)\n        return;\n\n    const int split = partition(values, low, high);\n    quicksort(values, low, split - 1);\n    quicksort(values, split + 1, high);\n}"
+  },
+  {
+    "sample": "quicksort",
+    "kind": "stack",
+    "difficulty": "hard",
+    "wording": "forbid_self_call",
+    "verdict": "unchanged algorithm",
+    "won": false,
+    "signals": [
+      "still recursive"
+    ],
+    "json_ok": true,
+    "improved_code": "void quicksort(int* values, int low, int high)\n{\n    if (low >= high)\n        return;\n\n    const int split = partition(values, low, high);\n    quicksort(values, low, split - 1);\n    quicksort(values, split + 1, high);\n}"
+  },
+  {
+    "sample": "reverse_list",
+    "kind": "accumulator",
+    "difficulty": "medium",
+    "wording": "baseline",
+    "verdict": "unchanged algorithm",
+    "won": false,
+    "signals": [
+      "still recursive"
+    ],
+    "json_ok": true,
+    "improved_code": "Node* reverse(Node* head, Node* prev = nullptr)\n{\n    if (head == nullptr)\n        return prev;\n\n    auto next = head->next;               // cache next node to avoid mutating the caller's list\n    head->next = prev;                    // reverse link\n    return reverse(next, head);           // recurse with reversed link and current node as new prev\n}"
+  },
+  {
+    "sample": "reverse_list",
+    "kind": "accumulator",
+    "difficulty": "medium",
+    "wording": "numbered_recipe",
+    "verdict": "unchanged algorithm",
+    "won": false,
+    "signals": [
+      "still recursive"
+    ],
+    "json_ok": true,
+    "improved_code": "Node* reverse(Node* head, Node* prev = nullptr)\n{\n    // Base case: when the list ends, prev holds the new head.\n    if (head == nullptr)\n        return prev;\n\n    // Store the next node to avoid losing it while reversing.\n    auto next = head->next;\n\n    // Reverse the link: current node points to previous node.\n    head->next = prev;\n\n    // Recursively reverse the rest of the list.\n    return reverse(next, head);\n}"
+  },
+  {
+    "sample": "reverse_list",
+    "kind": "accumulator",
+    "difficulty": "medium",
+    "wording": "name_the_structure",
+    "verdict": "unchanged algorithm",
+    "won": false,
+    "signals": [
+      "still recursive"
+    ],
+    "json_ok": true,
+    "improved_code": "Node* reverse(Node* head, Node* prev = nullptr)\n{\n    if (head == nullptr)\n        return prev;\n\n    auto next = head->next;               // cache next node to avoid mutating the caller's list\n    head->next = prev;                    // reverse link\n\n    return reverse(next, head);           // recurse with current node as new head\n}"
+  },
+  {
+    "sample": "reverse_list",
+    "kind": "accumulator",
+    "difficulty": "medium",
+    "wording": "worked_example",
+    "verdict": "unchanged algorithm",
+    "won": false,
+    "signals": [
+      "still recursive"
+    ],
+    "json_ok": true,
+    "improved_code": "Node* reverse(Node* head, Node* prev = nullptr) {\n    if (head == nullptr)\n        return prev;\n    auto next = head->next;\n    head->next = prev;\n    return reverse(next, head);\n}"
+  },
+  {
+    "sample": "reverse_list",
+    "kind": "accumulator",
+    "difficulty": "medium",
+    "wording": "forbid_self_call",
+    "verdict": "unchanged algorithm",
+    "won": false,
+    "signals": [
+      "still recursive"
+    ],
+    "json_ok": true,
+    "improved_code": "Node* reverse(Node* head, Node* prev = nullptr)\n{\n    if (head == nullptr)\n        return prev;\n\n    auto next = head->next;               // cache next node\n    head->next = prev;                    // reverse link\n    return reverse(next, head);           // recurse with new head and reversed link\n}"
+  },
+  {
+    "sample": "tree_height",
+    "kind": "stack",
+    "difficulty": "hard",
+    "wording": "baseline",
+    "verdict": "unchanged algorithm",
+    "won": false,
+    "signals": [
+      "still recursive"
+    ],
+    "json_ok": true,
+    "improved_code": "int height(Node* node)\n{\n    if (node == nullptr)\n        return 0;\n\n    int leftHeight = height(node->left);\n    int rightHeight = height(node->right);\n\n    return 1 + std::max(leftHeight, rightHeight);\n}"
+  },
+  {
+    "sample": "tree_height",
+    "kind": "stack",
+    "difficulty": "hard",
+    "wording": "numbered_recipe",
+    "verdict": "TABULATED (bottom-up)",
+    "won": false,
+    "signals": [
+      "stores results",
+      "has a loop"
+    ],
+    "json_ok": true,
+    "improved_code": "int height(Node* node)\n{\n    if (node == nullptr)\n        return 0;\n\n    // Use a std::vector for O(1) pop_back and avoid manual container management.\n    std::vector<std::pair<Node*, int>> work;\n    work.emplace_back(node, 1); // start with the root and its depth\n\n    while (!work.empty()) {\n        auto [cur, depth] = work.back(); // extract the current node and its depth\n        work.pop_back(); // remove the processed node\n\n        // Recurse only if the child exists; otherwise the child depth is 0.\n        if (cur->left != nullptr) {\n            work.emplace_back(cur->left, depth + 1);\n        }\n        if (cur->right != nullptr) {\n            work.emplace_back(cur->right, depth + 1);\n        }\n    }\n\n    // The loop guarantees a non\u2011empty container; the last depth is the answer.\n    return work.back().second;\n}"
+  },
+  {
+    "sample": "tree_height",
+    "kind": "stack",
+    "difficulty": "hard",
+    "wording": "name_the_structure",
+    "verdict": "unchanged algorithm",
+    "won": false,
+    "signals": [
+      "has a loop",
+      "still recursive"
+    ],
+    "json_ok": true,
+    "improved_code": "int height(Node* node)\n{\n    if (node == nullptr)\n        return 0;\n\n    // Use a std::stack for depth\u2011first traversal; the call stack is not needed.\n    std::stack<const Node*> s;\n    s.push(node);\n\n    int maxHeight = 0;\n    while (!s.empty()) {\n        const Node* cur = s.top();\n        s.pop();\n\n        if (cur == nullptr) {\n            continue; // skip null children\n        }\n\n        maxHeight = std::max(maxHeight, 1 + std::max(height(cur->left), height(cur->right)));\n        s.push(cur->left);\n        s.push(cur->right);\n    }\n\n    return maxHeight;\n}"
+  },
+  {
+    "sample": "tree_height",
+    "kind": "stack",
+    "difficulty": "hard",
+    "wording": "worked_example",
+    "verdict": "unchanged algorithm",
+    "won": false,
+    "signals": [
+      "has a loop",
+      "still recursive"
+    ],
+    "json_ok": true,
+    "improved_code": "int height(Node* node) {\n    if (node == nullptr) return 0;\n    auto pending = std::stack<Node*>{};\n    pending.push(node);\n    while (!pending.empty()) {\n        auto* c = pending.top(); pending.pop();\n        if (c->left)  pending.push(c->left);\n        if (c->right) pending.push(c->right);\n    }\n    return 1 + std::max(height(node->left), height(node->right));\n}"
+  },
+  {
+    "sample": "tree_height",
+    "kind": "stack",
+    "difficulty": "hard",
+    "wording": "forbid_self_call",
+    "verdict": "unchanged algorithm",
+    "won": false,
+    "signals": [
+      "still recursive"
+    ],
+    "json_ok": true,
+    "improved_code": "int height(Node* node)\n{\n    if (node == nullptr)\n        return 0;\n    return 1 + std::max(height(node->left), height(node->right));\n}"
+  }
+]
