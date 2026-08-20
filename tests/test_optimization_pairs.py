@@ -102,3 +102,33 @@ def test_comments_cannot_look_like_recursion():
 def test_a_comment_naming_the_function_is_not_a_call():
     code = "int walk(int n) {\n    // walk(n - 1) would recurse here\n    return n;\n}"
     assert recursive_functions(code) == []
+
+
+# --- the verified-dataset builder ------------------------------------------
+
+def test_the_builder_keeps_only_rewrites_that_run_and_agree():
+    """The gate is the whole design: generation is untrusted, execution decides.
+
+    Written against the builder rather than the script that produced the seed
+    set, because this is the one that will write hundreds of rows unattended.
+    """
+    sys.path.insert(0, str(Path(__file__).resolve().parents[1] / "scripts"))
+    from build_optimize_dataset import judge
+
+    rec = "int fact(int n){ if(n<=1) return 1; return n*fact(n-1); }"
+    itr = "int fact(int n){ int r=1; for(int i=2;i<=n;i++) r*=i; return r; }"
+
+    assert judge(rec, itr, 10.0) is None
+    assert judge(rec, itr.replace("r=1", "r=0"), 10.0) == "different output"
+    assert judge(rec, rec, 10.0) == "still recursive"
+    assert judge(rec, "", 10.0) == "empty"
+
+
+def test_the_builder_reads_the_wording_it_will_be_served_with():
+    """A dataset built with one instruction and served with another teaches drift."""
+    sys.path.insert(0, str(Path(__file__).resolve().parents[1] / "scripts"))
+    from build_optimize_dataset import WORDING
+
+    from qwen_cpp_review.prompt import TASK_FIELD_HINTS
+
+    assert WORDING == TASK_FIELD_HINTS["iterate"]["improved_code"]
