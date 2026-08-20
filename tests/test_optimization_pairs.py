@@ -132,3 +132,25 @@ def test_the_builder_reads_the_wording_it_will_be_served_with():
     from qwen_cpp_review.prompt import TASK_FIELD_HINTS
 
     assert WORDING == TASK_FIELD_HINTS["iterate"]["improved_code"]
+
+
+def test_the_extractor_finds_code_however_the_model_wrapped_it():
+    """The base model emits 0/20 usable JSON, so insisting on JSON rejects it all.
+
+    Format compliance is not what a proposer is for. The gate decides whether the
+    code is right; this only has to find the code.
+    """
+    sys.path.insert(0, str(Path(__file__).resolve().parents[1] / "scripts"))
+    from build_optimize_dataset import extract_candidate
+
+    assert extract_candidate('{"improved_code": "int f(){return 1;}"}') == "int f(){return 1;}"
+    assert "return 2" in extract_candidate('Sure!\n{"improved_code": "int f(){return 2;}"}\nDone.')
+    assert "int r=1" in extract_candidate("Here:\n```cpp\nint f(){ int r=1; return r; }\n```")
+
+    # A reply that fences the original before the rewrite: the rewrite is longer.
+    both = ("Original:\n```cpp\nint f(){return f();}\n```\n"
+            "Rewritten:\n```cpp\nint f(){ int r=0; for(int i=0;i<3;i++) r+=i; return r; }\n```")
+    assert "for" in extract_candidate(both)
+
+    assert extract_candidate("I would suggest an explicit stack.") == ""
+    assert extract_candidate("") == ""

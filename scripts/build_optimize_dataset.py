@@ -42,6 +42,7 @@ from __future__ import annotations
 
 import argparse
 import json
+import re
 import subprocess
 import time
 import urllib.error
@@ -74,6 +75,52 @@ def build_prompt(code: str) -> str:
         f"<|im_start|>user\n{instruction}\n\n### Code\n\n```cpp\n{code}\n```<|im_end|>\n"
         f"<|im_start|>assistant\n"
     )
+
+
+#: A fenced block, with or without a language tag.
+_FENCE = re.compile(r"```(?:[A-Za-z+]*)\n(.*?)```", re.S)
+#: The first balanced-looking JSON object in a longer reply.
+_EMBEDDED = re.compile(r"\{.*\}", re.S)
+
+
+def extract_candidate(text: str) -> str:
+    """The rewritten C++ in a reply, however the model chose to wrap it.
+
+    The fine-tune emits a bare JSON object because that is what it was trained
+    to emit. The base model does not - the ablation measured 0/20 usable JSON
+    from it - and insisting on JSON here would reject every one of its answers
+    for the wrong reason. Format compliance is not what a proposer is for; the
+    gate decides whether the code is right, and the code is what has to be
+    found.
+
+    Order matters. A fenced block inside a JSON string is still JSON, so JSON is
+    tried first and fences only when parsing fails.
+    """
+    text = text.strip()
+    if not text:
+        return ""
+
+    for candidate in (text, *(m.group(0) for m in [_EMBEDDED.search(text)] if m)):
+        try:
+            parsed = json.loads(candidate)
+        except json.JSONDecodeError:
+            continue
+        if isinstance(parsed, dict):
+            value = parsed.get("improved_code")
+            if isinstance(value, str) and value.strip():
+                return value
+
+    blocks = [block.strip() for block in _FENCE.findall(text) if block.strip()]
+    if blocks:
+        # The longest, because a reply often fences the original for contrast
+        # before fencing the rewrite, and the rewrite is the longer of the two.
+        return max(blocks, key=len)
+
+    # Unfenced but plainly C++: better than discarding an answer the gate could
+    # have judged in a second.
+    if re.search(r"\b(?:int|void|bool|long|double|string|auto)\b[^\n]*\(", text):
+        return text
+    return ""
 
 
 def wait_for_server(port: int, timeout: float = 300.0) -> None:
@@ -125,7 +172,7 @@ class HFGenerator:
         if self.tokenizer.pad_token is None:
             self.tokenizer.pad_token = self.tokenizer.eos_token
         self.model = AutoModelForCausalLM.from_pretrained(
-            base, torch_dtype=getattr(torch, dtype), device_map="auto"
+            base, dtype=getattr(torch, dtype), device_map="auto"
         )
         if adapter:
             from peft import PeftModel
@@ -263,10 +310,9 @@ def main() -> None:
                 else:
                     text = complete(args.port, build_prompt(code), args.n_predict,
                                     args.temperature, seed=sample)
-                try:
-                    candidate = (json.loads(text) or {}).get("improved_code") or ""
-                except json.JSONDecodeError:
-                    reasons.append("bad json")
+                candidate = extract_candidate(text)
+                if not candidate:
+                    reasons.append("no code found")
                     continue
                 problem = judge(code, candidate, args.timeout)
                 if problem is None:
