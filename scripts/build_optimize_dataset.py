@@ -21,6 +21,19 @@ the property the original 19,033 rows never had.
 
     uv run python scripts/build_optimize_dataset.py --limit 300 --samples 6
 
+Two generation backends, because the bottleneck is throughput and not the gate:
+
+    --backend llama   llama-server on CPU. ~120s per function at 6 samples,
+                      so 582 functions is about nineteen hours.
+    --backend hf      transformers on a GPU, generating a whole function's
+                      samples in one batch. Built for a Colab or Kaggle T4.
+
+The GPU does not improve the yield - it is the same weights giving the same
+answers - it makes attempts cheap enough to afford more of them. That matters
+because the failures are correlated: a function the model will not de-recurse
+tends not to be de-recursed on the next sample either, so the gain from more
+samples is real but sublinear.
+
 Resumable: finished functions are skipped on the next run, so this can be
 stopped and restarted without losing work or repeating calls.
 """
@@ -95,6 +108,46 @@ def complete(port: int, prompt: str, n_predict: int, temperature: float, seed: i
         return json.load(response)["content"]
 
 
+class HFGenerator:
+    """Batched sampling on a GPU: one function's attempts in a single forward pass.
+
+    Left-padded, because a decoder-only model continues from the last position
+    and right padding would have it continue from the padding instead of the
+    prompt.
+    """
+
+    def __init__(self, base: str, adapter: str | None, dtype: str = "float16"):
+        import torch
+        from transformers import AutoModelForCausalLM, AutoTokenizer
+
+        source = adapter or base
+        self.tokenizer = AutoTokenizer.from_pretrained(source, padding_side="left")
+        if self.tokenizer.pad_token is None:
+            self.tokenizer.pad_token = self.tokenizer.eos_token
+        self.model = AutoModelForCausalLM.from_pretrained(
+            base, torch_dtype=getattr(torch, dtype), device_map="auto"
+        )
+        if adapter:
+            from peft import PeftModel
+
+            self.model = PeftModel.from_pretrained(self.model, adapter)
+        self.model.eval()
+        self.torch = torch
+
+    def samples(self, prompt: str, count: int, n_predict: int, temperature: float) -> list[str]:
+        batch = self.tokenizer([prompt] * count, return_tensors="pt", padding=True).to(
+            self.model.device
+        )
+        with self.torch.no_grad():
+            out = self.model.generate(
+                **batch, max_new_tokens=n_predict, do_sample=True,
+                temperature=temperature, top_p=0.95,
+                pad_token_id=self.tokenizer.pad_token_id,
+            )
+        width = batch["input_ids"].shape[1]
+        return [self.tokenizer.decode(row[width:], skip_special_tokens=True) for row in out]
+
+
 def drivable_recursive(corpus: Path, max_lines: int) -> list[str]:
     """Corpus functions that recurse and whose signature the driver can supply."""
     found = []
@@ -145,6 +198,11 @@ def main() -> None:
     parser.add_argument("--gguf", default="models/gguf/qwen-cpp-review-q4_k_m.gguf")
     parser.add_argument("--port", type=int, default=8101)
     parser.add_argument("--n-predict", type=int, default=700)
+    parser.add_argument("--backend", choices=("llama", "hf"), default="llama")
+    parser.add_argument("--base", default="Qwen/Qwen2.5-Coder-1.5B-Instruct",
+                        help="hf backend: base model the adapter was trained on")
+    parser.add_argument("--adapter", default=None,
+                        help="hf backend: LoRA adapter directory, or omit for the base model")
     args = parser.parse_args()
 
     functions = drivable_recursive(args.corpus, args.max_lines)[: args.limit]
@@ -164,19 +222,47 @@ def main() -> None:
     if not todo:
         return
 
-    process = subprocess.Popen(
-        ["llama-server", "-m", args.gguf, "--port", str(args.port), "-c", "4096",
-         "-t", "8", "--no-warmup"],
-        stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL,
-    )
+    process = None
+    generator = None
+    if args.backend == "hf":
+        generator = HFGenerator(args.base, args.adapter)
+    else:
+        process = subprocess.Popen(
+            ["llama-server", "-m", args.gguf, "--port", str(args.port), "-c", "4096",
+             "-t", "8", "--no-warmup"],
+            stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL,
+        )
+
+    def attempts(code: str) -> list[str]:
+        """This function's raw samples, however they were produced.
+
+        The GPU backend generates the whole batch up front rather than stopping
+        at the first success. Sampling `args.samples` in one pass costs about
+        what one costs, so an early exit would save nothing and complicate the
+        only part of this that has to stay obvious.
+        """
+        if generator is not None:
+            return generator.samples(
+                build_prompt(code), args.samples, args.n_predict, args.temperature
+            )
+        return [
+            complete(args.port, build_prompt(code), args.n_predict, args.temperature, seed=n)
+            for n in range(args.samples)
+        ]
+
     kept = 0
     try:
-        wait_for_server(args.port)
+        if process is not None:
+            wait_for_server(args.port)
         for index, code in enumerate(todo):
             reasons = []
+            produced = attempts(code) if generator is not None else None
             for sample in range(args.samples):
-                text = complete(args.port, build_prompt(code), args.n_predict,
-                                args.temperature, seed=sample)
+                if produced is not None:
+                    text = produced[sample]
+                else:
+                    text = complete(args.port, build_prompt(code), args.n_predict,
+                                    args.temperature, seed=sample)
                 try:
                     candidate = (json.loads(text) or {}).get("improved_code") or ""
                 except json.JSONDecodeError:
@@ -202,8 +288,9 @@ def main() -> None:
             mark = "KEPT" if reasons and reasons[-1] == "KEPT" else reasons[-1] if reasons else "-"
             print(f"  [{index + 1:>4}/{len(todo)}] kept {kept:>4}  {mark}")
     finally:
-        process.terminate()
-        process.wait(timeout=30)
+        if process is not None:
+            process.terminate()
+            process.wait(timeout=30)
 
     print(f"\n{'=' * 72}")
     print(f"verified rows written: {kept}  (total in {args.out}: {len(done) + kept})")
