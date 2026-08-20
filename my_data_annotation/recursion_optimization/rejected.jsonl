@@ -1,0 +1,62 @@
+{"source": "DATASET.json", "index": 10, "name": null, "reason": "recursive version has no main, so it cannot be run"}
+{"source": "DATASET.json", "index": 11, "name": null, "reason": "recursive version has no main, so it cannot be run"}
+{"source": "DATASET.json", "index": 12, "name": null, "reason": "recursive version has no main, so it cannot be run"}
+{"source": "DATASET.json", "index": 13, "name": null, "reason": "recursive version has no main, so it cannot be run"}
+{"source": "DATASET.json", "index": 14, "name": null, "reason": "recursive version has no main, so it cannot be run"}
+{"source": "DATASET.json", "index": 15, "name": null, "reason": "recursive version has no main, so it cannot be run"}
+{"source": "DATASET.json", "index": 16, "name": null, "reason": "recursive version has no main, so it cannot be run"}
+{"source": "DATASET.json", "index": 17, "name": null, "reason": "recursive version has no main, so it cannot be run"}
+{"source": "DATASET.json", "index": 18, "name": null, "reason": "recursive version has no main, so it cannot be run"}
+{"source": "DATASET.json", "index": 19, "name": null, "reason": "recursive version has no main, so it cannot be run"}
+{"source": "DATASET.json", "index": 20, "name": null, "reason": "recursive version has no main, so it cannot be run"}
+{"source": "DATASET.json", "index": 21, "name": null, "reason": "recursive version has no main, so it cannot be run"}
+{"source": "DATASET.json", "index": 22, "name": null, "reason": "recursive version has no main, so it cannot be run"}
+{"source": "DATASET.json", "index": 23, "name": null, "reason": "recursive version has no main, so it cannot be run"}
+{"source": "DATASET.json", "index": 24, "name": null, "reason": "recursive version has no main, so it cannot be run"}
+{"source": "DATASET.json", "index": 25, "name": null, "reason": "recursive version has no main, so it cannot be run"}
+{"source": "DATASET.json", "index": 26, "name": null, "reason": "recursive version has no main, so it cannot be run"}
+{"source": "DATASET.json", "index": 27, "name": null, "reason": "recursive version has no main, so it cannot be run"}
+{"source": "DATASET.json", "index": 28, "name": null, "reason": "recursive version has no main, so it cannot be run"}
+{"source": "DATASET.json", "index": 29, "name": null, "reason": "recursive version has no main, so it cannot be run"}
+{"source": "DATASET.json", "index": 31, "name": null, "reason": "the two versions print different output, so the rewrite changed behaviour"}
+{"source": "DATASET.json", "index": 33, "name": null, "reason": "the first version is not recursive, so there is nothing to optimise"}
+{"source": "DATASET.json", "index": 34, "name": null, "reason": "the two versions print different output, so the rewrite changed behaviour"}
+{"source": "DATASET.json", "index": 35, "name": null, "reason": "iterative does not compile: /var/folders/pt/yx3d3mh92_1g77sc_t82l6qw0000gn/T/tmpvlzyzjfh/iterative.cpp:2:45: error: expected unqualified-id"}
+{"source": "DATASET.json", "index": 36, "name": null, "reason": "the first version is not recursive, so there is nothing to optimise"}
+{"source": "DATASET.json", "index": 39, "name": null, "reason": "the two versions print different output, so the rewrite changed behaviour"}
+{"source": "dataset.jsonl", "index": 45, "name": null, "reason": "recursive does not compile: /var/folders/pt/yx3d3mh92_1g77sc_t82l6qw0000gn/T/tmpvlzyzjfh/recursive.cpp:30:14: error: expected '}'"}
+{"source": "dataset.jsonl", "index": 46, "name": null, "reason": "the two versions print different output, so the rewrite changed behaviour"}
+{"source": "dataset.jsonl", "index": 50, "name": null, "reason": "the two versions print different output, so the rewrite changed behaviour"}
+{"source": "dataset.jsonl", "index": 51, "name": null, "reason": "the two versions print different output, so the rewrite changed behaviour"}
+{"source": "dataset.jsonl", "index": 52, "name": null, "reason": "the two versions print different output, so the rewrite changed behaviour"}
+{"source": "dataset.jsonl", "index": 53, "name": null, "reason": "the two versions print different output, so the rewrite changed behaviour"}
+{"source": "dataset.jsonl", "index": 55, "name": null, "reason": "the two versions print different output, so the rewrite changed behaviour"}
+{"source": "dataset.jsonl", "index": 57, "name": null, "reason": "recursive version reads its input from stdin, and no input was recorded with the pair"}
+{"source": "dataset.jsonl", "index": 58, "name": null, "reason": "recursive version reads its input from stdin, and no input was recorded with the pair"}
+{"source": "dataset.jsonl", "index": 59, "name": null, "reason": "recursive version reads its input from stdin, and no input was recorded with the pair"}
+{"source": "dataset.jsonl", "index": 60, "name": null, "reason": "recursive version reads its input from stdin, and no input was recorded with the pair"}
+{"source": "dataset.jsonl", "index": 61, "name": null, "reason": "recursive version reads its input from stdin, and no input was recorded with the pair"}
+{"source": "dataset.jsonl", "index": 62, "name": null, "reason": "recursive version reads its input from stdin, and no input was recorded with the pair"}
+{"source": "dataset.jsonl", "index": 63, "name": null, "reason": "recursive version reads its input from stdin, and no input was recorded with the pair"}
+{"source": "dataset.jsonl", "index": 64, "name": null, "reason": "recursive version reads its input from stdin, and no input was recorded with the pair"}
+{"source": "dataset.jsonl", "index": 65, "name": null, "reason": "recursive version reads its input from stdin, and no input was recorded with the pair"}
+{"source": "dataset.jsonl", "index": 66, "name": null, "reason": "recursive version reads its input from stdin, and no input was recorded with the pair"}
+{"source": "dataset.jsonl", "index": 67, "name": null, "reason": "recursive version reads its input from stdin, and no input was recorded with the pair"}
+{"source": "dataset.jsonl", "index": 68, "name": null, "reason": "recursive version reads its input from stdin, and no input was recorded with the pair"}
+{"source": "dataset.jsonl", "index": 69, "name": null, "reason": "recursive version reads its input from stdin, and no input was recorded with the pair"}
+{"source": "dataset.jsonl", "index": 70, "name": null, "reason": "recursive version reads its input from stdin, and no input was recorded with the pair"}
+{"source": "dataset.jsonl", "index": 71, "name": null, "reason": "recursive version reads its input from stdin, and no input was recorded with the pair"}
+{"source": "dataset.jsonl", "index": 72, "name": null, "reason": "recursive version reads its input from stdin, and no input was recorded with the pair"}
+{"source": "dataset.jsonl", "index": 73, "name": null, "reason": "recursive version reads its input from stdin, and no input was recorded with the pair"}
+{"source": "dataset.jsonl", "index": 74, "name": null, "reason": "recursive version reads its input from stdin, and no input was recorded with the pair"}
+{"source": "dataset.jsonl", "index": 75, "name": null, "reason": "recursive version reads its input from stdin, and no input was recorded with the pair"}
+{"source": "dataset.jsonl", "index": 76, "name": null, "reason": "recursive version reads its input from stdin, and no input was recorded with the pair"}
+{"source": "dataset.jsonl", "index": 77, "name": null, "reason": "recursive version reads its input from stdin, and no input was recorded with the pair"}
+{"source": "dataset.jsonl", "index": 78, "name": null, "reason": "recursive version reads its input from stdin, and no input was recorded with the pair"}
+{"source": "dataset.jsonl", "index": 79, "name": null, "reason": "recursive version reads its input from stdin, and no input was recorded with the pair"}
+{"source": "dataset.jsonl", "index": 80, "name": null, "reason": "recursive version reads its input from stdin, and no input was recorded with the pair"}
+{"source": "dataset.jsonl", "index": 81, "name": null, "reason": "recursive version reads its input from stdin, and no input was recorded with the pair"}
+{"source": "dataset.jsonl", "index": 82, "name": null, "reason": "recursive version reads its input from stdin, and no input was recorded with the pair"}
+{"source": "dataset.jsonl", "index": 83, "name": null, "reason": "recursive version reads its input from stdin, and no input was recorded with the pair"}
+{"source": "dataset.jsonl", "index": 84, "name": null, "reason": "recursive version reads its input from stdin, and no input was recorded with the pair"}
+{"source": "dataset.jsonl", "index": 85, "name": null, "reason": "recursive version reads its input from stdin, and no input was recorded with the pair"}
