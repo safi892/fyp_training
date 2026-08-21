@@ -718,9 +718,6 @@ EN  The function first finds the length of the longest common ⟦0⟧ using a sp
 RU  Function sab se pehle space-optimized DP ki madad se longest common ⟦0⟧ ki length find karta hai, jismein do rows use hoti hain. Har cell ko dono strings mein skip karne ya match hone ki possibilities ko consider karke update karta hai. Result identity ⟦1⟧ se derive hota hai. Edge ⟦2⟧ ko DP initialization naturally handle karti hai.
 
 
-# 156  algorithm
-EN  The function first checks each element of the matrix. If it finds a zero, it sets a corresponding marker in the first row and column to indicate that the entire row or column should be zeroed out. It then iterates over the matrix again, setting elements to zero based on these markers. Finally, it handles the special case where the first row or column might need to be zeroed out as well.
-RU  Function sab se pehle space-optimized DP ki madad se longest common ⟦0⟧ ki length find karta hai, jismein do rows use hoti hain. Har cell ko dono strings mein se kisi aik mein skip karne ya characters match hone ki situation ko consider karke update karta hai. Result identity ⟦1⟧ se derive hota hai. Edge ⟦2⟧ ko DP initialization naturally handle karti hai.
 
 # 157  purpose   ⟦0⟧=`word`  ⟦1⟧=`sequence`
 EN  Compute the maximum number of consecutive repetitions of ⟦0⟧ that appear as a substring in ⟦1⟧.

@@ -57,6 +57,13 @@ Other measured results worth not re-deriving:
 - **Defect blindness is capability, not prompting**: three phrasings moved one
   sample of eight. A verified buggy-code corpus is the only route, ~2 weeks,
   deliberately out of scope.
+- **A verified recursion→iteration corpus was attempted and abandoned.**
+  5.8 GPU-hours, 130 of 582 functions attempted, **2 verified — a 1.5% yield**.
+  Dominant rejection was "still recursive", 57 of 130. Worse, both survivors
+  were mechanical `std::stack` simulations with no complexity gain, and one
+  carried a `return -1; // Placeholder` path that the generated inputs never
+  reached. Do not restart this: the probe already showed explicit wording gets
+  the real transformation for free. Evidence in `kaggle_output/verified_labels/`.
 - **Recursion into a loop, on 60 real submissions** with their authors' own
   identifiers: shipped wording **3/60** (all three the same `gcd`), naming the
   container **10/60**, a worked example 6/60. Hand-written samples said 47-100%
