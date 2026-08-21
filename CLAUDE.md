@@ -64,6 +64,15 @@ Other measured results worth not re-deriving:
   carried a `return -1; // Placeholder` path that the generated inputs never
   reached. Do not restart this: the probe already showed explicit wording gets
   the real transformation for free. Evidence in `kaggle_output/verified_labels/`.
+- **Retried with the better wording, and it was worse.** The stack wording was
+  the obvious suspect, so the run was repeated with the memoisation wording the
+  probe scored 3/3, on only the 335 functions with overlapping subproblems:
+  **0 verified from 20 functions × 16 samples**, 16 of 20 rejected as "still
+  recursive", 4 originals not even compiling. The probe's 3/3 was on three
+  hand-written textbook functions; these are real submissions with their
+  authors' identifiers. Same lesson as the 3/60 recursion result — a capability
+  number measured on code you wrote yourself is not a serving number.
+  Evidence in `kaggle_output/results(9)/`.
 - **Recursion into a loop, on 60 real submissions** with their authors' own
   identifiers: shipped wording **3/60** (all three the same `gcd`), naming the
   container **10/60**, a worked example 6/60. Hand-written samples said 47-100%
