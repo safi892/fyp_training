@@ -58,16 +58,21 @@ SYSTEM = (
     "actionable review output for the given source code."
 )
 
-#: The wording that measured 10/60 against the shipped 3/60. Read from the
-#: registry rather than copied, so the dataset is built with the instruction that
-#: will be used to serve it.
-WORDING = TASK_FIELD_HINTS["iterate"]["improved_code"]
+#: Read from the registry rather than copied, so the dataset is built with the
+#: instruction that will be used to serve it.
+#:
+#: Which transformation to ask for. `optimize` is the default because the probe
+#: measured it: trained wording 0/3, this wording 3/3. `iterate` asks for an
+#: explicit std::stack, which is a mechanical rewrite of the same complexity -
+#: a 5.8 GPU-hour run produced 2 rows from 130 attempts and both were stack
+#: simulations that made nothing faster.
+TASK = "optimize"
 
 
-def build_prompt(code: str) -> str:
+def build_prompt(code: str, task: str = TASK) -> str:
     instruction = (
         "Analyze the following C++ code.\n\nLanguage: cpp\n\n"
-        f"Generate:\n- Improved code ({WORDING})\n\n"
+        f"Generate:\n- Improved code ({TASK_FIELD_HINTS[task]['improved_code']})\n\n"
         "Return a single JSON object using the requested field names."
     )
     return (
@@ -223,6 +228,22 @@ class HFGenerator:
         return produced[:count]
 
 
+def recursive_call_count(code: str) -> int:
+    """How many times the function calls itself.
+
+    One call is linear recursion - a countdown, a list walk - where the answer
+    is computed once and memoisation has nothing to remember. Two or more is
+    the branching shape (`f(n-1) + f(n-2)`) where subproblems overlap and a
+    table turns exponential into linear. Measured on the corpus: 218 of 582
+    functions are the first kind, and attempting them spends GPU time to learn
+    a rewrite that cannot be faster.
+    """
+    match = re.search(r"\b\w+[\s*&]+(\w+)\s*\(", code)
+    if not match:
+        return 0
+    return len(re.findall(rf"\b{re.escape(match.group(1))}\s*\(", code)) - 1
+
+
 def drivable_recursive(corpus: Path, max_lines: int) -> list[str]:
     """Corpus functions that recurse and whose signature the driver can supply."""
     found = []
@@ -268,6 +289,13 @@ def main() -> None:
     parser.add_argument("--limit", type=int, default=300, help="functions to attempt")
     parser.add_argument("--samples", type=int, default=6, help="attempts per function")
     parser.add_argument("--max-lines", type=int, default=40)
+    parser.add_argument("--task", choices=("optimize", "iterate"), default=TASK)
+    parser.add_argument(
+        "--min-calls", type=int, default=2,
+        help="Skip functions with fewer recursive calls. Memoisation only pays "
+             "where subproblems overlap, and a single tail call has none: 218 of "
+             "582 corpus functions are that shape and can gain nothing.",
+    )
     parser.add_argument("--temperature", type=float, default=0.8)
     parser.add_argument("--timeout", type=float, default=15.0)
     parser.add_argument("--gguf", default="models/gguf/qwen-cpp-review-q4_k_m.gguf")
@@ -282,7 +310,13 @@ def main() -> None:
                         help="hf backend: LoRA adapter directory, or omit for the base model")
     args = parser.parse_args()
 
-    functions = drivable_recursive(args.corpus, args.max_lines)[: args.limit]
+    functions = drivable_recursive(args.corpus, args.max_lines)
+    if args.min_calls > 1:
+        before = len(functions)
+        functions = [f for f in functions if recursive_call_count(f) >= args.min_calls]
+        print(f"{before - len(functions)} functions dropped: fewer than "
+              f"{args.min_calls} recursive calls, so nothing to memoise")
+    functions = functions[: args.limit]
 
     args.out.parent.mkdir(parents=True, exist_ok=True)
     done: set[str] = set()
@@ -348,7 +382,7 @@ def main() -> None:
                 if problem is None:
                     with args.out.open("a", encoding="utf-8") as handle:
                         handle.write(json.dumps({
-                            "task": "iterate", "language": "cpp",
+                            "task": args.task, "language": "cpp",
                             "code": code, "improved_code": candidate,
                             "verified": "compiled and ran with identical output",
                             "attempt": sample,
