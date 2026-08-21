@@ -51,6 +51,20 @@ STANDARD_HEADERS = (
     "#include <bits/stdc++.h>\n" if Path("/usr/include/bits/stdc++.h").exists() else
     "#include <iostream>\n#include <vector>\n#include <string>\n#include <map>\n"
     "#include <unordered_map>\n#include <algorithm>\n#include <climits>\n#include <cmath>\n"
+) + (
+    # Competitive-programming submissions are written inside `using namespace
+    # std`, so they say `vector<int>` and not `std::vector<int>`. Without this
+    # line the *original* fails to compile and the attempt is discarded before
+    # the rewrite is ever looked at - measured on 80 corpus functions, 32%
+    # compiled without it and 92% with it, so two thirds of every verification
+    # run was being thrown away for a missing declaration.
+    "using namespace std;\n"
+    # Tree and list problems pass node pointers and never define the struct,
+    # because the judge supplied it.
+    "struct TreeNode { int val; TreeNode *left, *right;\n"
+    "  TreeNode(int x = 0) : val(x), left(nullptr), right(nullptr) {} };\n"
+    "struct ListNode { int val; ListNode *next;\n"
+    "  ListNode(int x = 0) : val(x), next(nullptr) {} };\n"
 )
 
 

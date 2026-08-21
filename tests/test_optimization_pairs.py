@@ -127,11 +127,13 @@ def test_the_builder_keeps_only_rewrites_that_run_and_agree():
 def test_the_builder_reads_the_wording_it_will_be_served_with():
     """A dataset built with one instruction and served with another teaches drift."""
     sys.path.insert(0, str(Path(__file__).resolve().parents[1] / "scripts"))
-    from build_optimize_dataset import WORDING
+    from build_optimize_dataset import TASK, build_prompt
 
     from qwen_cpp_review.prompt import TASK_FIELD_HINTS
 
-    assert WORDING == TASK_FIELD_HINTS["iterate"]["improved_code"]
+    for task in ("optimize", "iterate"):
+        assert TASK_FIELD_HINTS[task]["improved_code"] in build_prompt("int f();", task)
+    assert TASK in TASK_FIELD_HINTS
 
 
 def test_the_extractor_finds_code_however_the_model_wrapped_it():
