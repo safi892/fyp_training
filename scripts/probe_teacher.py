@@ -24,6 +24,7 @@ import argparse
 import json
 import re
 import sys
+import time
 import urllib.request
 from pathlib import Path
 
@@ -44,21 +45,66 @@ def load_provider(path: Path, name: str) -> dict:
     return json.loads(path.read_text(encoding="utf-8"))["providers"][name]
 
 
-def ask_teacher(provider: dict, model: str, prompt: str, budget: int) -> str:
-    """One rewrite. The prompt is the product's, so only the model differs."""
-    body = json.dumps({
+class RateLimiter:
+    """Space calls out, because the free tiers here allow ten a minute.
+
+    Sleeping between requests is cheaper than being throttled: a 429 costs the
+    call *and* the wait, and a long unattended run that trips it repeatedly
+    finishes with a fraction of the rows it should have.
+    """
+
+    def __init__(self, per_minute: int):
+        self.gap = 60.0 / max(1, per_minute)
+        self.last = 0.0
+
+    def wait(self) -> None:
+        pause = self.gap - (time.monotonic() - self.last)
+        if pause > 0:
+            time.sleep(pause)
+        self.last = time.monotonic()
+
+
+def ask_teacher(provider: dict, model: str, prompt: str, budget: int,
+                limiter: RateLimiter, retries: int = 3) -> str:
+    """One rewrite. The prompt is the product's, so only the model differs.
+
+    Azure authenticates with an ``api-key`` header and NVIDIA with a bearer
+    token, so the provider config decides. Retries exist because a run of three
+    hundred functions will meet a transient 429 or 503, and losing the row for
+    it wastes the whole call.
+    """
+    headers = {"Content-Type": "application/json"}
+    if "azure" in provider["baseUrl"]:
+        headers["api-key"] = provider["apiKey"]
+    else:
+        headers["Authorization"] = f"Bearer {provider['apiKey']}"
+
+    payload = {
         "model": model,
         "messages": [{"role": "user", "content": prompt}],
-        "max_completion_tokens": budget,
-        "reasoning_effort": "medium",
-    }).encode()
-    request = urllib.request.Request(
-        provider["baseUrl"].rstrip("/") + "/chat/completions",
-        data=body,
-        headers={"Content-Type": "application/json", "api-key": provider["apiKey"]},
-    )
-    with urllib.request.urlopen(request, timeout=600) as response:
-        return json.load(response)["choices"][0]["message"].get("content") or ""
+        "temperature": 0.3,
+        "top_p": 0.95,
+    }
+    # Azure reasoning models want max_completion_tokens; the rest want max_tokens.
+    payload["max_completion_tokens" if "azure" in provider["baseUrl"] else "max_tokens"] = budget
+
+    last = ""
+    for attempt in range(retries):
+        limiter.wait()
+        try:
+            request = urllib.request.Request(
+                provider["baseUrl"].rstrip("/") + "/chat/completions",
+                data=json.dumps(payload).encode(), headers=headers,
+            )
+            with urllib.request.urlopen(request, timeout=600) as response:
+                message = json.load(response)["choices"][0]["message"]
+            # Some models put the answer in `content` and their working in
+            # `reasoning_content`; others run them together. Prefer the clean one.
+            return message.get("content") or message.get("reasoning_content") or ""
+        except Exception as exc:  # noqa: BLE001 - retried, then reported
+            last = f"{type(exc).__name__}: {exc}"
+            time.sleep(2 ** attempt)
+    raise RuntimeError(last)
 
 
 #: Already carries a table, so there is nothing for memoisation to add.
@@ -83,20 +129,31 @@ def main() -> None:
     parser.add_argument("--max-lines", type=int, default=40)
     parser.add_argument("--budget", type=int, default=6000)
     parser.add_argument("--out", type=Path, default=Path("test_results/teacher_probe.json"))
+    parser.add_argument("--rate", type=int, default=10, help="requests per minute")
+    parser.add_argument("--verified", type=Path, default=None,
+                        help="Append kept pairs here as JSONL, for training on.")
     args = parser.parse_args()
 
     provider = load_provider(args.env, args.provider)
+    limiter = RateLimiter(args.rate)
+
+    # Resume: a run of three hundred takes hours and will be interrupted.
+    done = set()
+    if args.verified and args.verified.exists():
+        done = {json.loads(line)["code"] for line in args.verified.open(encoding="utf-8")}
+        print(f"{len(done)} already verified, skipping those")
 
     functions = [
         f for f in drivable_recursive(args.corpus, args.max_lines)
         if recursive_call_count(f) >= 2 and not ALREADY_OPTIMISED.search(f)
-    ][: args.limit]
+    ]
+    functions = [f for f in functions if f not in done][: args.limit]
     print(f"{len(functions)} un-optimised functions with overlapping subproblems\n")
 
     records, kept = [], 0
     for position, code in enumerate(functions, start=1):
         try:
-            reply = ask_teacher(provider, args.model, build_prompt(code), args.budget)
+            reply = ask_teacher(provider, args.model, build_prompt(code), args.budget, limiter)
         except Exception as exc:  # noqa: BLE001 - one bad call must not end the run
             print(f"  [{position:>3}/{len(functions)}] api error: {type(exc).__name__}")
             records.append({"code": code, "verdict": f"api error: {exc}"})
@@ -115,6 +172,15 @@ def main() -> None:
             report = verify(code, candidate)
             verdict = "KEPT" if report.equivalent else (report.error or "output differs")
             kept += report.equivalent
+            if report.equivalent and args.verified:
+                args.verified.parent.mkdir(parents=True, exist_ok=True)
+                with args.verified.open("a", encoding="utf-8") as handle:
+                    handle.write(json.dumps({
+                        "task": "optimize", "language": "cpp",
+                        "code": code, "improved_code": candidate,
+                        "verified": "compiled and ran with identical output",
+                        "teacher": args.model,
+                    }, ensure_ascii=False) + "\n")
 
         print(f"  [{position:>3}/{len(functions)}] kept {kept:>3}  {verdict[:58]}")
         records.append({"code": code, "improved_code": candidate, "verdict": verdict})
