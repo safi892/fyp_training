@@ -395,7 +395,11 @@ def compile_and_run(source: str, timeout: float, workdir: Path, tag: str, runs: 
     path.write_text(source, encoding="utf-8")
     build = subprocess.run(
         ["c++", "-std=c++17", "-O2", "-o", str(binary), str(path)],
-        capture_output=True, text=True, timeout=timeout,
+        # errors="replace": a submission that prints a raw byte would otherwise
+        # kill the whole run with a UnicodeDecodeError, losing every function
+        # after it. The comparison only needs the two outputs to be decoded the
+        # same way, not correctly.
+        capture_output=True, text=True, errors="replace", timeout=timeout,
     )
     if build.returncode != 0:
         return RunResult(ok=False, error=build.stderr[-800:])
@@ -404,7 +408,10 @@ def compile_and_run(source: str, timeout: float, workdir: Path, tag: str, runs: 
     for _ in range(max(1, runs)):
         started = time.perf_counter()
         try:
-            run = subprocess.run([str(binary)], capture_output=True, text=True, timeout=timeout)
+            run = subprocess.run(
+                [str(binary)], capture_output=True, text=True,
+                errors="replace", timeout=timeout,
+            )
         except subprocess.TimeoutExpired:
             return RunResult(ok=False, error=f"ran longer than {timeout}s", seconds=timeout)
         best = min(best, time.perf_counter() - started)
