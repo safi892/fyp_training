@@ -52,15 +52,23 @@ def main() -> None:
             row = json.dumps({
                 "code": pair["code"],
                 "language": "cpp",
-                "task": "optimize",
+                # Each pair keeps the task it was generated under. The two ask
+                # for different rewrites - a memo table versus an explicit loop
+                # - and labelling a loop rewrite `optimize` would train the
+                # memoisation wording to produce something else entirely.
+                "task": pair.get("task", "optimize"),
                 "improved_code": pair["improved_code"],
             }, ensure_ascii=False)
             for _ in range(args.repeat):
                 handle.write(row + "\n")
                 rows += 1
 
+    import collections
+    by_task = collections.Counter(p.get("task", "optimize") for p in unique.values())
     added = len(unique) * args.repeat
-    print(f"wrote {args.out}: {rows:,} rows ({added} added as task=optimize)")
+    print(f"wrote {args.out}: {rows:,} rows ({added} added)")
+    for task, count in by_task.most_common():
+        print(f"   task={task}: {count} unique x {args.repeat} = {count * args.repeat}")
     print(f"optimize is {added / rows:.2%} of the mixture - re-probe after "
           f"training rather than believing the loss")
 
