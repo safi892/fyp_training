@@ -65,7 +65,7 @@ class RateLimiter:
 
 
 def ask_teacher(provider: dict, model: str, prompt: str, budget: int,
-                limiter: RateLimiter, retries: int = 3) -> str:
+                limiter: RateLimiter, retries: int = 6) -> str:
     """One rewrite. The prompt is the product's, so only the model differs.
 
     Azure authenticates with an ``api-key`` header and NVIDIA with a bearer
@@ -103,7 +103,9 @@ def ask_teacher(provider: dict, model: str, prompt: str, budget: int,
             return message.get("content") or message.get("reasoning_content") or ""
         except Exception as exc:  # noqa: BLE001 - retried, then reported
             last = f"{type(exc).__name__}: {exc}"
-            time.sleep(2 ** attempt)
+            # Up to ~64s on the last attempt, which rides out a brief drop
+            # rather than discarding a function the run has already paid for.
+            time.sleep(min(64, 2 ** attempt))
     raise RuntimeError(last)
 
 
@@ -126,6 +128,13 @@ def main() -> None:
         "--corpus", type=Path,
         default=Path("my_data_annotation/recursion_optimization/inputs.jsonl"))
     parser.add_argument("--limit", type=int, default=20)
+    parser.add_argument("--task", choices=("optimize", "iterate"), default="optimize")
+    parser.add_argument(
+        "--min-calls", type=int, default=2,
+        help="2 for memoisation, which needs overlapping subproblems. 1 to reach "
+             "the linear recursion that can only become a loop.",
+    )
+    parser.add_argument("--max-calls", type=int, default=99)
     parser.add_argument("--max-lines", type=int, default=40)
     parser.add_argument("--budget", type=int, default=6000)
     parser.add_argument("--out", type=Path, default=Path("test_results/teacher_probe.json"))
@@ -145,17 +154,20 @@ def main() -> None:
 
     functions = [
         f for f in drivable_recursive(args.corpus, args.max_lines)
-        if recursive_call_count(f) >= 2 and not ALREADY_OPTIMISED.search(f)
+        if args.min_calls <= recursive_call_count(f) <= args.max_calls
+        and not ALREADY_OPTIMISED.search(f)
     ]
     functions = [f for f in functions if f not in done][: args.limit]
-    print(f"{len(functions)} un-optimised functions with overlapping subproblems\n")
+    print(f"{len(functions)} functions, {args.min_calls}-{args.max_calls} "
+          f"recursive calls, task={args.task}\n")
 
     records, kept = [], 0
     for position, code in enumerate(functions, start=1):
         try:
-            reply = ask_teacher(provider, args.model, build_prompt(code), args.budget, limiter)
+            reply = ask_teacher(
+                provider, args.model, build_prompt(code, args.task), args.budget, limiter)
         except Exception as exc:  # noqa: BLE001 - one bad call must not end the run
-            print(f"  [{position:>3}/{len(functions)}] api error: {type(exc).__name__}")
+            print(f"  [{position:>3}/{len(functions)}] api error: {type(exc).__name__}", flush=True)
             records.append({"code": code, "verdict": f"api error: {exc}"})
             continue
 
@@ -176,14 +188,18 @@ def main() -> None:
                 args.verified.parent.mkdir(parents=True, exist_ok=True)
                 with args.verified.open("a", encoding="utf-8") as handle:
                     handle.write(json.dumps({
-                        "task": "optimize", "language": "cpp",
+                        "task": args.task, "language": "cpp",
                         "code": code, "improved_code": candidate,
                         "verified": "compiled and ran with identical output",
                         "teacher": args.model,
                     }, ensure_ascii=False) + "\n")
 
-        print(f"  [{position:>3}/{len(functions)}] kept {kept:>3}  {verdict[:58]}")
+        print(f"  [{position:>3}/{len(functions)}] kept {kept:>3}  {verdict[:58]}", flush=True)
         records.append({"code": code, "improved_code": candidate, "verdict": verdict})
+        # Rewritten every time: a long unattended run that dies at hour two
+        # should still have everything it learned in hour one.
+        args.out.parent.mkdir(parents=True, exist_ok=True)
+        args.out.write_text(json.dumps(records, indent=2), encoding="utf-8")
 
     args.out.parent.mkdir(parents=True, exist_ok=True)
     args.out.write_text(json.dumps(records, indent=2), encoding="utf-8")
