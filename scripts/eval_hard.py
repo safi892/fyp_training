@@ -39,11 +39,16 @@ import argparse
 import json
 import re
 import subprocess
+import sys
 import time
 import urllib.error
 import urllib.request
 from pathlib import Path
 from typing import Any
+
+sys.path.insert(0, str(Path(__file__).resolve().parents[1] / "src"))
+
+from qwen_cpp_review.line_anchoring import repair_anchors  # noqa: E402
 
 #: Each sample pairs code with what a correct reading finds, and with the
 #: specific false statement the code is designed to bait. ``finds`` groups are
@@ -391,6 +396,29 @@ public:
     },
 ]
 
+def count_anchor_repairs(code: str, comments_raw: str) -> dict[str, int]:
+    """Split anchor validity into what the model got right and what was rescued.
+
+    ``repair_anchors`` relocates an anchor by its quoted text, so anchor validity
+    measured after it runs is ~100% whatever the model's line numbers do. That
+    total is the right number to serve, and the wrong number to track a model
+    with: phase 1 placed 26 of 77 anchors unaided and phase 2 only 6 of 72, a 4x
+    regression that never moved the reported figure. Keeping ``exact`` separate
+    is what makes that visible.
+    """
+    try:
+        anchors = (json.loads(comments_raw) or {}).get("line_comments") or []
+    except (json.JSONDecodeError, AttributeError):
+        return {"anchors_exact": 0, "anchors_repaired": 0, "anchors_dropped": 0}
+
+    report = repair_anchors(code, [a for a in anchors if isinstance(a, dict)])
+    return {
+        "anchors_exact": report.exact,
+        "anchors_repaired": report.repaired,
+        "anchors_dropped": report.dropped,
+    }
+
+
 def harvest_text(comments_raw: str, explanation_raw: str) -> tuple[str, int]:
     """Flatten both answers into one string to score, however they parsed.
 
@@ -660,13 +688,14 @@ def main() -> None:
                 )
                 outputs[task] = complete(args.port, prompt, args.n_predict)
             text, parsed = harvest_text(outputs["line_comments"], outputs["explanation"])
+            anchor_counts = count_anchor_repairs(sample["code"], outputs["line_comments"])
             result = score(text, sample)
             flag = "  <- ASSERTED SOMETHING FALSE" if result["false_claim"] else ""
             print(f"    found {result['found']}/{result['of']}"
                   f"{'' if parsed == 2 else f'  (JSON ok on {parsed}/2)'}{flag}")
             records.append(
                 {**sample, **result, "text": text, "json_ok": parsed == 2,
-                 "raw": outputs}
+                 **anchor_counts, "raw": outputs}
             )
     finally:
         if process is not None:
@@ -681,9 +710,20 @@ def main() -> None:
     found = sum(r["found"] for r in records)
     total = sum(r["of"] for r in records)
     claims = sum(1 for r in records if r["false_claim"])
+    exact = sum(r["anchors_exact"] for r in records)
+    repaired = sum(r["anchors_repaired"] for r in records)
+    dropped = sum(r["anchors_dropped"] for r in records)
     print(f"\n{'=' * 72}")
     print(f"problems named            : {found}/{total}")
     print(f"confidently false answers : {claims}/{len(records)}")
+    # Reported apart from the post-repair total on purpose. Anchor validity is
+    # measured after repair_anchors relocates by quoted text, so a model whose
+    # line numbers are all wrong still scores 100% - which hid a 4x regression
+    # between phase 1 (26/77 exact) and phase 2 (6/72). See
+    # docs/PHASE2_INVESTIGATION.md, issue 1.
+    print(f"anchors exact / repaired  : {exact}/{exact + repaired}"
+          f" ({exact / max(exact + repaired, 1):.0%} landed on the right line unaided)")
+    print(f"anchors dropped           : {dropped}")
     print(f"\nwrote {out.with_suffix('.md')}")
 
 

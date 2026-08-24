@@ -31,6 +31,10 @@ outputs/
 
 # Downloaded Kaggle run artefacts
 kaggle_output/
+urdu_output/
+
+# Scratch progress log written by the detached probe runner
+test_results/.probe_progress.log
 
 # Locally cached base models (multi-GB, re-downloadable)
 models/
