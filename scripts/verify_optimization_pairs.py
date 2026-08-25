@@ -18,9 +18,16 @@ Four checks, in the order that fails cheapest first:
     3. both compile                        - a target that does not build is not a target
     4. both produce the same stdout        - the only check that catches a wrong rewrite
 
-Check 4 needs a `main`, which is why snippets that are bare `class Solution`
-bodies are rejected rather than quietly kept: there is no way to run them, so
-there is no way to know whether the rewrite is correct.
+Check 4 needs an entry point. A bare `class Solution` body has none, and used to
+be rejected for it - 20 of 62 rejections, none of them a bad rewrite, only an
+un-runnable one. Those now fall through to `verification.verify`, which builds a
+driver from the function signature and feeds it generated arguments. The gate is
+unchanged in what it demands: both versions still compile, still run, and still
+have to print the same thing. Only the `main` is supplied.
+
+What is *not* supplied is input. A program waiting on `cin` is still rejected
+without a recorded `stdin`, because feeding it nothing is a false pass rather
+than a check - see the note on `_READS_STDIN`.
 """
 
 from __future__ import annotations
@@ -31,6 +38,8 @@ import re
 import subprocess
 import tempfile
 from pathlib import Path
+
+from qwen_cpp_review.verification import verify
 
 #: Words that look like a call but are not, so a self-call check does not fire
 #: on `if (...)` inside a function called `if`-something.
@@ -209,9 +218,25 @@ def check(
     still = recursive_functions(iterative)
     if still:
         return f"the second version still recurses: {', '.join(still)}"
+    # A pair with no `main` is not unusable, only un-runnable as written: the
+    # LeetCode-shaped `class Solution` snippets are the whole of that bucket.
+    # `verification.verify` builds a driver from the function signature and
+    # feeds it generated arguments, so the gate stays a gate - both versions are
+    # still compiled, run, and compared - and only the entry point is supplied.
+    # 20 of the 62 rejections were this, and none of them was a bad rewrite.
+    if not all(re.search(r"\bint\s+main\s*\(", code) for code in (recursive, iterative)):
+        report = verify(recursive, iterative, timeout=timeout)
+        if report.error:
+            return f"no main, and no driver could be built: {report.error}"
+        if not report.compiled_original:
+            return "no main, and the recursive version does not compile"
+        if not report.compiled_optimized:
+            return "no main, and the iterative version does not compile"
+        if not report.equivalent:
+            return "the two versions print different output, so the rewrite changed behaviour"
+        return None
+
     for name, code in (("recursive", recursive), ("iterative", iterative)):
-        if not re.search(r"\bint\s+main\s*\(", code):
-            return f"{name} version has no main, so it cannot be run"
         if _READS_STDIN.search(code) and not feed:
             return f"{name} version reads its input from stdin, and no input was recorded with the pair"
 
