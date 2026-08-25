@@ -218,6 +218,59 @@ Each pass is roughly 5–6 hours of unattended running at the pooled rate.
 
 ---
 
+## 3b. Two data changes, one made and one withdrawn
+
+### Made: the `improve` task now drops cosmetic rewrites
+
+Measured over the 13,087 improve-eligible rows in `line_anchored.jsonl`:
+
+```
+identical control-flow token counts   8,092  (61.8%)   <- cosmetic only
+structurally changed                  4,995  (38.2%)
+introduced a dp / memo / cache          819  ( 6.3%)
+```
+
+That task carried **18,935 rows and 37% of the supervised tokens**, so the
+majority of the gradient was teaching `const`-sprinkling and an added
+`#include`. `build_task_mixture.py` now compares control-flow token counts
+before and after and keeps only rewrites that moved the algorithm:
+
+```
+improve   18,935 -> 7,259        total mixture   66,103 -> 54,427
+```
+
+No other task changed. `--keep-cosmetic-improve` reproduces the old mixture, so
+before/after stays comparable. Nine tests in `tests/test_improve_filter.py` pin
+the distinction, including that flow keywords appearing inside *comments* do not
+count as a rewrite.
+
+The contrast is the whole argument: 290 execution-verified `optimize` rows moved
+algorithmic transformation 17% → 40%; 18,935 asserted `improve` rows taught
+tidying.
+
+### Withdrawn: adding a `comments` task
+
+This was recommended earlier in this investigation as the highest-leverage data
+change, on the grounds that the `comments` field is non-empty in 18,681 of
+19,033 rows and carries defect language. **That recommendation was wrong and is
+retracted.** Measured:
+
+| | rows | share |
+| --- | ---: | ---: |
+| `comments` is a **rewritten copy of the code** with inline comments | 9,010 | 47.3% |
+| `comments` is prose only | 9,671 | 50.8% |
+| prose-only **and** mentioning a real defect | **377** | 2.0% |
+
+The 47.3% is the format Phase 0 deliberately abandoned: the annotated copy
+drifts from the input, preserving its lines verbatim only 14.5% of the time,
+which is why `line_anchoring.py` exists to extract the verifiable part into
+`line_comments` — and 13,087 rows already carry those anchors. Training on the
+raw field would teach the model to re-emit rewritten code on half the rows.
+
+The salvageable remainder is **377 rows, not 18,681**, and hand-inspection shows
+even those are mostly describing handled edge cases rather than claiming a
+defect. The field was excluded on purpose, and correctly.
+
 ## 4. What to do
 
 1. **Apply `assume_nothing` to the served instruction**, after confirming it on

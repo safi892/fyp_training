@@ -25,6 +25,7 @@ from __future__ import annotations
 
 import re
 from dataclasses import dataclass, field
+from typing import Any
 
 #: Comments are stripped before the code is read, or a complexity note like
 #: `//S.C : O(26)` parses as a function `O(26){...}` whose body calls `O(n)`,
@@ -203,3 +204,86 @@ def filter_comments(
         else:
             kept.append(item)
     return kept, dropped
+
+
+#: Loop nodes tree-sitter reports for C++. `for_range_loop` is the range-for.
+_LOOP_NODES = {"for_statement", "while_statement", "do_statement", "for_range_loop"}
+
+#: The nesting depth a label needs before plain loops could produce it. Labels
+#: absent here are not checked: `O(n log n)` comes from an algorithm rather than
+#: from nesting, so counting loops says nothing about whether it is right.
+_DEPTH_REQUIRED = {
+    "O(n²)": 2, "O(n^2)": 2,
+    "O(n³)": 3, "O(n^3)": 3,
+    "O(n² log n)": 2, "O(n²log n)": 2,
+}
+
+
+def max_loop_depth(code: str) -> int:
+    """Deepest nesting of loops in ``code``, or 0 if it does not parse."""
+    try:
+        import tree_sitter_cpp
+        from tree_sitter import Language, Parser
+    except ImportError:  # pragma: no cover - depends on the install
+        return 0
+    root = Parser(Language(tree_sitter_cpp.language())).parse(code.encode()).root_node
+    best = 0
+
+    def walk(node: Any, depth: int) -> None:
+        nonlocal best
+        here = depth + (1 if node.type in _LOOP_NODES else 0)
+        best = max(best, here)
+        for child in node.children:
+            walk(child, here)
+
+    walk(root, 0)
+    return best
+
+
+def complexity_contradicted(code: str, time_label: str | None) -> bool:
+    """Is this time complexity impossible for the structure that is written?
+
+    A necessary condition, never a sufficient one. Three nested loops do not
+    prove `O(n³)` - they may run over constants, or over three different
+    sizes - but *fewer than three* means plain loops cannot produce it, and
+    recursion is the only remaining way. So this returns True only when the
+    depth falls short **and** nothing recurses.
+
+    Measured over the 1,293 rows the corpus labels `O(n³)` or `O(n² log n)`:
+
+        depth sufficient                              288  (22.3%)
+        depth short but recursive, cannot rule out     56  ( 4.3%)
+        depth short and not recursive, contradicted   949  (73.4%)
+
+    That 73.4% is why those labels were distrusted, and the 22.3% is why
+    distrusting them by name was the wrong instrument: it deleted every
+    `O(n³)` row, so the adapter could not emit the label even where it is right.
+    """
+    required = _DEPTH_REQUIRED.get((time_label or "").strip())
+    if required is None:
+        return False
+    if max_loop_depth(code) >= required:
+        return False
+    return not recursive_functions(code)
+
+
+def complexity_corroborated(code: str, time_label: str | None) -> bool:
+    """Does the written nesting positively support this time complexity?
+
+    The mirror of :func:`complexity_contradicted`, and used for a different
+    purpose: not to distrust a label, but to restore one the annotator itself
+    was unsure of. Only labels whose mechanism *is* nesting are answerable this
+    way - `O(n log n)` and `O(1)` come from an algorithm, so loop depth has
+    nothing to say about them and this returns False rather than guessing.
+
+    The corpus labels 1,602 functions `O(n²)`, of which 1,510 carry
+    `low_complexity_confidence` and so never reach training - leaving 92. Of
+    those 1,510, **624 are written with two or more nested loops**. Low
+    annotator confidence is a real signal and is kept everywhere else; where the
+    code visibly does the thing the label says, it is corroboration the
+    annotator did not have.
+    """
+    required = _DEPTH_REQUIRED.get((time_label or "").strip())
+    if required is None:
+        return False
+    return max_loop_depth(code) >= required

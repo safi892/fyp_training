@@ -22,12 +22,22 @@ from collections import Counter
 from pathlib import Path
 from typing import Any
 
+from qwen_cpp_review.claim_checks import complexity_contradicted, complexity_corroborated
 from qwen_cpp_review.line_anchoring import anchor_comments
 
 #: Complexity labels claimed by the annotator far more often than a dataset of
 #: short competitive-programming snippets can support. Rows carrying these are
 #: flagged, not dropped: the label may be right, but it should not be trusted
 #: without review.
+#:
+#: The flag used to fire on the label alone, and `build_task_mixture` blocks on
+#: it - so "flagged, not dropped" became dropped, and all 1,281 `O(n³)` rows
+#: left the mixture. The adapter then could not emit the label at all, which is
+#: a guaranteed error on any genuinely cubic function rather than a probable
+#: one. It now fires only when the written structure cannot produce the label:
+#: fewer nested loops than it needs *and* nothing recursive. Measured over the
+#: 1,293 suspect rows - 949 contradicted, 288 supported, 56 recursive and so
+#: unprovable either way.
 SUSPECT_COMPLEXITY = {"O(n³)", "O(n^3)", "O(n² log n)", "O(n²log n)"}
 
 
@@ -40,9 +50,20 @@ def quality_flags(row: dict[str, Any], min_confidence: float) -> list[str]:
         return flags
 
     confidence = analysis.get("confidence")
-    if isinstance(confidence, (int, float)) and confidence < min_confidence:
+    if (
+        isinstance(confidence, (int, float))
+        and confidence < min_confidence
+        # Low annotator confidence is a real signal and is kept everywhere the
+        # code cannot speak to the label. Where it can - the label's mechanism
+        # is nesting, and the nesting is written - the source corroborates what
+        # the annotator was unsure of. 1,510 `O(n²)` rows are blocked this way
+        # and 624 of them visibly have the two loops.
+        and not complexity_corroborated(row.get("code") or "", analysis.get("time"))
+    ):
         flags.append("low_complexity_confidence")
-    if analysis.get("time") in SUSPECT_COMPLEXITY:
+    if analysis.get("time") in SUSPECT_COMPLEXITY and complexity_contradicted(
+        row.get("code") or "", analysis.get("time")
+    ):
         flags.append("suspect_time_complexity")
     if not analysis.get("time") or not analysis.get("space"):
         flags.append("incomplete_complexity")

@@ -18,6 +18,7 @@ from __future__ import annotations
 import argparse
 import json
 import random
+import re
 from collections import Counter
 from pathlib import Path
 from typing import Any, Iterator
@@ -49,7 +50,32 @@ def read_jsonl(path: Path) -> Iterator[dict[str, Any]]:
                 raise ValueError(f"Invalid JSON in {path}:{line_number}") from exc
 
 
-def emit_tasks(row: dict[str, Any], *, min_anchors: int) -> Iterator[dict[str, Any]]:
+#: Tokens whose counts describe a function's control flow. Comparing the counts
+#: is deliberately crude: it cannot tell a good rewrite from a bad one, only a
+#: rewrite that moved the algorithm from one that renamed and reformatted it.
+_FLOW_TOKENS = ("for", "while", "if", "else", "return", "switch", "case", "goto")
+
+
+def changed_structure(before: str, after: str) -> bool:
+    """Did the rewrite alter the algorithm, or only its spelling?
+
+    Measured over the 13,087 improve-eligible rows: **61.8% leave every one of
+    these counts identical**, and only 6.3% introduce a dp/memo/cache. That task
+    carries 18,935 rows and 37% of the supervised tokens, so the majority of the
+    gradient was teaching `const`-sprinkling and an added `#include`.
+
+    The contrast is the `optimize` task, whose 290 rows are execution-verified
+    and which moved algorithmic transformation 17% -> 40%. Volume was never the
+    thing that mattered; what the target actually demonstrates was.
+    """
+    strip = lambda t: re.sub(r"/\*.*?\*/", "", re.sub(r"//[^\n]*", "", t), flags=re.S)  # noqa: E731
+    counts = lambda t: tuple(len(re.findall(rf"\b{k}\b", strip(t))) for k in _FLOW_TOKENS)  # noqa: E731
+    return counts(before) != counts(after)
+
+
+def emit_tasks(
+    row: dict[str, Any], *, min_anchors: int, structural_only: bool = True
+) -> Iterator[dict[str, Any]]:
     """Yield one tagged copy of ``row`` per task it can supply a target for."""
     base = {key: row[key] for key in CARRIED if key in row}
     flags = set(row.get("quality_flags") or ())
@@ -70,7 +96,9 @@ def emit_tasks(row: dict[str, Any], *, min_anchors: int) -> Iterator[dict[str, A
 
     improved = (row.get("improved_code") or "").strip()
     if improved and improved != (row.get("code") or "").strip():
-        yield {**base, "task": "improve", "improved_code": improved}
+        cosmetic = structural_only and not changed_structure(row.get("code") or "", improved)
+        if not cosmetic:
+            yield {**base, "task": "improve", "improved_code": improved}
 
 
 def load_length_filter(tokenizer_name: str, max_tokens: int):
@@ -133,6 +161,13 @@ def main() -> None:
         ),
     )
     parser.add_argument("--seed", type=int, default=42, help="Seed for --fraction sampling.")
+    parser.add_argument(
+        "--keep-cosmetic-improve",
+        action="store_true",
+        help="Keep improve rows whose rewrite left the control flow unchanged. "
+             "61.8%% of them do, and they are 37%% of the supervised tokens; the "
+             "default drops them. Pass this to reproduce the old mixture.",
+    )
     args = parser.parse_args()
 
     if not 0 < args.fraction <= 1:
@@ -176,7 +211,11 @@ def main() -> None:
         for input_path in args.inputs:
             for row in read_jsonl(Path(input_path)):
                 source_rows += 1
-                for tagged in emit_tasks(row, min_anchors=args.min_anchors):
+                for tagged in emit_tasks(
+                    row,
+                    min_anchors=args.min_anchors,
+                    structural_only=not args.keep_cosmetic_improve,
+                ):
                     if wanted and tagged["task"] not in wanted:
                         continue
                     if not keep(tagged["task"]):
