@@ -10,7 +10,7 @@ wheels/
 
 # Virtual environments
 .venv
-
+my_data_annotation
 
 
 cleaned/llm_annotated_cleaned.jsonl
@@ -33,8 +33,11 @@ outputs/
 kaggle_output/
 urdu_output/
 
-# Scratch progress log written by the detached probe runner
+# Scratch progress logs written by the detached probe runners
 test_results/.probe_progress.log
+model_improvement/**/progress.log
+model_improvement/**/*.log
+model_improvement/**/*.attempted.json
 
 # Locally cached base models (multi-GB, re-downloadable)
 models/

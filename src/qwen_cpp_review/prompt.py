@@ -259,6 +259,36 @@ def build_prompt_completion(
     return prompt, completion
 
 
+#: Appended to the instruction at inference, for the describing tasks only.
+#:
+#: The trained instruction asks the model to *describe* the code, and 99.97% of
+#: the explanation targets follow a fixed Purpose/Input/Output/Algorithm form
+#: with no slot for "this is broken" - so the model reliably never says it.
+#: These sentences give it one.
+#:
+#: Measured on the phase-2 checkpoint over the same 24 programs, against the
+#: trained wording as control (`model_improvement/step3_prompt/`):
+#:
+#:     problems named                  8/55 -> 16/55
+#:     defects invented in correct code    1 -> 0
+#:     anchors kept                    95/95 -> 100/100
+#:
+#: Better on 5 samples and worse on none, McNemar p = 0.0625. The middle row is
+#: the one that licenses the change: correct code is the product's normal input,
+#: so a phrasing that finds more defects by imagining them everywhere would be
+#: worse than none. This one finds more and invents fewer.
+DEFECT_AWARE_SUFFIX = (
+    "This code may contain defects. Do not assume it is correct. Describe what "
+    "each line actually does when executed, and where a line's effect differs "
+    "from what the surrounding code appears intended to achieve, say so plainly."
+)
+
+#: Only the tasks the probe actually measured. `complexity` and `optimize` ask
+#: for a different kind of answer and were never tested with this wording, so
+#: they keep the trained instruction until they are.
+DEFECT_AWARE_TASKS = frozenset({"line_comments", "explanation", "review"})
+
+
 def format_prompt_without_response(
     code: str,
     output_fields: list[str],
@@ -267,17 +297,29 @@ def format_prompt_without_response(
     tokenizer: ChatTemplateTokenizer | None = None,
     language: str = "cpp",
     task: str | None = None,
+    defect_aware: bool = True,
 ) -> str:
     """Render an inference prompt.
 
     Passing ``task`` asks for exactly that task's fields; omitting it keeps the
     configured ``output_fields``, which is what existing callers do.
+
+    ``defect_aware`` appends :data:`DEFECT_AWARE_SUFFIX` for the describing
+    tasks. It is inference-only and deliberately not part of the training
+    render: the measurement above is of this wording given to a model trained
+    *without* it. Pass ``defect_aware=False`` to reproduce the older prompt,
+    which is what the control arm of any comparison needs.
     """
     example: dict[str, Any] = {"code": code, "language": language}
     if task is not None:
         example["task"] = task
     fields = resolve_output_fields(example, output_fields)
     instruction = build_instruction(example, fields)
+    # Named tasks only. A caller that passes no task is asking for the
+    # configured field list, which no arm of the probe covered, and silently
+    # changing that would alter every existing caller on an untested basis.
+    if defect_aware and task in DEFECT_AWARE_TASKS:
+        instruction = f"{instruction}\n\n{DEFECT_AWARE_SUFFIX}"
     if style == "instruction":
         return f"### Instruction\n\n{instruction}\n\n### Code\n\n{code}\n\n### Response\n\n"
     if tokenizer is None:

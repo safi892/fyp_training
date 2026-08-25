@@ -69,17 +69,101 @@ SYSTEM = (
 TASK = "optimize"
 
 
-def build_prompt(code: str, task: str = TASK) -> str:
+def build_instruction(code: str, task: str = TASK) -> tuple[str, str]:
+    """The system and user halves, before either backend wraps them.
+
+    Split out so the API backend can send real chat roles rather than posting
+    Qwen's template markers as message text, while asking for exactly the same
+    thing. The wording stays the product's, so a pair a teacher produces here is
+    a pair the small model was asked for in the same words.
+    """
     instruction = (
         "Analyze the following C++ code.\n\nLanguage: cpp\n\n"
         f"Generate:\n- Improved code ({TASK_FIELD_HINTS[task]['improved_code']})\n\n"
         "Return a single JSON object using the requested field names."
     )
+    return SYSTEM, f"{instruction}\n\n### Code\n\n```cpp\n{code}\n```"
+
+
+def build_prompt(code: str, task: str = TASK) -> str:
+    system, user = build_instruction(code, task)
     return (
-        f"<|im_start|>system\n{SYSTEM}<|im_end|>\n"
-        f"<|im_start|>user\n{instruction}\n\n### Code\n\n```cpp\n{code}\n```<|im_end|>\n"
+        f"<|im_start|>system\n{system}<|im_end|>\n"
+        f"<|im_start|>user\n{user}<|im_end|>\n"
         f"<|im_start|>assistant\n"
     )
+
+
+class APIGenerator:
+    """Propose rewrites with a hosted model instead of the local one.
+
+    The gate does not change and neither does the prompt: only who is asked.
+    That is the point - a stronger proposer raises the yield without weakening
+    the guarantee, because a pair still only exists if it compiled, ran, and
+    printed what the original printed.
+
+    Credentials come from the same ``.env`` ``probe_teacher.py`` reads, so a
+    provider that works for the probe works here. Calls are spaced rather than
+    parallelised: the free tiers throttle at around ten a minute, and a 429
+    costs the call as well as the wait.
+    """
+
+    def __init__(self, env: Path, provider: str, model: str, rpm: int, task: str):
+        config = json.loads(env.read_text(encoding="utf-8"))["providers"][provider]
+        self.base = config["baseUrl"].rstrip("/")
+        self.model = model
+        self.task = task
+        self.azure = "azure" in self.base
+        self.headers = {"Content-Type": "application/json"}
+        if self.azure:
+            self.headers["api-key"] = config["apiKey"]
+        else:
+            self.headers["Authorization"] = f"Bearer {config['apiKey']}"
+        self.gap = 60.0 / max(1, rpm)
+        self.last = 0.0
+
+    def _wait(self) -> None:
+        pause = self.gap - (time.monotonic() - self.last)
+        if pause > 0:
+            time.sleep(pause)
+        self.last = time.monotonic()
+
+    def _one(self, code: str, budget: int, temperature: float, retries: int = 5) -> str:
+        system, user = build_instruction(code, self.task)
+        payload = {
+            "model": self.model,
+            "messages": [
+                {"role": "system", "content": system},
+                {"role": "user", "content": user},
+            ],
+            "temperature": temperature,
+            "top_p": 0.95,
+        }
+        # Azure reasoning models want max_completion_tokens; the rest want max_tokens.
+        payload["max_completion_tokens" if self.azure else "max_tokens"] = budget
+
+        last = ""
+        for attempt in range(retries):
+            self._wait()
+            try:
+                request = urllib.request.Request(
+                    self.base + "/chat/completions",
+                    data=json.dumps(payload).encode(), headers=self.headers,
+                )
+                with urllib.request.urlopen(request, timeout=600) as response:
+                    message = json.load(response)["choices"][0]["message"]
+                # Reasoning models split the answer from their working; prefer
+                # the answer, but a model that put everything in one field still
+                # gets read rather than discarded.
+                return message.get("content") or message.get("reasoning_content") or ""
+            except Exception as exc:  # noqa: BLE001 - retried, then given up on
+                last = f"{type(exc).__name__}: {exc}"
+                time.sleep(min(64, 2 ** attempt))
+        print(f"    api gave up: {last}")
+        return ""
+
+    def samples(self, code: str, count: int, budget: int, temperature: float) -> list[str]:
+        return [self._one(code, budget, temperature) for _ in range(count)]
 
 
 #: A fenced block, with or without a language tag.
@@ -301,7 +385,15 @@ def main() -> None:
     parser.add_argument("--gguf", default="models/gguf/qwen-cpp-review-q4_k_m.gguf")
     parser.add_argument("--port", type=int, default=8101)
     parser.add_argument("--n-predict", type=int, default=700)
-    parser.add_argument("--backend", choices=("llama", "hf"), default="llama")
+    parser.add_argument("--backend", choices=("llama", "hf", "api"), default="llama")
+    parser.add_argument("--env", type=Path, default=Path(".env"),
+                        help="api backend: provider credentials, same file probe_teacher reads")
+    parser.add_argument("--provider", default="azure-saffi",
+                        help="api backend: provider key inside --env")
+    parser.add_argument("--model", default="gpt-oss-120b",
+                        help="api backend: model id to ask")
+    parser.add_argument("--rpm", type=int, default=10,
+                        help="api backend: calls per minute, matched to the tier's throttle")
     parser.add_argument("--batch", type=int, default=4,
                         help="hf backend: sequences per forward pass, halved on OOM")
     parser.add_argument("--base", default="Qwen/Qwen2.5-Coder-1.5B-Instruct",
@@ -337,6 +429,9 @@ def main() -> None:
     generator = None
     if args.backend == "hf":
         generator = HFGenerator(args.base, args.adapter, batch=args.batch)
+    elif args.backend == "api":
+        generator = APIGenerator(args.env, args.provider, args.model, args.rpm, args.task)
+        print(f"proposing with {args.model} via {args.provider}, {args.rpm}/min")
     else:
         process = subprocess.Popen(
             ["llama-server", "-m", args.gguf, "--port", str(args.port), "-c", "4096",
@@ -352,6 +447,10 @@ def main() -> None:
         what one costs, so an early exit would save nothing and complicate the
         only part of this that has to stay obvious.
         """
+        if isinstance(generator, APIGenerator):
+            # Takes the source, not the rendered prompt: it sends real chat
+            # roles rather than posting Qwen's template markers as message text.
+            return generator.samples(code, args.samples, args.n_predict, args.temperature)
         if generator is not None:
             return generator.samples(
                 build_prompt(code), args.samples, args.n_predict, args.temperature
