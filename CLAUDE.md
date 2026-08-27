@@ -15,34 +15,86 @@ decision with a reason — keep it that way, and correct it when it goes stale.
 A session holding two of these ends up proposing training changes to fix
 serving bugs. Work in one at a time.
 
+## Where the work happens
+
+**Data on the laptop, training on Kaggle.** They are different jobs and both are
+needed: an API cannot train the model and a GPU cannot invent data.
+
+The Linux checkout is **CPU-only** — `nvidia-smi` fails, and the GTX 970M behind
+it is compute capability 5.2, so it has no bf16, no tensor cores, and less VRAM
+than the T4 run peaks at. Do not propose `accelerate launch`, QLoRA loading, or
+any bitsandbytes path there. What runs locally: tests, dataset builders, the
+scoring and report scripts, prompt rendering, and llama.cpp inference over the
+GGUFs. Install CPU torch as `torch==2.13.0+cpu` from
+`https://download.pytorch.org/whl/cpu`, never the PyPI default, which drags in
+~3 GB of unusable CUDA packages.
+
+`uv sync` uninstalls anything not in the lockfile — use `uv pip install` and
+`.venv/bin/python` directly, or the CPU stack disappears.
+
 ## Where things stand
 
 Both repos are on branch `language`, nothing merged.
 
-- training `c657951` · **169 tests**
+- training `d1663bd` · **206 tests**
 - backend `9086453` · **106 tests**
 
 Run before believing anything: `python3 -m pytest -q` and `ruff check`.
 One known pre-existing lint error, `tests/test_analyze_endpoint.py:58` E501.
 
-## The C++ model — finished, measured, not being changed
+`tests/test_loss_masking_setup.py` needs `trl`, which is not installed in a
+CPU-only checkout; `--ignore` it there. The other 206 run without a GPU.
 
-Qwen2.5-Coder-1.5B + QLoRA, merged, Q4_K_M GGUF (940 MB, 17.7 tok/s CPU),
-served by llama.cpp on **port 8081** (the API owns 8080).
+**Read `.claude/skills/measuring-changes/SKILL.md` before running any
+evaluation or writing any number into the report.** Every wrong conclusion this
+project has reached came from the measurement, not the training.
 
-The headline result, all from **one run**:
+## The C++ model — three runs, and what separates them
 
-| | |
-| --- | ---: |
-| valid JSON | 100% |
-| anchors attached to real lines | 100% |
-| problems noticed on 20 broken programs | **13%** |
-| confidently false descriptions | **50%** |
+Qwen2.5-Coder-1.5B + QLoRA, merged, Q4_K_M GGUF (940 MB), served by llama.cpp on
+**port 8081** (the API owns 8080). 17.7 tok/s was measured on the Mac; the Linux
+box gets ~12.
 
-That is the finding, not a defect to fix: reliability and understanding are
-separable, and the usual metrics measure the first while being read as the
-second. Published evaluation chapter:
+Three checkpoints exist. **Compare them only on one machine in one session** —
+the same weights score 7/55 on the Mac and 9/55 on Linux at `temperature: 0`.
+
+| | phase 1 | phase 2 | v3 (`models/27aug01`) |
+| --- | ---: | ---: | ---: |
+| mixture rows | 66,103 | 66,898 | 56,668 |
+| verified pairs | 0 | 159 | 253 |
+| algorithmic rewriting | 10/60 (17%) | **25/60 (42%)** | **25/60 (42%)** |
+| problems named | — | 16/55 | 11/55 |
+| training time | — | 10.4 h | 6.8 h |
+
+Two findings sit in that table:
+
+1. **Introducing execution-verified data moved rewriting 17% → 42%**
+   (p = 5.2e-04), from 159 pairs that were **1.9% of the mixture**. The 18,935
+   asserted `improve` rows holding 37% of the loss budget did not.
+2. **Scaling those pairs to 253 did nothing** (p = 1.0000). The gain came from
+   *introducing* verification, not from scaling it.
+
+The headline result about comprehension is unchanged and is still the finding
+rather than a defect to fix — reliability and understanding are separable, and
+the usual metrics measure the first while being read as the second. Valid JSON
+100%, anchors 100%, problems noticed on 20 broken programs 13-20%, confidently
+false descriptions 30-50%. Published evaluation chapter:
 https://claude.ai/code/artifact/c234f2cd-4fda-461b-bd11-ec4fe8d6ac89
+
+**A prompt change doubles defect finding for free.** Appending four sentences —
+"This code may contain defects. Do not assume it is correct…" — takes problems
+named from 8/55 to 16/55 and *reduces* defects invented in correct code from 1
+to 0. It is `DEFECT_AWARE_SUFFIX` in `prompt.py`, applied at **inference only**
+and only to `line_comments`/`explanation`/`review`; the training render is
+deliberately untouched, because the measurement is of this wording given to a
+model trained without it. Cost: false claims 7 → 8.
+
+**The remaining gap is one transformation, not four data shapes.** Grouped by
+what the rewrite must do: `table` (memoisation) 12/20, `accumulator` (tail
+recursion → loop) 14/28, **`stack` (rebuild the call stack by hand) 3/20**.
+`quicksort` is an array and `flood_fill` a grid; they fail beside the tree and
+linked-list ones. Generating tree/list pairs will not fix it — and the corpus
+has 20 tree functions and 0 linked-list ones among 582 drivable anyway.
 
 Other measured results worth not re-deriving:
 
@@ -197,10 +249,44 @@ holds its material, and `docs/DETECTABILITY.md` is a written chapter waiting to
 be placed. All development phases in `PLAN.md` are finished or were measured
 into irrelevance. Do not start new capability work without asking.
 
-Two loose ends, both small and both outside the report:
+Loose ends, all outside the report:
 
 1. **Roman Urdu is still at 250 of 500 blocks** — that is where the work was
    before the recursion detour, and the two known fixes in `batch_001` block 1
    and `batch_002` block 156 are still unfixed.
 2. **The backend does not call `check_response`.** Until it does, contribution 3
    is true of the repository and not of the product.
+3. **28 pairs are one field short of being verified.**
+   `my_data_annotation/recursion_optimization/seed_todo.jsonl` holds them with
+   `"stdin": ""` waiting; most need a single number. Append the filled rows to
+   `seed.jsonl` and re-run `verify_optimization_pairs.py`. Of the 62 rejections
+   there, only **9 were bad rewrites** — the rest were un-runnable, not wrong.
+4. **The share experiment is built but not run.** `--repeat 30` puts the
+   verified slice at 12.05% instead of 2.23%; the bundle is in `dist/` and the
+   reading of each outcome is pre-registered in `model_improvement/REPORT.md`
+   §3a-ii. Optional: the report stands without it.
+
+## What not to try again, with the number that closed it
+
+- **Generating tree or linked-list pairs from this corpus.** 20 tree functions,
+  0 linked-list, among 582 drivable.
+- **A bigger teacher for recursion→iteration.** Four proposers on the same 40
+  corpus functions: GPT-OSS-120B **0/40**, nemotron-30b **0/40**,
+  gemini-3.5-flash-lite **4/40**. Size does not predict yield; the cheap fast
+  model won, at 14% over 250 functions where the historical figure was 1.5%.
+- **Adding a `comments` task.** 47.3% of that field is a rewritten copy of the
+  code — the format Phase 0 abandoned, preserving input lines only 14.5% of the
+  time. Only 377 rows are prose carrying a real defect claim, not 18,681.
+- **More epochs, or a bigger LoRA rank.** Improvement plateaued at step ~300 of
+  1035; the adapter already carries 7.7 trainable parameters per supervised
+  token and still does not overfit (eval loss sits *below* train).
+
+## API providers
+
+`.env` (gitignored) holds Azure `gpt-oss-120b`, four Gemini keys pooling to
+~5,200 requests/day, and NVIDIA nemotron/muse. `scripts/probe_teacher.py` and
+`build_optimize_dataset.py --backend api` read it.
+**`gemini-3.5-flash-lite` is the one to use** — best yield *and* 6× the speed of
+the flash models. `deepseek-v4-flash` times out and Gemini `pro` models are not
+in the free tier. Spend the pool on generation and bulk classification, not on
+recursion→iteration beyond what is already gathered.
