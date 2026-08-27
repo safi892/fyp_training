@@ -75,6 +75,37 @@ the first version was run on real output.
 
 **Measure against the nine known false explanations**, not against intuition.
 
+### What has been tried, and the number that settled each
+
+| claim type | sentences claiming it | fires | verdict |
+| --- | ---: | ---: | --- |
+| **divisibility** | 4 | **4** | **shipped** — 2 → 4 catches, 0 false positives on 92 in-distribution programs |
+| prints / outputs | 43 | 0 | every source has a `cout`; nothing to refute |
+| empty / null guard | 10 | 0 | every source has a guard |
+| traversal order (pre/in/post) | 3 | 0 | all three sources match their prose |
+
+The last three were implemented and measured before being rejected, not guessed
+at. **Do not re-derive them.** A check that fires zero times on the evidence
+available cannot have its precision tested, and shipping one is how a filter
+that drops correct output gets written.
+
+Two bugs were found while measuring them, both of which would have produced
+false positives on correct code:
+
+- `\bmultiple of\s+\d\b` never matches "multiple of 10" — the word boundary
+  after a single digit falls *inside* the number. `\d+` fixes it.
+- Scanning for the recursive calls without bounding the search to the function
+  body ran into `main()`, so `postorder(sample())` appeared *after* the `cout`
+  and a correct postorder traversal read as inorder. `_block()` bounds it.
+
+**The remaining false explanations are not decidable from the source.**
+`flood_fill`'s "replaces the starting cell" is a wrong summary made of true
+words; `tree_postorder`'s reversed mechanism describes two stacks that both
+exist. Catching those needs semantics, not pattern matching, which is the
+boundary `docs/DETECTABILITY.md` already states. Tier 1.2 is the response to it:
+if a claim cannot be refuted, generate several and prefer the one with fewest
+refutable claims.
+
 ### 1.2 Sample and verify at inference
 
 Small models can self-verify when given tools, and sampling a larger pool
