@@ -29,7 +29,7 @@ from __future__ import annotations
 from dataclasses import dataclass, field
 from typing import Any
 
-from .claim_checks import Claim, check_claims, filter_comments
+from .claim_checks import Claim, check_claims, filter_comments, sentences
 from .line_anchoring import repair_anchors
 
 
@@ -130,3 +130,71 @@ def _reject_reason(code: str, improved: str, timeout: float) -> str | None:
             + (f" ({first})" if first else "")
         )
     return None
+
+
+def objection_count(checked: CheckedResponse) -> int:
+    """How much the checks had to object to. Lower is better, 0 is clean."""
+    return (
+        checked.dropped_anchors
+        + len(checked.dropped_comments)
+        + len(checked.explanation_conflicts)
+        + (1 if checked.improved_code_rejected else 0)
+    )
+
+
+def content_size(checked: CheckedResponse) -> int:
+    """How much survived, so a clean answer is not rewarded for saying nothing."""
+    explanation = checked.explanation or ""
+    return len(checked.line_comments) + len(sentences(explanation))
+
+
+def best_of(
+    code: str,
+    responses: list[dict[str, Any]],
+    *,
+    verify_improved: bool = True,
+    timeout: float = 20.0,
+) -> tuple[CheckedResponse, int]:
+    """Check several answers to the same code and return the best, with its index.
+
+    The model is sampled more than once and the checks decide which sample is
+    served. This is the answer to the boundary in `docs/DETECTABILITY.md`: a
+    claim the source cannot refute stays unrefuted however hard one check
+    tries, but a *second sample* of the same question often makes a claim the
+    source **can** refute, and then the clean sample is the one to serve.
+
+    **The scoring is not "fewest objections".** That optimum is the empty
+    answer, which objects to nothing and would win every time - best-of-N would
+    quietly make the product worse the more samples it was given. Two filters
+    close that direction, in this order:
+
+    1. discard samples that said nothing, unless every sample said nothing;
+    2. of what remains, keep the samples with no objections at all;
+    3. among those, serve the one that said the most.
+
+    Step 1 has to come first, and a test pins it: an empty answer *is* clean, so
+    ranking on objections alone serves the empty one over a flagged answer that
+    said something. That is the wrong trade for this product. `needs_review`
+    exists precisely so flawed output can be served with a warning, while a
+    response with nothing in it is a failure the caller cannot flag their way
+    out of.
+
+    Ties are broken towards the earlier sample, which at temperature 0 is the
+    one a single-sample deployment would have served anyway.
+    """
+    if not responses:
+        return CheckedResponse(), -1
+
+    checked = [
+        check_response(code, response, verify_improved=verify_improved, timeout=timeout)
+        for response in responses
+    ]
+    scored = [(objection_count(c), content_size(c), index) for index, c in enumerate(checked)]
+
+    spoke = [entry for entry in scored if entry[1] > 0]
+    pool = spoke or scored
+    clean = [entry for entry in pool if entry[0] == 0]
+    pool = clean or pool
+    # -content so more content sorts first; index last so ties go to the earliest.
+    _, _, best = min(pool, key=lambda entry: (entry[0], -entry[1], entry[2]))
+    return checked[best], best
