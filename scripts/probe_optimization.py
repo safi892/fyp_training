@@ -353,6 +353,11 @@ def build_prompt(code: str, generate_block: str) -> str:
     )
 
 
+#: Tokens that indicate stored results. Matched against the rewrite *minus* the
+#: original, so a parameter the sample already had is not read as a new table.
+_TABLE = re.compile(r"\b(memo|dp|cache|table|vector\s*<|map\s*<|unordered_map)", re.I)
+
+
 def classify(original: str, improved: str) -> tuple[str, list[str]]:
     """Say what the rewrite actually did, in terms that can be checked."""
     improved = strip_comments(improved)
@@ -361,7 +366,17 @@ def classify(original: str, improved: str) -> tuple[str, list[str]]:
     # appears twice. The guess picked the first function-shaped token in the file,
     # which on a real submission is usually a helper, not the recursive function.
     still_recursive = bool(recursive_functions(improved))
-    has_table = bool(re.search(r"\b(memo|dp|cache|table|vector\s*<|map\s*<|unordered_map)", improved, re.I))
+    # Only tokens the rewrite *introduced* count as a table. `binary_search`
+    # takes a parameter named `table`, so matching the improved code alone
+    # reported a textbook iterative rewrite as TABULATED and scored it zero
+    # against wants=("ITERATIVE",) - the sample could not pass whatever the
+    # model wrote. Same shape as the keyword-in-a-comment mistake in
+    # CLAUDE.md: a name matched where a concept was meant.
+    introduced = _TABLE.findall(strip_comments(improved))
+    inherited = _TABLE.findall(strip_comments(original))
+    has_table = bool(
+        {token.lower() for token in introduced} - {token.lower() for token in inherited}
+    )
     has_loop = bool(re.search(r"\b(for|while)\s*\(", improved))
     has_static = bool(re.search(r"\bstatic\b", improved))
 
