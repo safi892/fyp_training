@@ -290,6 +290,37 @@ The other four zeros are genuine. `reverse_list` returns its input unchanged,
 `flood_fill` replaces four recursive calls with a `dr/dc` loop that still
 recurses *and* adds diagonals.
 
+## 3a-ii. The share experiment, written down before it runs
+
+One variable changes: the same 253 pairs, the same base mixture, the same code,
+`--repeat 5` becomes `--repeat 30`.
+
+| task | previous run | this run |
+| --- | ---: | ---: |
+| `optimize` | 490 (0.86%) | 2,940 (4.67%) |
+| `iterate` | 775 (1.37%) | 4,650 (7.38%) |
+| verified slice | **2.23%** | **12.05%** |
+| total rows | 56,668 | 62,993 |
+
+Estimated 7.5h at the measured throughput; expect ~62,363 train rows and ~974
+steps in the log.
+
+**What each outcome would mean, decided now rather than after:**
+
+| result | reading |
+| --- | --- |
+| `stack` rises above 3/20, `table` and `accumulator` hold | verified data needs a *threshold* share, not merely presence |
+| nothing moves | 42% is this approach's ceiling; stack simulation is not learnable from 253 examples at any share |
+| `stack` rises and `table`/`accumulator` fall | memorisation - general ability traded for these 253 programs |
+
+The third row is the risk that upsampling creates and it is why
+`add_verified_pairs.py` prints its warning: each pair is now seen **30 times**,
+so a falling loss is equally consistent with having memorised them. The probe
+decides this, not the loss curve.
+
+`table` (12/20) and `accumulator` (14/28) are the control group. A gain on
+`stack` that comes with a loss on those is not a gain.
+
 ## 3b. Two data changes, one made and one withdrawn
 
 ### Made: the `improve` task now drops cosmetic rewrites
