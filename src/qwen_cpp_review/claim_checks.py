@@ -81,6 +81,28 @@ _CALL_STACK = re.compile(
 #: correct description of a loop, and the word inside the quotes is not a claim.
 _QUOTED = re.compile(r"\"[^\"]*\"|\u201c[^\u201d]*\u201d|'[^']{2,}'|`[^`]*`")
 
+#: A claim that the code tests one number against another.
+#:
+#: Every word here had to survive the corpus rather than only look right.
+#: `divide` is excluded because "divide the array into two halves" is about
+#: partitioning; `multiple of` needs a digit after it so "a multiple of the base
+#: case" passes; and **`remainder` was removed after firing on "recursively
+#: reverses the remainder"** - the rest of a stack, not a modulo. That is the
+#: same two-meanings mistake as reading "stack overflow" as a `std::stack`, and
+#: it was a correct sentence about correct code.
+CLAIMS_DIVISIBILITY = re.compile(
+    # `\d+` rather than `\d`: the trailing word boundary after a single digit
+    # falls inside "10" and the whole alternative silently never matches.
+    r"\b(?:divisib\w+|modulo|multiple of\s+\d+|"
+    r"(?:even|odd)\s+(?:number|value|element|count)s?)\b",
+    re.I,
+)
+
+#: The operators that can decide divisibility. `& 1` is the idiomatic parity
+#: test and is not spelled with a percent sign, so looking only for `%` would
+#: report correct prose about `if (n & 1)` as false.
+_TESTS_DIVISIBILITY = re.compile(r"%|&\s*1\b")
+
 
 @dataclass
 class Claim:
@@ -156,11 +178,19 @@ def check_claims(code: str, prose: str) -> ClaimReport:
     )
 
     recurses = bool(recursive_functions(code))
+    # One `%` anywhere in the file is enough to let every divisibility claim
+    # pass. That is deliberate: the check exists to catch a purpose invented out
+    # of nothing - `sum_digits_tree` accumulating `carried * 10 + value` and
+    # being described as counting paths "divisible by 10" - not to police which
+    # line the operator sits on.
+    tests_divisibility = bool(_TESTS_DIVISIBILITY.search(bare))
     for sentence in sentences(prose):
         claim = _unquoted(sentence)
         if not recurses and MENTIONS_RECURSION.search(claim):
             if not DESCRIBES_REMOVAL.search(claim):
                 report.contradictions.append(Claim("recursion", sentence))
+        if not tests_divisibility and CLAIMS_DIVISIBILITY.search(claim):
+            report.contradictions.append(Claim("no divisibility test in the code", sentence))
         for name, (in_code, in_prose) in STRUCTURES.items():
             if name in report.structures:
                 continue
