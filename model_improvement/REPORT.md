@@ -218,6 +218,78 @@ Each pass is roughly 5–6 hours of unattended running at the pooled rate.
 
 ---
 
+## 3a. The third run, and what the probe says the gap actually is
+
+`models/27aug01` trained on the intended data — 56,101 rows and 877 steps
+against 56,101 and 877 predicted, code byte-identical to `e1440b9`, 1 epoch in
+6.8h. Measured on this machine at `temperature: 0`, contamination-controlled:
+
+| | phase 1 | phase 2 | **v3** |
+| --- | ---: | ---: | ---: |
+| Algorithmic rewriting | 10/60 (17%) | **25/60 (42%)** | **25/60 (42%)** |
+| Problems named (defect-aware prompt) | — | 16/55 | 11/55 |
+| Confidently false | — | 8/20 | 6/20 |
+
+**Identical on rewriting**: five gained, five lost, McNemar **p = 1.0000**. The
+94 extra verified pairs took that slice of the mixture from 1.9% to 2.23% and
+changed nothing. Defect naming fell 16 → 11 while false claims fell 8 → 6,
+better on two samples and worse on six, which n=20 cannot separate from noise.
+
+What the dataset work did buy is **the same capability on 15% less data in 35%
+less time** — 66,229 rows and 10.4h became 56,101 and 6.8h. That is the 11,676
+cosmetic `improve` rows confirmed as dead weight, which is a real result about
+efficiency rather than about capability.
+
+### The gap is a transformation, not a data shape
+
+Grouping the probe's 17 samples by what the rewrite has to *do*:
+
+| kind | what it needs | v3 |
+| --- | --- | ---: |
+| `table` | memoisation or a DP table | **12/20 (60%)** |
+| `accumulator` | tail recursion into a loop | **14/28 (50%)** |
+| `stack` | **explicit stack simulation** | **3/20 (15%)** |
+
+The five samples at 0/4 are not one data shape. `quicksort` is an array,
+`flood_fill` a grid, `tree_height` a tree, `reverse_list` a linked list. What
+they share is that each needs the call stack rebuilt by hand, and that is the
+one transformation the model largely cannot do.
+
+**This closes the "generate tree and linked-list pairs" plan.** The corpus has
+20 tree functions and 0 linked-list functions among 582 drivable ones, so that
+route was dead anyway — but more importantly the data already exists: of the 54
+new `iterate` pairs, **50 use `std::stack` in the answer**. They teach exactly
+this transformation, they are 775 rows, **1.37% of the mixture**, and they moved
+nothing.
+
+So the untested variable is not the *source* of the pairs but their *share*:
+
+| `--repeat` | iterate rows | share |
+| ---: | ---: | ---: |
+| 5 (used) | 775 | 2.23% |
+| 15 | 2,325 | 6.41% |
+| 30 | 4,650 | 12.05% |
+
+Upsampling is the cheap experiment and it is the one `add_verified_pairs.py`
+already warns about — "a real risk of memorisation rather than learning, and it
+is the reason to re-probe afterwards instead of trusting the loss". Which is
+precisely why it has to be re-probed rather than believed.
+
+### Scoring was wrong an eighth time
+
+`binary_search` takes `const int* table`, and the verdict scanned the rewrite
+alone for `memo|dp|cache|table|vector<`. A textbook iterative binary search came
+back `TABULATED` and scored zero against `wants=("ITERATIVE",)`: the sample could
+not pass whatever the model wrote. Same shape as the keyword-in-a-comment
+mistake already recorded — a name matched where a concept was meant. Only tokens
+the rewrite *introduces* count now; it moves both runs by one point, so no
+conclusion changes. Four tests pin it.
+
+The other four zeros are genuine. `reverse_list` returns its input unchanged,
+`tree_height` hoists the recursive calls into locals and still recurses, and
+`flood_fill` replaces four recursive calls with a `dr/dc` loop that still
+recurses *and* adds diagonals.
+
 ## 3b. Two data changes, one made and one withdrawn
 
 ### Made: the `improve` task now drops cosmetic rewrites
