@@ -113,6 +113,11 @@ def main() -> None:
             })
             print(f"  {name:28} first={records[-1]['first_objections']:>2} "
                   f"best={records[-1]['best_objections']:>2} (sample {index})", flush=True)
+            # Written every program, not at the end. Two runs in this project
+            # were killed near completion by scripts that only saved on exit,
+            # and both lost everything they had done.
+            args.output.parent.mkdir(parents=True, exist_ok=True)
+            args.output.write_text(json.dumps(records, indent=2), encoding="utf-8")
     finally:
         process.terminate()
         process.wait(timeout=30)
