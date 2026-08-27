@@ -20,6 +20,7 @@ import subprocess
 import sys
 import urllib.request
 from pathlib import Path
+from typing import Any
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[1] / "src"))
 sys.path.insert(0, str(Path(__file__).resolve().parent))
@@ -80,10 +81,21 @@ def main() -> None:
          "-t", "8", "--no-warmup"],
         stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL,
     )
-    records = []
+    # Resume: two hundred generations is hours, and a laptop that sleeps or
+    # loses power should cost the program it was on, not the whole run. Records
+    # are keyed by name, so re-running picks up where it stopped. Delete the
+    # output file to start over.
+    records: list[dict[str, Any]] = []
+    if args.output.exists():
+        records = json.loads(args.output.read_text(encoding="utf-8"))
+        print(f"resuming: {len(records)} programs already measured")
+    already = {record["name"] for record in records}
     try:
         wait_for_server(args.port)
         for name, code in programs:
+            if name in already:
+                print(f"  {name:28} already measured, skipping", flush=True)
+                continue
             responses = []
             for index in range(args.samples):
                 response = {}
