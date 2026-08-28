@@ -187,7 +187,9 @@ Roman Urdu. `roman_urdu/README.md` has the full three-step pipeline.
 - `urdu/ERUPD_NMT.csv` — 75,146 English→Roman Urdu pairs, 66,956 clean. Teaches
   the *language*. Contains "integer" **0** times against 8,353 in our corpus, so
   it teaches none of the *register* — that gap is stage 2.
-- Stage 1 t5-small on Kaggle: **chrF 51.7, placeholders kept 98.3%**.
+- Stage 1 t5-small on Kaggle: **chrF 51.7 on ERUPD's own test split**. Re-measured
+  on our register test split it is **51.34 chrF, 87.5% placeholders** - the same
+  weights, a harder set, and the baseline stage 2 is compared against.
   Model at `kaggle_output/urdu_output/results(7)/t5-roman-urdu`.
 - Drafts are correctable (21/43 placeholders, meanings survive, technical nouns
   stay English) — the premise `opus-mt` failed.
@@ -196,20 +198,58 @@ Roman Urdu. `roman_urdu/README.md` has the full three-step pipeline.
 converts to `<extra_id_0>` and back. Asserted before training, because getting
 this wrong wastes an hour of GPU silently.
 
-**Where the user is right now**: hand-correcting drafts in
-`my_data_annotation/roman_urdu/`. 250 blocks done, 248 usable. Target 500, then
-train and measure, then decide whether 2,000 is worth it.
+## Stage 2 is done, and it worked
 
-Two known fixes waiting there: `batch_001` block 1 (wrote "lists" instead of
-keeping `⟦0⟧`) and `batch_002` block 156 (RU is a translation of a different
-sentence — delete it).
+**1,249 hand-annotated pairs**, 0 rejected, every placeholder set matching
+between EN and RU. Both fixes the previous note listed are closed. Split
+1,125 / 62 / 62 in `my_data_annotation/roman_urdu/data/`.
+
+Three configs were trained from the stage-1 checkpoint — 20 epochs each, about
+three minutes a run — and compared on the **held-out test split** with
+`roman_urdu/compare_models.py`:
+
+| | chrF | placeholders kept | register probes |
+| --- | ---: | ---: | ---: |
+| stage 1 | 51.34 | 87.5% | 4/5 |
+| stage2-a (b16, 1e-4) | 73.66 | 92.9% | 5/5 |
+| stage2-b (b8, 1e-4) | 74.60 | 96.4% | 5/5 |
+| **stage2-c (b16, 3e-4)** | **76.14** | **100.0%** | **5/5** |
+
+**Use `urdu_output/roman-model/t5-stage2-c`.** chrF +24.8 and placeholder
+retention 87.5% → 100% — the register improved without trading away the
+identifiers the product depends on, which was the failure mode to watch.
+
+The harness measures stage 1 at 51.34 against the 51.7 recorded independently,
+so the gain is not a measurement artefact. Test, not validation:
+`load_best_model_at_end` selected on validation chrF, so only test is honest.
+
+The sentence stage 1 actually failed, and what stage 2 does with it:
+
+    stage1    ⟦0⟧ ko khud kar rahi hai.                        (lost "empty" and "true")
+    stage2-c  Agar list⟦0⟧ empty ho to true return karta hai.
+
+**A caveat and a correction.** 62 test pairs hold 56 placeholders, so the 100%
+vs 96.4% gap between c and b is two placeholders — c wins on chrF, and the
+placeholder difference should not be over-read. And 3e-4 beat the gentler 1e-4
+that was recommended to avoid overwriting stage 1: at 1,125 rows over 20 epochs
+there is not enough training for that forgetting to happen.
+
+Earlier notes here said stage 1 renders "iterates" as *tayyar karta hai*
+(prepares) and "is empty" as *saaf karta hai* (cleans). **Those were greedy
+decoding artefacts.** With `num_beams=4` stage 1 says "iterates karta hai" - it
+keeps the English verb rather than inventing a wrong Urdu one, and only the
+"is empty" sentence genuinely failed.
 
 ```bash
 python3 roman_urdu/make_corpus.py collect --outdir my_data_annotation/roman_urdu --pairs my_data_annotation/roman_urdu/pairs.jsonl
 python3 roman_urdu/make_corpus.py split   --pairs my_data_annotation/roman_urdu/pairs.jsonl --outdir my_data_annotation/roman_urdu/data
+uv run python roman_urdu/compare_models.py --models <ckpt> ... --labels ... --split test
 ```
 
-`roman_urdu/corpus/batch_003.txt` holds 2,000 more unique drafts, unstarted.
+`roman_urdu/corpus/batch_003.txt` holds 2,000 drafts, of which 1,000 are done as
+`batch_003part1.txt`. Annotating the rest would reach the 2,000-5,000 band the
+README asks for, but stage 2 already works at 1,249 — measure before annotating
+more.
 
 The backend already ships a rule layer: sentence frames carrying 29.9% of
 `Purpose:` lines with **100% code integrity** across 3,000 explanations. The

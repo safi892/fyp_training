@@ -13,7 +13,7 @@
 
 # 1  input   ⟦0⟧=lists (ListNode*)
 EN  Two pointers to the heads of the linked ⟦0⟧.
-RU   Linked lists ke heads ko point karne wale do pointers.
+RU  Linked ⟦0⟧ ke heads ko point karne wale do pointers.
 
 # 2  purpose
 EN  To perform an exact division of two BigInt numbers, ensuring no remainder.
