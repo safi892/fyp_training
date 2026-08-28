@@ -106,7 +106,34 @@ boundary `docs/DETECTABILITY.md` already states. Tier 1.2 is the response to it:
 if a claim cannot be refuted, generate several and prefer the one with fewest
 refutable claims.
 
-### 1.2 Sample and verify at inference
+### 1.2 Sample and verify at inference — MEASURED, works
+
+Over the twenty out-of-distribution seed programs, five samples each, sample 0
+drawn at temperature 0 so the baseline is what serving does today:
+
+| | single sample | best of 5 |
+| --- | ---: | ---: |
+| total objections | **24** | **4** |
+| clean answers | 6/20 | **16/20** |
+
+Improved 12, unchanged 8, worse 0. McNemar exact **p = 4.88e-04**.
+
+Two caveats belong with that number. *Worse = 0* is largely structural rather
+than empirical: sample 0 is always among the candidates, so the selection can
+only lose if the content filter discards it. And **sample 0 was already the best
+answer only 6/20 times** - in fourteen cases the deployed answer was not the best
+one the model produced, which is the finding.
+
+Where it fails is as informative. Four programs stayed flawed, and each had an
+objection in *every* sample - `tree_count_leaves recursive` scored [1,1,1,1,1].
+That is a persistent error rather than a sampling artefact, and no amount of
+resampling reaches it. The variance elsewhere is enormous - [2, 11, 3, 2, 0] on
+one program - which is exactly the condition under which picking is worth doing.
+
+Cost: 5x inference. At 940 MB and ~12 tok/s on a CPU that is seconds, which is
+the whole reason it is affordable here.
+
+### The original argument
 
 Small models can self-verify when given tools, and sampling a larger pool
 improves verification accuracy — a 3B model beats far larger ones this way

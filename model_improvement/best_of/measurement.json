@@ -1,0 +1,262 @@
+[
+  {
+    "name": "tree_inorder recursive",
+    "first_objections": 2,
+    "best_objections": 0,
+    "chose": 4,
+    "per_sample": [
+      2,
+      11,
+      3,
+      2,
+      0
+    ]
+  },
+  {
+    "name": "tree_inorder iterative",
+    "first_objections": 1,
+    "best_objections": 0,
+    "chose": 4,
+    "per_sample": [
+      1,
+      0,
+      1,
+      0,
+      0
+    ]
+  },
+  {
+    "name": "tree_preorder recursive",
+    "first_objections": 1,
+    "best_objections": 0,
+    "chose": 2,
+    "per_sample": [
+      1,
+      3,
+      0,
+      3,
+      3
+    ]
+  },
+  {
+    "name": "tree_preorder iterative",
+    "first_objections": 4,
+    "best_objections": 0,
+    "chose": 4,
+    "per_sample": [
+      4,
+      0,
+      1,
+      0,
+      0
+    ]
+  },
+  {
+    "name": "tree_postorder recursive",
+    "first_objections": 4,
+    "best_objections": 1,
+    "chose": 4,
+    "per_sample": [
+      4,
+      3,
+      2,
+      3,
+      1
+    ]
+  },
+  {
+    "name": "tree_postorder iterative",
+    "first_objections": 1,
+    "best_objections": 0,
+    "chose": 2,
+    "per_sample": [
+      1,
+      1,
+      0,
+      1,
+      1
+    ]
+  },
+  {
+    "name": "tree_height recursive",
+    "first_objections": 1,
+    "best_objections": 1,
+    "chose": 0,
+    "per_sample": [
+      1,
+      1,
+      1,
+      1,
+      2
+    ]
+  },
+  {
+    "name": "tree_height iterative",
+    "first_objections": 1,
+    "best_objections": 0,
+    "chose": 1,
+    "per_sample": [
+      1,
+      0,
+      0,
+      1,
+      9
+    ]
+  },
+  {
+    "name": "tree_count_leaves recursive",
+    "first_objections": 1,
+    "best_objections": 1,
+    "chose": 3,
+    "per_sample": [
+      1,
+      1,
+      1,
+      1,
+      1
+    ]
+  },
+  {
+    "name": "tree_count_leaves iterative",
+    "first_objections": 1,
+    "best_objections": 0,
+    "chose": 2,
+    "per_sample": [
+      1,
+      1,
+      0,
+      1,
+      1
+    ]
+  },
+  {
+    "name": "tree_invert recursive",
+    "first_objections": 0,
+    "best_objections": 0,
+    "chose": 0,
+    "per_sample": [
+      0,
+      0,
+      0,
+      1,
+      0
+    ]
+  },
+  {
+    "name": "tree_invert iterative",
+    "first_objections": 0,
+    "best_objections": 0,
+    "chose": 0,
+    "per_sample": [
+      0,
+      0,
+      1,
+      1,
+      1
+    ]
+  },
+  {
+    "name": "quicksort_ranges recursive",
+    "first_objections": 1,
+    "best_objections": 0,
+    "chose": 2,
+    "per_sample": [
+      1,
+      0,
+      0,
+      1,
+      0
+    ]
+  },
+  {
+    "name": "quicksort_ranges iterative",
+    "first_objections": 2,
+    "best_objections": 1,
+    "chose": 3,
+    "per_sample": [
+      2,
+      4,
+      3,
+      1,
+      3
+    ]
+  },
+  {
+    "name": "graph_dfs recursive",
+    "first_objections": 0,
+    "best_objections": 0,
+    "chose": 2,
+    "per_sample": [
+      0,
+      1,
+      0,
+      0,
+      0
+    ]
+  },
+  {
+    "name": "graph_dfs iterative",
+    "first_objections": 0,
+    "best_objections": 0,
+    "chose": 0,
+    "per_sample": [
+      0,
+      0,
+      1,
+      0,
+      1
+    ]
+  },
+  {
+    "name": "flood_fill recursive",
+    "first_objections": 0,
+    "best_objections": 0,
+    "chose": 0,
+    "per_sample": [
+      0,
+      0,
+      0,
+      0,
+      2
+    ]
+  },
+  {
+    "name": "flood_fill iterative",
+    "first_objections": 0,
+    "best_objections": 0,
+    "chose": 0,
+    "per_sample": [
+      0,
+      0,
+      1,
+      0,
+      0
+    ]
+  },
+  {
+    "name": "sum_digits_tree recursive",
+    "first_objections": 1,
+    "best_objections": 0,
+    "chose": 2,
+    "per_sample": [
+      1,
+      1,
+      0,
+      1,
+      4
+    ]
+  },
+  {
+    "name": "sum_digits_tree iterative",
+    "first_objections": 3,
+    "best_objections": 0,
+    "chose": 2,
+    "per_sample": [
+      3,
+      1,
+      0,
+      3,
+      3
+    ]
+  }
+]
