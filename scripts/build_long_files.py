@@ -75,8 +75,10 @@ def anchors_hold(code: str, anchors: list[dict[str, Any]]) -> bool:
     return True
 
 
-def bundle(rows: list[dict[str, Any]], separator: str = "\n\n") -> dict[str, Any] | None:
-    """One synthesised file, or None if its anchors do not survive the join."""
+def bundle(
+    rows: list[dict[str, Any]], separator: str = "\n\n"
+) -> tuple[dict[str, Any], int] | None:
+    """One synthesised file and its part count, or None if the anchors do not survive."""
     parts: list[str] = []
     anchors: list[dict[str, Any]] = []
     offset = 0
@@ -99,13 +101,17 @@ def bundle(rows: list[dict[str, Any]], separator: str = "\n\n") -> dict[str, Any
     if not anchors_hold(code, anchors):
         return None
     anchors.sort(key=lambda a: a["line"])
+    # The row carries exactly the keys the rest of the mixture carries and no
+    # others. `datasets.load_dataset` casts a JSONL to one schema and refuses
+    # the file outright when a later row introduces a column - "1 new columns
+    # ({'synthesised_from'})" - so a provenance field here costs the whole run.
+    # It is reported in the summary and written to `--provenance` instead.
     return {
         "task": "line_comments",
         "language": "cpp",
         "code": code,
         "line_comments": anchors,
-        "synthesised_from": len(rows),
-    }
+    }, len(rows)
 
 
 def candidates(path: Path, max_lines: int) -> list[dict[str, Any]]:
@@ -130,7 +136,7 @@ def candidates(path: Path, max_lines: int) -> list[dict[str, Any]]:
 
 def bundles(
     rows: list[dict[str, Any]], *, min_lines: int, max_lines: int, rng: random.Random
-) -> Iterator[dict[str, Any]]:
+) -> Iterator[tuple[dict[str, Any], int]]:
     """Greedily fill files to `min_lines`, refusing duplicate definitions."""
     pool = rows[:]
     rng.shuffle(pool)
@@ -170,10 +176,12 @@ def main() -> None:
     rows = candidates(args.input, args.source_max_lines)
     print(f"eligible source rows: {len(rows)} of the anchored corpus")
 
-    built = list(bundles(
+    pairs = list(bundles(
         rows, min_lines=args.min_lines, max_lines=args.max_lines,
         rng=random.Random(args.seed),
     ))
+    built = [row for row, _ in pairs]
+    parts = [count for _, count in pairs]
     if not built:
         raise SystemExit("no bundle survived the anchor check")
 
@@ -193,7 +201,7 @@ def main() -> None:
     print(f"files written        : {len(built)}")
     print(f"  lines  p50 {lengths[len(lengths) // 2]} · min {lengths[0]} · max {lengths[-1]}")
     print(f"  anchors            : {anchors} (mean {anchors / len(built):.1f}/file)")
-    print(f"  functions per file : mean {sum(b['synthesised_from'] for b in built) / len(built):.1f}")
+    print(f"  functions per file : mean {sum(parts) / len(parts):.1f}")
     print("\nevery anchor quotes the line it claims, in the file as written")
     print(f"wrote {args.output}")
 
