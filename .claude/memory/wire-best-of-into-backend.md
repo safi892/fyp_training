@@ -2,10 +2,7 @@
 name: wire-best-of-into-backend
 description: best_of sampling is measured and working in the training repo but the backend does not call it — pending work for a backend session
 metadata: 
-  node_type: memory
   type: project
-  originSessionId: 35610843-d5fd-4636-a739-e08b0471bd46
-  modified: 2026-08-28T03:22:53.955Z
 ---
 
 `best_of` in `src/qwen_cpp_review/checked_response.py` (training repo, branch

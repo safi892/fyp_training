@@ -1,3 +1,4 @@
 - [CPU-only local machine](cpu-only-local-machine.md) — no GPU here; run everything on CPU, GPU work is Kaggle-side
+- [Roman Urdu stage 2 done](roman-urdu-stage2-done.md) — t5-stage2-c is the only Urdu model kept; chrF 76.14, 100% placeholders, 1.1s/sentence
 - [Wire best_of into the backend](wire-best-of-into-backend.md) — measured 83% fewer false statements, product doesn't use it yet; backend repo, own session
-- [Write the FYP report](write-the-fyp-report.md) — the actual deliverable; eight measured findings already exist, no further training needed
+- [Write the FYP report](write-the-fyp-report.md) — the actual deliverable; nine measured findings already exist, no further training needed

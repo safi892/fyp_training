@@ -5,7 +5,11 @@ metadata:
   type: feedback
 ---
 
-Always run on CPU on this machine. The user stated this directly on 2026-08-24.
+Always run on CPU on **the Linux laptop** (`usama-GL502VT`). Stated
+directly on 2026-08-24. This file is committed and therefore travels: on a
+machine with a working GPU it does not apply, so check `nvidia-smi` rather
+than assuming. The Mac in this project is a 2019 Intel i9 - also no CUDA,
+but faster on CPU (DDR4-2666 against 2133).
 
 Verified at the time: `nvidia-smi` fails with "couldn't communicate with the
 NVIDIA driver", and `.venv` has no `torch` at all — the `gpu` extra

@@ -2,10 +2,7 @@
 name: write-the-fyp-report
 description: The report is the actual FYP deliverable and every measurement it needs already exists — no further training is required
 metadata: 
-  node_type: memory
   type: project
-  originSessionId: 35610843-d5fd-4636-a739-e08b0471bd46
-  modified: 2026-08-28T03:23:12.808Z
 ---
 
 The report is what remains. `docs/WRITEUP_GUIDE.md` maps every chapter to the
@@ -13,7 +10,7 @@ file already holding its material; `docs/DETECTABILITY.md` is a written chapter
 waiting to be placed. **No further training run is required for it.**
 
 **Why:** measurements keep being deferred behind "one more run", and the runs
-keep returning p = 1.0. As of 2026-08-27 there are eight measured findings, three
+keep returning p = 1.0. As of 2026-08-28 there are nine measured findings, four
 of which did not exist the day before.
 
 **How to apply — the findings, with where each lives:**
@@ -33,7 +30,10 @@ of which did not exist the day before.
 6. Renaming every variable misleadingly costs 0 points; single letters cost 12
 7. The remaining gap is one transformation, not four data shapes: `stack` 3/20
    against `table` 12/20 and `accumulator` 14/28
-8. Greedy decoding is not reproducible across machines — the same weights score
+8. **Roman Urdu stage 2**: 1,249 hand-annotated pairs took the translator from
+   chrF 51.34 to **76.14** with placeholder retention **87.5% → 100%** on a
+   held-out split (`test_results/roman_urdu_stage2_comparison.json`)
+9. Greedy decoding is not reproducible across machines — the same weights score
    7/55 on the Mac and 9/55 on Linux, which is larger than most effects measured
 
 **Traps to avoid:**
