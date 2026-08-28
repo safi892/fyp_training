@@ -219,6 +219,24 @@ three minutes a run — and compared on the **held-out test split** with
 retention 87.5% → 100% — the register improved without trading away the
 identifiers the product depends on, which was the failure mode to watch.
 
+**It is the only Urdu model kept.** The other three checkpoints and both
+`results(N)` copies were deleted, along with every mid-run checkpoint inside the
+survivor: 11 GB freed, 233 MB left. It is a full T5, not an adapter, so it runs
+with stage 1 gone. Stage 1 survives as `dist/urdu-stage1-model.zip` (215 MB) and
+as the Kaggle dataset `urdu-model01`, which is what a future stage-2 run would
+fine-tune from — retraining it from ERUPD is an hour of GPU, so the zip is worth
+its space.
+
+**Speed**, 61M params on this CPU at 8 threads, measured over 20 test sentences:
+
+| decoding | median | p90 | throughput |
+| --- | ---: | ---: | ---: |
+| beam=4 (what the quality numbers used) | 1,144 ms | 3,799 ms | 43.6 tok/s |
+| greedy | 708 ms | 2,204 ms | 68.6 tok/s |
+
+Model load is 0.2s. Beam search costs ~1.6x the latency; the quality numbers
+above were measured with it, so a greedy deployment is not the same model.
+
 The harness measures stage 1 at 51.34 against the 51.7 recorded independently,
 so the gain is not a measurement artefact. Test, not validation:
 `load_best_model_at_end` selected on validation chrF, so only test is honest.
