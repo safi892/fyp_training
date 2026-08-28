@@ -1,0 +1,3 @@
+- [CPU-only local machine](cpu-only-local-machine.md) — no GPU here; run everything on CPU, GPU work is Kaggle-side
+- [Wire best_of into the backend](wire-best-of-into-backend.md) — measured 83% fewer false statements, product doesn't use it yet; backend repo, own session
+- [Write the FYP report](write-the-fyp-report.md) — the actual deliverable; eight measured findings already exist, no further training needed

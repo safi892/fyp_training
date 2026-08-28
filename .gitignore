@@ -11,13 +11,8 @@ wheels/
 # Virtual environments
 .venv
 my_data_annotation
+cleaned
 
-
-cleaned/llm_annotated_cleaned.jsonl
-cleaned/llm_annotated_part2_cleaned.jsonl
-cleaned/merged_cleaned.jsonl
-cleaned/results_0_cleaned.jsonl
-cleaned/results_1_cleaned.jsonl
 
 # Derived datasets - rebuild with scripts/build_line_anchored.py
 # then scripts/build_task_mixture.py
