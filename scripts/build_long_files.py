@@ -75,10 +75,8 @@ def anchors_hold(code: str, anchors: list[dict[str, Any]]) -> bool:
     return True
 
 
-def bundle(
-    rows: list[dict[str, Any]], separator: str = "\n\n"
-) -> tuple[dict[str, Any], int] | None:
-    """One synthesised file and its part count, or None if the anchors do not survive."""
+def bundle(rows: list[dict[str, Any]], separator: str = "\n\n") -> dict[str, Any] | None:
+    """One synthesised file, or None if its anchors do not survive the join."""
     parts: list[str] = []
     anchors: list[dict[str, Any]] = []
     offset = 0
@@ -105,13 +103,13 @@ def bundle(
     # others. `datasets.load_dataset` casts a JSONL to one schema and refuses
     # the file outright when a later row introduces a column - "1 new columns
     # ({'synthesised_from'})" - so a provenance field here costs the whole run.
-    # It is reported in the summary and written to `--provenance` instead.
+    # The count is reported in the summary instead, where it was the only use.
     return {
         "task": "line_comments",
         "language": "cpp",
         "code": code,
         "line_comments": anchors,
-    }, len(rows)
+    }
 
 
 def candidates(path: Path, max_lines: int) -> list[dict[str, Any]]:
@@ -155,7 +153,7 @@ def bundles(
             if lines <= max_lines and len(current) > 1:
                 built = bundle(current)
                 if built is not None:
-                    yield built
+                    yield built, len(current)
             current, names, lines = [], set(), 0
 
 
