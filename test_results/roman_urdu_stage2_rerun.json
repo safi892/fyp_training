@@ -1,0 +1,119 @@
+[
+  {
+    "label": "stage1",
+    "path": ".tmp/roman_urdu_eval/stage1",
+    "chrf": 51.33582195407038,
+    "placeholders_kept": 0.875,
+    "placeholders": 56,
+    "wrong_verbs": 0,
+    "right_words": 4,
+    "placeholders_held": 5,
+    "probes": [
+      {
+        "en": "Iterates over the vector \u27e60\u27e7 and returns the sum.",
+        "ru": "Vector\u27e60\u27e7 ke upar iterates karta hai aur sum returns karta hai.",
+        "kept_placeholders": true,
+        "says_wrong": [],
+        "says_right": [
+          "iterate"
+        ]
+      },
+      {
+        "en": "Returns true if the list \u27e60\u27e7 is empty.",
+        "ru": "\u27e60\u27e7 ko khud kar rahi hai.",
+        "kept_placeholders": true,
+        "says_wrong": [],
+        "says_right": []
+      },
+      {
+        "en": "\u27e60\u27e7 \u2013 a mutable 2-D integer matrix.",
+        "ru": "\u27e60\u27e7 \u2013 aik mutable 2-D integer matrix.",
+        "kept_placeholders": true,
+        "says_wrong": [],
+        "says_right": [
+          "matrix",
+          "integer"
+        ]
+      },
+      {
+        "en": "Recursively computes the factorial of \u27e60\u27e7.",
+        "ru": "\u27e60\u27e7 ki factorial ko compute karta hai.",
+        "kept_placeholders": true,
+        "says_wrong": [],
+        "says_right": [
+          "factorial"
+        ]
+      },
+      {
+        "en": "Swaps the values at indices \u27e60\u27e7 and \u27e61\u27e7 using a temporary variable.",
+        "ru": "indices\u27e60\u27e7 aur\u27e61\u27e7 ke values ko swap karta hai ek temporary variable ka istemal karta hai.",
+        "kept_placeholders": true,
+        "says_wrong": [],
+        "says_right": [
+          "swap",
+          "temporary"
+        ]
+      }
+    ]
+  },
+  {
+    "label": "stage2-c",
+    "path": ".tmp/roman_urdu_eval/stage2-c",
+    "chrf": 76.14322217738004,
+    "placeholders_kept": 1.0,
+    "placeholders": 56,
+    "wrong_verbs": 0,
+    "right_words": 5,
+    "placeholders_held": 5,
+    "probes": [
+      {
+        "en": "Iterates over the vector \u27e60\u27e7 and returns the sum.",
+        "ru": "Vector\u27e60\u27e7 par iterate karta hai aur sum return karta hai.",
+        "kept_placeholders": true,
+        "says_wrong": [],
+        "says_right": [
+          "iterate"
+        ]
+      },
+      {
+        "en": "Returns true if the list \u27e60\u27e7 is empty.",
+        "ru": "Agar list\u27e60\u27e7 empty ho to true return karta hai.",
+        "kept_placeholders": true,
+        "says_wrong": [],
+        "says_right": [
+          "empty"
+        ]
+      },
+      {
+        "en": "\u27e60\u27e7 \u2013 a mutable 2-D integer matrix.",
+        "ru": "\u27e60\u27e7 \u2013 ek mutable 2-D integer matrix.",
+        "kept_placeholders": true,
+        "says_wrong": [],
+        "says_right": [
+          "matrix",
+          "integer"
+        ]
+      },
+      {
+        "en": "Recursively computes the factorial of \u27e60\u27e7.",
+        "ru": "\u27e60\u27e7 ka factorial recursively compute karta hai.",
+        "kept_placeholders": true,
+        "says_wrong": [],
+        "says_right": [
+          "recursi",
+          "factorial"
+        ]
+      },
+      {
+        "en": "Swaps the values at indices \u27e60\u27e7 and \u27e61\u27e7 using a temporary variable.",
+        "ru": "indices\u27e60\u27e7 aur\u27e61\u27e7 par values ko ek temporary variable istemal karke swap karta hai.",
+        "kept_placeholders": true,
+        "says_wrong": [],
+        "says_right": [
+          "swap",
+          "temporary"
+        ]
+      }
+    ]
+  }
+]
