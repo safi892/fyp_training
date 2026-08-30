@@ -321,6 +321,69 @@ decides this, not the loss curve.
 `table` (12/20) and `accumulator` (14/28) are the control group. A gain on
 `stack` that comes with a loss on those is not a gain.
 
+## 3a-iii. The long-files run, and a win that was not there
+
+`models/28aug-long` tests whether the out-of-distribution failure is a *length*
+gap. 2,771 synthesised multi-function files took rows of >= 45 lines from
+**2.2% to 6.6%** of the mixture; nothing else changed. It trained clean - 58,844
+rows against 58,845 predicted, one epoch over 920 steps on two GPUs, eval_loss
+falling 0.4551 -> 0.4162 -> 0.4076, best checkpoint at step 750.
+
+**The hypothesis failed.** Both models measured on this machine, same harness:
+
+| seed set (45-58 line tree/graph) | v3 | v4 (long files) |
+| --- | ---: | ---: |
+| truncated | **0/20** | **1/20** |
+| valid JSON, of output that finished | 20/20 | 19/19 |
+| anchors on a real line | 307/328 (94%) | 276/292 (95%) |
+| anchors exact, unaided | 20/307 (7%) | 29/276 (11%) |
+| false recursion claims | 1/20 | 1/20 |
+| wrong container named | 1/20 | 1/20 |
+
+### The 7x improvement that was not real
+
+The committed baseline in `test_results/seed_annotation.json` records **7/20
+truncated** against v4's 1/20, which reads as exactly what training on longer
+files should buy. It is **cross-machine drift**: that file was written on the
+Mac (commit `5052c48`), and re-measured here **v3 truncates 0/20**, so v4 is
+marginally worse rather than seven times better.
+
+The tell was `anchors_exact` being all-zero in the baseline - the field did not
+exist when it was written - which prompted checking its provenance. Without that
+accident the number would have been reported. It is the third time this project
+has been caught by a measurement taken on the other machine, and the reason
+`.claude/skills/measuring-changes/SKILL.md` leads with it.
+
+### Controls
+
+`eval_hard` moved the wrong way: problems named 11/55 -> 10/55 (better on 2,
+worse on 3, p = 1.0), false claims 6/20 -> 9/20 (fixed 0, introduced 3,
+p = 0.25) on `erase_while_iterating`, `leak_on_early_return` and
+`switch_fallthrough`. Not significant at n=20, negative in both directions.
+
+`probe_optimization` moved the right way: contamination-controlled 24/60 (40%)
+-> 30/60 (50%), gained 8 and lost 2, **McNemar p = 0.1094**. Not significant,
+and there is no mechanism for it - the long files added only `line_comments`
+rows and `optimize`'s share of the mixture *fell* from 2.23% to 2.13%. Treat it
+as noise unless it reproduces.
+
+### What three null results in a row say
+
+| intervention | result |
+| --- | --- |
+| 159 -> 253 verified pairs | p = 1.0000 |
+| 2,771 long files, 2.2% -> 6.6% of >= 45-line rows | flat, marginally worse |
+| the defect-aware prompt, no training | **8/55 -> 16/55** |
+| best_of sampling, no training | **24 -> 4 objections, p = 4.88e-04** |
+
+Every intervention on the training data has returned nothing. Both
+inference-time interventions worked. That is one coherent finding rather than a
+run of failures, and it is the shape of the argument the report should make.
+
+**`models/27aug01` (v3) remains the model to ship.** v4 is worse on defect
+finding, flat on the length gap it was built for, and its optimize gain does not
+reach significance.
+
 ## 3b. Two data changes, one made and one withdrawn
 
 ### Made: the `improve` task now drops cosmetic rewrites

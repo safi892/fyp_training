@@ -36,43 +36,61 @@ GGUFs. Install CPU torch as `torch==2.13.0+cpu` from
 
 Both repos are on branch `language`, nothing merged.
 
-- training `d1663bd` · **206 tests**
+- training `b884d70` · **228 tests**
 - backend `9086453` · **106 tests**
 
 Run before believing anything: `python3 -m pytest -q` and `ruff check`.
 One known pre-existing lint error, `tests/test_analyze_endpoint.py:58` E501.
 
 `tests/test_loss_masking_setup.py` needs `trl`, which is not installed in a
-CPU-only checkout; `--ignore` it there. The other 206 run without a GPU.
+CPU-only checkout; `--ignore` it there. The other 228 run without a GPU.
 
 **Read `.claude/skills/measuring-changes/SKILL.md` before running any
 evaluation or writing any number into the report.** Every wrong conclusion this
 project has reached came from the measurement, not the training.
 
-## The C++ model — three runs, and what separates them
+## The C++ model — four runs, and what separates them
 
 Qwen2.5-Coder-1.5B + QLoRA, merged, Q4_K_M GGUF (940 MB), served by llama.cpp on
 **port 8081** (the API owns 8080). 17.7 tok/s was measured on the Mac; the Linux
 box gets ~12.
 
-Three checkpoints exist. **Compare them only on one machine in one session** —
+Four checkpoints exist. **Compare them only on one machine in one session** —
 the same weights score 7/55 on the Mac and 9/55 on Linux at `temperature: 0`.
 
-| | phase 1 | phase 2 | v3 (`models/27aug01`) |
-| --- | ---: | ---: | ---: |
-| mixture rows | 66,103 | 66,898 | 56,668 |
-| verified pairs | 0 | 159 | 253 |
-| algorithmic rewriting | 10/60 (17%) | **25/60 (42%)** | **25/60 (42%)** |
-| problems named | — | 16/55 | 11/55 |
-| training time | — | 10.4 h | 6.8 h |
+| | phase 1 | phase 2 | v3 (`models/27aug01`) | v4 (`models/28aug-long`) |
+| --- | ---: | ---: | ---: | ---: |
+| mixture rows | 66,103 | 66,898 | 56,668 | 59,439 |
+| verified pairs | 0 | 159 | 253 | 253 |
+| rows >= 45 lines | 2.2% | 2.2% | 2.2% | **6.6%** |
+| algorithmic rewriting | 10/60 (17%) | **25/60 (42%)** | 24/60 (40%) | 30/60 (50%) |
+| problems named | — | 16/55 | 11/55 | 10/55 |
+| training time | — | 10.4 h | 6.8 h | ~7 h |
 
-Two findings sit in that table:
+Three findings sit in that table:
 
 1. **Introducing execution-verified data moved rewriting 17% → 42%**
    (p = 5.2e-04), from 159 pairs that were **1.9% of the mixture**. The 18,935
    asserted `improve` rows holding 37% of the loss budget did not.
 2. **Scaling those pairs to 253 did nothing** (p = 1.0000). The gain came from
    *introducing* verification, not from scaling it.
+3. **Tripling the long-code share did nothing either.** v4 put rows of >= 45
+   lines from 2.2% to 6.6% to attack the out-of-distribution failure, and on the
+   45-58 line seed set it is flat or marginally worse: truncation 0/20 -> 1/20,
+   anchors 94% -> 95%, false recursion 1/20 both. Its `eval_hard` numbers are
+   worse (11/55 -> 10/55 named, 6/20 -> 9/20 false) and its optimize gain
+   (24/60 -> 30/60) does not reach significance (p = 0.109) and has no mechanism
+   - the long files added only `line_comments` rows. **Ship v3.**
+
+**Every training-data intervention has returned nothing; both inference-time
+interventions worked.** That is the shape of the argument, not a run of bad luck:
+
+| intervention | result |
+| --- | --- |
+| 159 → 253 verified pairs | p = 1.0000 |
+| 2.2% → 6.6% long rows | flat |
+| defect-aware prompt, no training | **8/55 → 16/55** |
+| `best_of` sampling, no training | **24 → 4 objections**, p = 4.88e-04 |
 
 The headline result about comprehension is unchanged and is still the finding
 rather than a defect to fix — reliability and understanding are separable, and
