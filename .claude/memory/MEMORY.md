@@ -4,3 +4,4 @@
 - [Recursion optimization routing](recursion-optimization-routing.md) — training-side `--task auto` routes direct recursion to iterate and branching recursion to optimize; renamed GGUF probe improved verified rate 5/16 -> 11/16
 - [Wire best_of into the backend](wire-best-of-into-backend.md) — measured 83% fewer false statements, product doesn't use it yet; backend repo, own session
 - [Write the FYP report](write-the-fyp-report.md) — the actual deliverable; nine measured findings already exist, no further training needed
+- [Five training nulls, ship v3](five-training-nulls-ship-v3.md) — v5 (models/archive) is the fifth null; v3 remains the checkpoint to ship
