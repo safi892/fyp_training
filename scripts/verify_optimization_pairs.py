@@ -39,6 +39,7 @@ import subprocess
 import tempfile
 from pathlib import Path
 
+from qwen_cpp_review.optimization_routing import select_optimization_task
 from qwen_cpp_review.verification import verify
 
 #: Words that look like a call but are not, so a self-call check does not fire
@@ -279,7 +280,7 @@ def main() -> None:
                                  "name": pair.get("name"), "reason": problem})
                 print(f"  [{index:>3}] {pair['source']:<14} REJECT  {label}: {problem}")
             else:
-                row = {"task": "optimize", "language": "cpp",
+                row = {"task": select_optimization_task(pair["code"]), "language": "cpp",
                        "code": pair["code"], "improved_code": pair["improved_code"]}
                 if feed:
                     row["stdin"] = feed

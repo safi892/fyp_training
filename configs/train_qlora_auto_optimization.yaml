@@ -1,0 +1,136 @@
+model:
+  model_name_or_path: Qwen/Qwen2.5-Coder-1.5B-Instruct
+  trust_remote_code: true
+  torch_dtype: auto
+  attn_implementation: sdpa
+  flash_attention: false
+  use_cache: false
+
+data:
+  # Task-tagged mixture built by scripts/build_task_mixture.py from the
+  # line-anchored dataset. Each row carries a `task` key that prompt.py
+  # resolves into an output-field list, so one adapter learns all four tasks.
+  # Rebuild after changing max_seq_length: the builder drops rows that would
+  # otherwise be truncated, and it needs the same limit.
+  data_files:
+    - cleaned/task_mixture_auto_optimization.jsonl
+  validation_split_ratio: 0.05
+  test_split_ratio: 0.0
+  # Measured against the Qwen tokenizer over the 66,103-row mixture:
+  #   limit   rows dropped   worst task
+  #   512     17.0%          line_comments 45.4%
+  #   1024     1.2%          line_comments  3.6%
+  #   2048     0.06%         improve        0.12%
+  # The vram-profiles kaggle-t4 profile specifies 1024; this run keeps 2048,
+  # which costs memory but preserves the long line_comments targets. Drop to
+  # 1024 if the smoke run reports tight peak memory, and rebuild the mixture
+  # with --max-tokens 1024.
+  max_seq_length: 2048
+  preprocessing_num_proc: 2
+  cache_dir: .cache/hf-datasets
+  # false = completion-only loss. The dataset is rendered into prompt/completion
+  # columns and only the target is supervised. TRL applies completion-only loss
+  # for prompt-completion datasets and full-sequence loss for a single text
+  # column, so this setting picks the dataset shape too - see dataset.py.
+  #
+  # This was true for the first run, and nothing read it: roughly half of every
+  # sequence is instruction and input code, so half the gradient signal went
+  # into learning to reproduce the prompt, and eval_loss 0.46 / perplexity 1.59
+  # mostly measured that. Verify with scripts/verify_loss_masking.py.
+  train_on_inputs: false
+  prompt_style: chat
+  identifier_augmentation: false
+  identifier_augmentation_copies: 1
+  # Fallback only: every row in the mixture names its own task. This list is
+  # what a row without a `task` key gets, which is the inference default.
+  output_fields:
+    - line_comments
+    - explanation
+    - improved_code
+    - complexity_analysis
+
+training:
+  output_dir: outputs/qwen2.5-coder-1.5b-cpp-review-auto-optimization-qlora
+  num_train_epochs: 3
+  per_device_train_batch_size: 1
+  per_device_eval_batch_size: 1
+  gradient_accumulation_steps: 8
+  learning_rate: 0.0002
+  weight_decay: 0.0
+  warmup_ratio: 0.03
+  lr_scheduler_type: cosine
+  # adamw_torch keeps fp32 moments (~600 MB for r=64 LoRA), which serialize and
+  # reload cleanly. paged_adamw_8bit saves that memory but its bitsandbytes
+  # state is what made optimizer-state resume fail on Kaggle; only switch back
+  # if VRAM forces it, and keep the value fixed for the whole run.
+  optim: adamw_torch
+  max_grad_norm: 0.3
+  logging_steps: 10
+  eval_steps: 100
+  save_steps: 100
+  save_total_limit: 2
+  eval_strategy: steps
+  save_strategy: steps
+  load_best_model_at_end: true
+  metric_for_best_model: eval_loss
+  greater_is_better: false
+  # Keep this on. Run 1 peaked at 6.36 GB of the T4's 15.8 GB *because* this was
+  # enabled; turning it off OOMs at batch 2 / seq 1024, in the cross-entropy
+  # logits (2 x 1024 x 151936). The headroom was the effect, not spare capacity.
+  gradient_checkpointing: true
+  bf16: auto
+  fp16: auto
+  # Stays false on the T4. TRL 0.25.0's default 'bfd' packing strategy
+  # force-enables padding-free batching, documented as supported only with
+  # FlashAttention 2/3, and the T4 is Turing so it has neither. The 'wrapped'
+  # strategy concatenates across document boundaries instead. Rather than accept
+  # attention crossing examples, keep packing off - build_trainer refuses the
+  # combination outright. This deviates from the vram-profiles kaggle-t4 profile
+  # deliberately, as the loss-masking-verify skill requires stating.
+  packing: false
+  gradient_checkpointing_use_reentrant: false
+  ddp_find_unused_parameters: false
+  # The mixture spans a 29-token complexity target and a ~700-token
+  # line_comments one, so a random batch pads everything up to its longest
+  # member. Measured over the real mixture at 4 sequences per forward batch:
+  # 35.2% of compute went into padding, and grouping removes essentially all of
+  # it. This is the throughput fix that gradient_checkpointing: false was
+  # wrongly asked to provide.
+  group_by_length: true
+  report_to:
+    - tensorboard
+  seed: 42
+  early_stopping_patience: 5
+
+  # Resume: auto picks the strongest mode the newest checkpoint supports.
+  #   auto | exact | state | adapter | scratch
+  # Leave this on auto. Re-running the training cell after a session dies then
+  # continues at the exact step it stopped at. Use `train.py --fresh` (or
+  # resume_mode: scratch + overwrite_output_dir: true) to deliberately restart.
+  resume_mode: auto
+  resume_from_checkpoint:
+  initial_adapter_path:
+  resume_auto_fallback: true
+  overwrite_output_dir: false
+
+lora:
+  r: 64
+  alpha: 16
+  dropout: 0.05
+  target_modules:
+    - q_proj
+    - k_proj
+    - v_proj
+    - o_proj
+    - gate_proj
+    - up_proj
+    - down_proj
+  bias: none
+  task_type: CAUSAL_LM
+
+generation:
+  max_new_tokens: 1024
+  temperature: 0.2
+  top_p: 0.9
+  top_k: 50
+  repetition_penalty: 1.05

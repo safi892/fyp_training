@@ -69,11 +69,10 @@ TASK_FIELD_HINTS = {
     #: rather than asking harder - but it is three times the wording that ships.
     "iterate": {
         "improved_code": (
-            "the call stack is what makes this function work. Replace it with an explicit "
-            "std::stack (or std::queue where order allows), declared inside the function. Push "
-            "the starting item, then loop while it is not empty, popping one item and pushing "
-            "the items the recursive calls would have been made on. Keep the signature and the "
-            "results identical"
+            "replace direct self-recursion with an iterative loop. For tail recursion or "
+            "single-branch recursion, update the arguments in a while loop; use an explicit "
+            "std::stack or std::queue only when traversal state really needs it. Keep the "
+            "signature and results identical, and do not leave any self-calls"
         ),
     },
 }
@@ -329,4 +328,3 @@ def format_prompt_without_response(
         {"role": "user", "content": f"{instruction}\n\n### Code\n\n```cpp\n{code}\n```"},
     ]
     return tokenizer.apply_chat_template(messages, tokenize=False, add_generation_prompt=True)
-

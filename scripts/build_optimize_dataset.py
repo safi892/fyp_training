@@ -21,6 +21,10 @@ the property the original 19,033 rows never had.
 
     uv run python scripts/build_optimize_dataset.py --limit 300 --samples 6
 
+Use ``--task auto`` to route each recursive function first: direct recursion is
+sent to the iteration prompt, while branching recursive returns are sent to the
+memoisation / DP prompt.
+
 Two generation backends, because the bottleneck is throughput and not the gate:
 
     --backend llama   llama-server on CPU. ~120s per function at 6 samples,
@@ -47,9 +51,11 @@ import subprocess
 import time
 import urllib.error
 import urllib.request
+from itertools import cycle
 from pathlib import Path
 
 from qwen_cpp_review.claim_checks import recursive_functions
+from qwen_cpp_review.optimization_routing import select_optimization_task
 from qwen_cpp_review.prompt import TASK_FIELD_HINTS
 from qwen_cpp_review.verification import parse_signature, verify
 
@@ -109,9 +115,10 @@ class APIGenerator:
     """
 
     def __init__(self, env: Path, provider: str, model: str, rpm: int, task: str):
-        config = json.loads(env.read_text(encoding="utf-8"))["providers"][provider]
+        config = load_provider_config(env, provider)
         self.base = config["baseUrl"].rstrip("/")
-        self.model = model
+        self.model = config.get("model") or model
+        self.provider = provider
         self.task = task
         self.azure = "azure" in self.base
         self.headers = {"Content-Type": "application/json"}
@@ -128,8 +135,11 @@ class APIGenerator:
             time.sleep(pause)
         self.last = time.monotonic()
 
-    def _one(self, code: str, budget: int, temperature: float, retries: int = 5) -> str:
-        system, user = build_instruction(code, self.task)
+    def _one(
+        self, code: str, budget: int, temperature: float, task: str | None = None,
+        retries: int = 5,
+    ) -> str:
+        system, user = build_instruction(code, task or self.task)
         payload = {
             "model": self.model,
             "messages": [
@@ -162,8 +172,27 @@ class APIGenerator:
         print(f"    api gave up: {last}")
         return ""
 
-    def samples(self, code: str, count: int, budget: int, temperature: float) -> list[str]:
-        return [self._one(code, budget, temperature) for _ in range(count)]
+    def samples(
+        self, code: str, count: int, budget: int, temperature: float, task: str | None = None
+    ) -> list[str]:
+        return [self._one(code, budget, temperature, task) for _ in range(count)]
+
+
+def load_provider_config(env: Path, provider: str) -> dict[str, str]:
+    """Read provider credentials from the first JSON object in ``env``."""
+    text = env.read_text(encoding="utf-8")
+    config, _ = json.JSONDecoder().raw_decode(text.lstrip())
+    try:
+        return config["providers"][provider]
+    except KeyError as exc:
+        known = sorted(config.get("providers", {}))
+        raise KeyError(f"provider {provider!r} not found in {env}; known providers: {known}") from exc
+
+
+def provider_names(provider: str, providers: list[str] | None) -> list[str]:
+    """The API provider keys to use, preserving command-line order."""
+    names = providers or [provider]
+    return list(dict.fromkeys(names))
 
 
 #: A fenced block, with or without a language tag.
@@ -328,6 +357,11 @@ def recursive_call_count(code: str) -> int:
     return len(re.findall(rf"\b{re.escape(match.group(1))}\s*\(", code)) - 1
 
 
+def task_for_code(code: str, requested: str) -> str:
+    """Resolve ``--task auto`` for one function."""
+    return select_optimization_task(code) if requested == "auto" else requested
+
+
 def drivable_recursive(corpus: Path, max_lines: int) -> list[str]:
     """Corpus functions that recurse and whose signature the driver can supply."""
     found = []
@@ -373,7 +407,7 @@ def main() -> None:
     parser.add_argument("--limit", type=int, default=300, help="functions to attempt")
     parser.add_argument("--samples", type=int, default=6, help="attempts per function")
     parser.add_argument("--max-lines", type=int, default=40)
-    parser.add_argument("--task", choices=("optimize", "iterate"), default=TASK)
+    parser.add_argument("--task", choices=("optimize", "iterate", "auto"), default=TASK)
     parser.add_argument(
         "--min-calls", type=int, default=2,
         help="Skip functions with fewer recursive calls. Memoisation only pays "
@@ -390,6 +424,8 @@ def main() -> None:
                         help="api backend: provider credentials, same file probe_teacher reads")
     parser.add_argument("--provider", default="azure-saffi",
                         help="api backend: provider key inside --env")
+    parser.add_argument("--providers", nargs="+",
+                        help="api backend: provider keys to rotate across, e.g. gemini gemini2")
     parser.add_argument("--model", default="gpt-oss-120b",
                         help="api backend: model id to ask")
     parser.add_argument("--rpm", type=int, default=10,
@@ -400,10 +436,12 @@ def main() -> None:
                         help="hf backend: base model the adapter was trained on")
     parser.add_argument("--adapter", default=None,
                         help="hf backend: LoRA adapter directory, or omit for the base model")
+    parser.add_argument("--retry-failed", action="store_true",
+                        help="Retry functions recorded in OUT.attempted.json but not verified")
     args = parser.parse_args()
 
     functions = drivable_recursive(args.corpus, args.max_lines)
-    if args.min_calls > 1:
+    if args.min_calls > 1 and args.task == "optimize":
         before = len(functions)
         functions = [f for f in functions if recursive_call_count(f) >= args.min_calls]
         print(f"{before - len(functions)} functions dropped: fewer than "
@@ -418,8 +456,10 @@ def main() -> None:
                 done.add(json.loads(line)["code"])
     attempted = args.out.with_suffix(".attempted.json")
     tried: set[str] = set(json.loads(attempted.read_text())) if attempted.exists() else set()
+    failures = args.out.with_suffix(".failures.jsonl")
 
-    todo = [code for code in functions if code not in done and code not in tried]
+    skipped = set() if args.retry_failed else tried
+    todo = [code for code in functions if code not in done and code not in skipped]
     print(f"{len(functions)} drivable recursive functions, {len(done)} already verified, "
           f"{len(tried) - len(done)} already failed -> {len(todo)} to attempt")
     if not todo:
@@ -427,11 +467,21 @@ def main() -> None:
 
     process = None
     generator = None
+    api_generators: list[APIGenerator] = []
+    api_cycle = None
     if args.backend == "hf":
         generator = HFGenerator(args.base, args.adapter, batch=args.batch)
     elif args.backend == "api":
-        generator = APIGenerator(args.env, args.provider, args.model, args.rpm, args.task)
-        print(f"proposing with {args.model} via {args.provider}, {args.rpm}/min")
+        providers = provider_names(args.provider, args.providers)
+        api_generators = [
+            APIGenerator(args.env, provider, args.model, args.rpm, TASK)
+            for provider in providers
+        ]
+        api_cycle = cycle(api_generators)
+        total_rpm = args.rpm * len(api_generators)
+        model_names = ", ".join(f"{item.provider}:{item.model}" for item in api_generators)
+        print(f"proposing via {model_names}, "
+              f"{args.rpm}/min each ({total_rpm}/min total)")
     else:
         process = subprocess.Popen(
             ["llama-server", "-m", args.gguf, "--port", str(args.port), "-c", "4096",
@@ -439,7 +489,7 @@ def main() -> None:
             stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL,
         )
 
-    def attempts(code: str) -> list[str]:
+    def attempts(code: str, task: str) -> list[str]:
         """This function's raw samples, however they were produced.
 
         The GPU backend generates the whole batch up front rather than stopping
@@ -447,16 +497,19 @@ def main() -> None:
         what one costs, so an early exit would save nothing and complicate the
         only part of this that has to stay obvious.
         """
-        if isinstance(generator, APIGenerator):
+        if api_cycle is not None:
             # Takes the source, not the rendered prompt: it sends real chat
             # roles rather than posting Qwen's template markers as message text.
-            return generator.samples(code, args.samples, args.n_predict, args.temperature)
+            return [
+                next(api_cycle)._one(code, args.n_predict, args.temperature, task)
+                for _ in range(args.samples)
+            ]
         if generator is not None:
             return generator.samples(
-                build_prompt(code), args.samples, args.n_predict, args.temperature
+                build_prompt(code, task), args.samples, args.n_predict, args.temperature
             )
         return [
-            complete(args.port, build_prompt(code), args.n_predict, args.temperature, seed=n)
+            complete(args.port, build_prompt(code, task), args.n_predict, args.temperature, seed=n)
             for n in range(args.samples)
         ]
 
@@ -465,13 +518,14 @@ def main() -> None:
         if process is not None:
             wait_for_server(args.port)
         for index, code in enumerate(todo):
+            task = task_for_code(code, args.task)
             reasons = []
-            produced = attempts(code) if generator is not None else None
+            produced = attempts(code, task) if generator is not None or api_cycle is not None else None
             for sample in range(args.samples):
                 if produced is not None:
                     text = produced[sample]
                 else:
-                    text = complete(args.port, build_prompt(code), args.n_predict,
+                    text = complete(args.port, build_prompt(code, task), args.n_predict,
                                     args.temperature, seed=sample)
                 candidate = extract_candidate(text)
                 if not candidate:
@@ -481,7 +535,7 @@ def main() -> None:
                 if problem is None:
                     with args.out.open("a", encoding="utf-8") as handle:
                         handle.write(json.dumps({
-                            "task": args.task, "language": "cpp",
+                            "task": task, "language": "cpp",
                             "code": code, "improved_code": candidate,
                             "verified": "compiled and ran with identical output",
                             "attempt": sample,
@@ -495,6 +549,11 @@ def main() -> None:
             # was already paid for.
             attempted.write_text(json.dumps(sorted(tried)), encoding="utf-8")
             mark = "KEPT" if reasons and reasons[-1] == "KEPT" else reasons[-1] if reasons else "-"
+            if mark != "KEPT":
+                with failures.open("a", encoding="utf-8") as handle:
+                    handle.write(json.dumps({
+                        "task": task, "code": code, "reasons": reasons, "final": mark,
+                    }, ensure_ascii=False) + "\n")
             print(f"  [{index + 1:>4}/{len(todo)}] kept {kept:>4}  {mark}")
     finally:
         if process is not None:

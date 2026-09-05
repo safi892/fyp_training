@@ -14,6 +14,7 @@ dependencies = [
     "safetensors==0.7.0",
     "transformers==4.57.3",
     "wrapt==2.0.1",
+    "openai>=3.6.0",
 ]
 
 [project.optional-dependencies]

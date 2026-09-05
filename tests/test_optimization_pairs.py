@@ -81,6 +81,30 @@ def test_reads_all_three_collected_formats(tmp_path):
     assert [p["stdin"] for p in pairs] == ["5\n", "", ""]
 
 
+def test_verified_rows_are_labeled_with_the_routed_task(tmp_path, workdir):
+    from verify_optimization_pairs import main
+
+    (tmp_path / "DATASET.json").write_text(
+        json.dumps(
+            [[
+                {"code": "int fact(int n){ if(n<=1) return 1; return n*fact(n-1); }"},
+                {"code": "int fact(int n){ int r=1; for(int i=2;i<=n;i++) r*=i; return r; }"},
+            ]]
+        ),
+        encoding="utf-8",
+    )
+
+    old_argv = sys.argv
+    try:
+        sys.argv = ["verify_optimization_pairs.py", str(tmp_path), "--timeout", "10"]
+        main()
+    finally:
+        sys.argv = old_argv
+
+    row = json.loads((tmp_path / "pairs.jsonl").read_text(encoding="utf-8"))
+    assert row["task"] == "iterate"
+
+
 def test_comments_cannot_look_like_recursion():
     """`//S.C : O(26)` scans as a function `O(26){...}` whose body calls `O(n)`.
 
@@ -136,6 +160,17 @@ def test_the_builder_reads_the_wording_it_will_be_served_with():
     assert TASK in TASK_FIELD_HINTS
 
 
+def test_the_builder_can_route_recursion_shapes_automatically():
+    sys.path.insert(0, str(Path(__file__).resolve().parents[1] / "scripts"))
+    from build_optimize_dataset import task_for_code
+
+    direct = "int fact(int n){ if(n<=1) return 1; return n*fact(n-1); }"
+    branching = "int fib(int n){ if(n<=1) return n; return fib(n-1)+fib(n-2); }"
+
+    assert task_for_code(direct, "auto") == "iterate"
+    assert task_for_code(branching, "auto") == "optimize"
+
+
 def test_the_extractor_finds_code_however_the_model_wrapped_it():
     """The base model emits 0/20 usable JSON, so insisting on JSON rejects it all.
 
@@ -156,3 +191,145 @@ def test_the_extractor_finds_code_however_the_model_wrapped_it():
 
     assert extract_candidate("I would suggest an explicit stack.") == ""
     assert extract_candidate("") == ""
+
+
+def test_api_config_reader_ignores_trailing_env_notes(tmp_path):
+    sys.path.insert(0, str(Path(__file__).resolve().parents[1] / "scripts"))
+    from build_optimize_dataset import load_provider_config
+
+    env = tmp_path / ".env"
+    env.write_text(
+        '{"providers":{"demo":{"baseUrl":"https://example.test","apiKey":"secret"}}}\n'
+        "EXTRA_NOT_JSON=1\n",
+        encoding="utf-8",
+    )
+
+    assert load_provider_config(env, "demo") == {
+        "baseUrl": "https://example.test",
+        "apiKey": "secret",
+    }
+
+
+def test_api_generator_prefers_provider_model_override(tmp_path):
+    sys.path.insert(0, str(Path(__file__).resolve().parents[1] / "scripts"))
+    from build_optimize_dataset import APIGenerator
+
+    env = tmp_path / ".env"
+    env.write_text(
+        json.dumps(
+            {
+                "providers": {
+                    "demo": {
+                        "baseUrl": "https://example.test",
+                        "apiKey": "secret",
+                        "model": "provider-model",
+                    }
+                }
+            }
+        ),
+        encoding="utf-8",
+    )
+
+    generator = APIGenerator(env, "demo", "cli-model", 10, "optimize")
+
+    assert generator.model == "provider-model"
+
+
+def test_api_provider_list_preserves_order_and_old_default():
+    sys.path.insert(0, str(Path(__file__).resolve().parents[1] / "scripts"))
+    from build_optimize_dataset import provider_names
+
+    assert provider_names("gemini", None) == ["gemini"]
+    assert provider_names("gemini", ["gemini", "gemini2", "gemini"]) == [
+        "gemini",
+        "gemini2",
+    ]
+
+
+def test_multi_provider_run_does_not_fall_back_to_llama(tmp_path, monkeypatch):
+    sys.path.insert(0, str(Path(__file__).resolve().parents[1] / "scripts"))
+    import build_optimize_dataset
+
+    corpus = tmp_path / "corpus.jsonl"
+    corpus.write_text(
+        json.dumps({"code": "int fact(int n){ if(n<=1) return 1; return n*fact(n-1); }"})
+        + "\n",
+        encoding="utf-8",
+    )
+    env = tmp_path / ".env"
+    env.write_text(
+        json.dumps({
+            "providers": {
+                "gemini": {"baseUrl": "https://example.test", "apiKey": "a"},
+                "gemini2": {"baseUrl": "https://example.test", "apiKey": "b"},
+            }
+        }),
+        encoding="utf-8",
+    )
+
+    monkeypatch.setattr(build_optimize_dataset.APIGenerator, "_one", lambda *args: "")
+    monkeypatch.setattr(
+        build_optimize_dataset,
+        "complete",
+        lambda *args, **kwargs: (_ for _ in ()).throw(AssertionError("called llama")),
+    )
+    monkeypatch.setattr(
+        sys,
+        "argv",
+        [
+            "build_optimize_dataset.py",
+            "--corpus", str(corpus),
+            "--out", str(tmp_path / "out.jsonl"),
+            "--task", "auto",
+            "--limit", "1",
+            "--samples", "1",
+            "--backend", "api",
+            "--providers", "gemini", "gemini2",
+            "--env", str(env),
+        ],
+    )
+
+    build_optimize_dataset.main()
+
+
+def test_retry_failed_reattempts_attempted_but_unverified_rows(tmp_path, monkeypatch):
+    sys.path.insert(0, str(Path(__file__).resolve().parents[1] / "scripts"))
+    import build_optimize_dataset
+
+    code = "int fact(int n){ if(n<=1) return 1; return n*fact(n-1); }"
+    corpus = tmp_path / "corpus.jsonl"
+    corpus.write_text(json.dumps({"code": code}) + "\n", encoding="utf-8")
+    out = tmp_path / "out.jsonl"
+    out.with_suffix(".attempted.json").write_text(json.dumps([code]), encoding="utf-8")
+
+    calls = []
+    monkeypatch.setattr(build_optimize_dataset, "complete", lambda *args, **kwargs: calls.append(args) or "")
+    monkeypatch.setattr(
+        sys,
+        "argv",
+        [
+            "build_optimize_dataset.py",
+            "--corpus", str(corpus),
+            "--out", str(out),
+            "--task", "auto",
+            "--limit", "1",
+            "--samples", "1",
+            "--backend", "llama",
+            "--retry-failed",
+        ],
+    )
+    monkeypatch.setattr(build_optimize_dataset, "wait_for_server", lambda *args, **kwargs: None)
+
+    class Process:
+        def terminate(self):
+            pass
+
+        def wait(self, timeout):
+            pass
+
+    monkeypatch.setattr(build_optimize_dataset.subprocess, "Popen", lambda *args, **kwargs: Process())
+
+    build_optimize_dataset.main()
+
+    assert calls
+    assert (tmp_path / "out.failures.jsonl").exists()

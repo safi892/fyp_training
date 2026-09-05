@@ -29,6 +29,7 @@ zip -qr "$DIST/kaggle-project-files.zip" \
 # --- data ----------------------------------------------------------------- #
 test -f "$DATASET" || { echo "missing $DATASET" >&2; exit 1; }
 zip -qj "$DIST/kaggle-dataset.zip" "$DATASET"
+cp kaggle_training.ipynb "$DIST/kaggle_training.ipynb"
 
 echo "Upload these two as separate Kaggle Datasets:"
 ls -lh "$DIST"
