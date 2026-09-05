@@ -10,7 +10,7 @@ The first worked. The second did not, and four independent proposers now say so.
 
 ---
 
-## 1. The prompt result — the finding worth acting on
+## 1. The prompt result — measured on phase 2, and withdrawn in §1c
 
 **No training. No API. The same phase-2 model, asked differently.**
 
@@ -23,7 +23,10 @@ The first worked. The second did not, and four independent proposers now say so.
 | `describe_effect` | 8/55 | 8 | 0 | 92/92 |
 | **`assume_nothing`** | **16/55** | 8 | **0** | 100/100 |
 
-**Defect finding doubles, 8 → 16.**
+**Defect finding doubles, 8 → 16 — on phase 2, and it does not carry over.**
+Re-run on v3, the checkpoint actually shipped, `assume_nothing` gives 11/55 →
+**12/55** and costs two extra false claims. See §1c. Read the rest of this
+section as a record of what was measured on phase 2, not as a product claim.
 
 The whole change is four sentences appended to the instruction:
 
@@ -61,7 +64,7 @@ the measurement is of this wording given to a model trained *without* it.
 Re-measured through `eval_hard.py`, which builds its prompt from the package
 rather than appending wording itself:
 
-| | trained wording | defect-aware |
+| (phase 2) | trained wording | defect-aware |
 | --- | ---: | ---: |
 | Problems named | 8/55 | **16/55** |
 | Confidently false | 7/20 | 8/20 |
@@ -88,6 +91,52 @@ against the shipped wording's 1.
 Unpredicted side effect: raw line-number accuracy roughly doubled, 8% → 18%.
 
 ---
+
+## 1c. The prompt result, re-run on the model that ships
+
+The `8/55 → 16/55` above was measured on **phase 2**. v3 is what ships, so the
+probe was re-run against it on this machine with the same three wordings and the
+same scorer — `model_improvement/v3_prompt/`.
+
+| | problems named | false claims | invented on correct code |
+| --- | ---: | ---: | ---: |
+| v3, `trained_wording` | 11/55 | 6 | 1 |
+| v3, `describe_effect` | 12/55 | 7 | 0 |
+| v3, `assume_nothing` | **12/55** | **8** | 0 |
+
+**It does not carry over.** On v3 the defect-aware wording buys one sub-claim out
+of 55 and costs two false claims.
+
+Both readings were also over-stated when first written. `X/55` counts sub-claims
+across 20 programs; the unit that can actually be tested is the program:
+
+| | named | per-program McNemar | false claims |
+| --- | --- | --- | --- |
+| phase 2, plain → `assume_nothing` | 8/55 → 16/55 | +3 −0, **p = 0.2500** | 7 → 8 |
+| v3, plain → `assume_nothing` | 11/55 → 12/55 | +2 −3, **p = 1.0000** | 6 → 8 |
+
+So the effect was never significant on phase 2 either: eight sub-claims landing
+on three of twenty programs. Counting sub-claims made n look like 55 when it was
+20, and 20 could not separate this from noise.
+
+### What this costs the argument, and what survives
+
+The report's shape was "every training-data intervention returned nothing, both
+inference-time interventions worked". It is now **one** inference-time
+intervention:
+
+- **`best_of` sampling still stands** — 24 → 4 objections, 6/20 → 16/20 clean,
+  **p = 4.88e-04**. That is three orders of magnitude away from the prompt result
+  and is measured on saved output from the shipped model.
+- **The defect-aware prompt is withdrawn as a finding.** `DEFECT_AWARE_SUFFIX`
+  stays in `prompt.py` because it costs nothing, but nothing should be claimed
+  for it.
+
+The seven earlier scoring errors were all a *name* matched where a *concept* was
+meant. This one is different and worth naming separately: a **denominator**
+chosen so that twenty programs reported as fifty-five independent opportunities.
+It is the eighth time scoring has flattered the model, and the first time the
+unit of analysis rather than the pattern was the cause.
 
 ## 2. The teacher comparison — a clean negative result
 
@@ -227,8 +276,15 @@ against 56,101 and 877 predicted, code byte-identical to `e1440b9`, 1 epoch in
 | | phase 1 | phase 2 | **v3** |
 | --- | ---: | ---: | ---: |
 | Algorithmic rewriting | 10/60 (17%) | **25/60 (42%)** | **25/60 (42%)** |
-| Problems named (defect-aware prompt) | — | 16/55 | 11/55 |
-| Confidently false | — | 8/20 | 6/20 |
+| Problems named (plain `eval_hard`) | 7/55 | 8/55 | **11/55** |
+| Confidently false | 10/20 | 7/20 | **6/20** |
+
+**This row was wrong until 2026-09-05.** It read "Problems named (defect-aware
+prompt) | — | 16/55 | 11/55", which put phase 2's *prompted* score beside v3's
+*unprompted* one and so reported a regression that never happened. `eval_hard.py`
+has no defect-aware path — every number in this row is the plain trained
+wording, and on it **v3 is the best checkpoint measured, not the worst**. The
+comparison is now like-for-like and reverses the earlier reading.
 
 **Identical on rewriting**: five gained, five lost, McNemar **p = 1.0000**. The
 94 extra verified pairs took that slice of the mixture from 1.9% to 2.23% and
@@ -373,11 +429,11 @@ as noise unless it reproduces.
 | --- | --- |
 | 159 -> 253 verified pairs | p = 1.0000 |
 | 2,771 long files, 2.2% -> 6.6% of >= 45-line rows | flat, marginally worse |
-| the defect-aware prompt, no training | **8/55 -> 16/55** |
+| the defect-aware prompt, no training | 8/55 -> 16/55 on phase 2 (p = 0.25); **11/55 -> 12/55 on v3** |
 | best_of sampling, no training | **24 -> 4 objections, p = 4.88e-04** |
 
-Every intervention on the training data has returned nothing. Both
-inference-time interventions worked. That is one coherent finding rather than a
+Every intervention on the training data has returned nothing. One
+inference-time intervention worked. That is one coherent finding rather than a
 run of failures, and it is the shape of the argument the report should make.
 
 **`models/27aug01` (v3) remains the model to ship.** v4 is worse on defect
@@ -506,10 +562,10 @@ The count in §3a-iii was three. It is now five, and the shape has not changed:
 | 159 → 253 verified pairs | p = 1.0000 |
 | 2.2% → 6.6% long rows | flat |
 | +8,619 rows of auto-generated optimization data | **p = 0.5811** |
-| defect-aware prompt, no training | **8/55 → 16/55** |
+| defect-aware prompt, no training | 8/55 → 16/55 on phase 2 (p = 0.25); **11/55 → 12/55 on v3** |
 | `best_of` sampling, no training | **24 → 4 objections**, p = 4.88e-04 |
 
-Both interventions that worked were at inference time and cost no GPU hours.
+The one intervention that worked was at inference time and cost no GPU hours.
 Every intervention that added training data has returned nothing measurable,
 across four mixtures spanning 56,668 to 68,058 rows. That is the finding, and it
 is a stronger one than another checkpoint would have been.
@@ -519,8 +575,11 @@ move.
 
 ## 4. What to do
 
-1. **Apply `assume_nothing` to the served instruction**, after confirming it on
-   the `eval_hard.py` set. Free, five minutes, doubles defect finding.
+1. ~~**Apply `assume_nothing` to the served instruction.**~~ **Withdrawn.**
+   Confirming it on `eval_hard.py` was the right instinct and it is what killed
+   the claim: on v3 the wording gives 11/55 -> 12/55 (p = 1.0000) and two extra
+   false claims. See §1c. **Wire `best_of` into the backend instead** — same
+   "no training required" shape, and p = 4.88e-04 rather than p = 0.25.
 2. **Do not restart the recursion corpus.** Four proposers, ~1.5%. The 58 pairs
    already in the mixture were worth having; a fifth model will not change this.
 3. **Spend the Gemini pool on filtering, not generating** — steps 1 and 2 above.

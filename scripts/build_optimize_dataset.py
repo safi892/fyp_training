@@ -416,7 +416,7 @@ def main() -> None:
     )
     parser.add_argument("--temperature", type=float, default=0.8)
     parser.add_argument("--timeout", type=float, default=15.0)
-    parser.add_argument("--gguf", default="models/gguf/qwen-cpp-review-q4_k_m.gguf")
+    parser.add_argument("--gguf", default="models/gguf/qwen-cpp-review-v3-q4_k_m.gguf")
     parser.add_argument("--port", type=int, default=8101)
     parser.add_argument("--n-predict", type=int, default=700)
     parser.add_argument("--backend", choices=("llama", "hf", "api"), default="llama")

@@ -10,7 +10,7 @@ Each recursive sample is sent with several phrasings, from the vague wording
 the model was trained on to an explicit request for memoisation. The output is
 classified by what it actually contains, not by whether it looks improved.
 
-    uv run python scripts/probe_optimization.py --gguf models/gguf/qwen-cpp-review-q4_k_m.gguf
+    uv run python scripts/probe_optimization.py --gguf models/gguf/qwen-cpp-review-v3-q4_k_m.gguf
 
 Runs against llama-server, so this takes minutes rather than hours.
 """
@@ -427,7 +427,7 @@ def complete(port: int, prompt: str, n_predict: int) -> str:
 
 def main() -> None:
     parser = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
-    parser.add_argument("--gguf", default="models/gguf/qwen-cpp-review-q4_k_m.gguf")
+    parser.add_argument("--gguf", default="models/gguf/qwen-cpp-review-v3-q4_k_m.gguf")
     parser.add_argument("--port", type=int, default=8097)
     parser.add_argument("--n-predict", type=int, default=450)
     parser.add_argument("--seed", type=int, default=0, help="identifier renaming seed")

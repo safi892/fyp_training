@@ -10,7 +10,7 @@ file already holding its material; `docs/DETECTABILITY.md` is a written chapter
 waiting to be placed. **No further training run is required for it.**
 
 **Why:** measurements keep being deferred behind "one more run", and the runs
-keep returning p = 1.0. As of 2026-08-28 there are nine measured findings, four
+keep returning p = 1.0. As of 2026-08-28 there are eight measured findings, four
 of which did not exist the day before.
 
 **How to apply — the findings, with where each lives:**
@@ -22,9 +22,11 @@ of which did not exist the day before.
    holding 37% of the loss budget did not
 3. **Scaling those to 253 pairs did nothing**, p = 1.0000 — the gain came from
    *introducing* verification, not scaling it (`model_improvement/REPORT.md`)
-4. **A prompt change doubles defect finding for free** — 8/55 to 16/55, and
-   *reduces* defects invented in correct code from 1 to 0
-   (`model_improvement/step3_prompt/`)
+4. ~~A prompt change doubles defect finding~~ **WITHDRAWN 2026-09-05.** The
+   8/55 → 16/55 was phase 2; on **v3, the shipped model, it is 11/55 → 12/55,
+   p = 1.0000**, plus two extra false claims (`model_improvement/v3_prompt/`).
+   It was never significant on phase 2 either (p = 0.25) — `X/55` counts
+   sub-claims across only 20 programs. **Do not put it in the report.**
 5. **best_of sampling removes 83% of false statements** — 24 to 4 objections,
    6/20 to 16/20 clean, p = 4.88e-04 (`model_improvement/best_of/`)
 6. Renaming every variable misleadingly costs 0 points; single letters cost 12

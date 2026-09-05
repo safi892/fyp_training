@@ -127,7 +127,7 @@ def main() -> None:
     parser.add_argument("--limit", type=int, default=60, help="samples, split evenly by shape")
     parser.add_argument("--max-lines", type=int, default=40)
     parser.add_argument("--seed", type=int, default=0)
-    parser.add_argument("--gguf", default="models/gguf/qwen-cpp-review-q4_k_m.gguf")
+    parser.add_argument("--gguf", default="models/gguf/qwen-cpp-review-v3-q4_k_m.gguf")
     parser.add_argument("--port", type=int, default=8100)
     parser.add_argument("--n-predict", type=int, default=600)
     parser.add_argument("--output", default="test_results/corpus_recursion.json")

@@ -624,7 +624,7 @@ def main() -> None:
     parser = argparse.ArgumentParser(
         description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter
     )
-    parser.add_argument("--gguf", default="models/gguf/qwen-cpp-review-q4_k_m.gguf")
+    parser.add_argument("--gguf", default="models/gguf/qwen-cpp-review-v3-q4_k_m.gguf")
     parser.add_argument("--port", type=int, default=8081)
     parser.add_argument("--n-predict", type=int, default=700)
     parser.add_argument("--tokenizer", default="Qwen/Qwen2.5-Coder-1.5B-Instruct")

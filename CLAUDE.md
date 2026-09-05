@@ -107,8 +107,8 @@ Four findings sit in that table:
    own 1% split of its own mixture. **Still ship v3.** Full working in
    `model_improvement/REPORT.md` §3a-iv, raw runs in `model_improvement/v5_eval/`.
 
-**Every training-data intervention has returned nothing; both inference-time
-interventions worked.** Three such nulls became five with v5, across mixtures
+**Every training-data intervention has returned nothing; one inference-time
+intervention worked.** Three such nulls became five with v5, across mixtures
 from 56,668 to 68,058 rows. That is the shape of the argument, not a run of bad
 luck:
 
@@ -117,7 +117,7 @@ luck:
 | 159 → 253 verified pairs | p = 1.0000 |
 | 2.2% → 6.6% long rows | flat |
 | +8,619 rows of auto-generated optimization data (v5) | p = 0.5811 |
-| defect-aware prompt, no training | **8/55 → 16/55** |
+| defect-aware prompt, no training | 8/55 → 16/55 on phase 2 (p = 0.25); **11/55 → 12/55 on v3** |
 | `best_of` sampling, no training | **24 → 4 objections**, p = 4.88e-04 |
 
 The headline result about comprehension is unchanged and is still the finding
@@ -127,13 +127,30 @@ the usual metrics measure the first while being read as the second. Valid JSON
 false descriptions 30-50%. Published evaluation chapter:
 https://claude.ai/code/artifact/c234f2cd-4fda-461b-bd11-ec4fe8d6ac89
 
-**A prompt change doubles defect finding for free.** Appending four sentences —
-"This code may contain defects. Do not assume it is correct…" — takes problems
-named from 8/55 to 16/55 and *reduces* defects invented in correct code from 1
-to 0. It is `DEFECT_AWARE_SUFFIX` in `prompt.py`, applied at **inference only**
-and only to `line_comments`/`explanation`/`review`; the training render is
-deliberately untouched, because the measurement is of this wording given to a
-model trained without it. Cost: false claims 7 → 8.
+**The defect-aware prompt does not survive contact with the shipped model.**
+Appending four sentences — "This code may contain defects. Do not assume it is
+correct…" — took problems named from 8/55 to 16/55 **on phase 2**, and that
+number was quoted as a headline for weeks. Re-run on **v3**, the checkpoint
+actually shipped, it gives **11/55 → 12/55** and costs two extra false claims
+(6 → 8). Raw run in `model_improvement/v3_prompt/`.
+
+Both readings were also over-stated at the time. `X/55` counts *sub-claims*
+across 20 programs, which inflates the denominator; per program, which is what
+McNemar can test:
+
+| | named | per-program | false claims |
+| --- | --- | --- | --- |
+| phase 2, plain → `assume_nothing` | 8/55 → 16/55 | +3 −0, **p = 0.2500** | 7 → 8 |
+| **v3**, plain → `assume_nothing` | 11/55 → **12/55** | +2 −3, **p = 1.0000** | **6 → 8** |
+
+So the effect was never significant on phase 2 either — the "doubling" is eight
+sub-claims landing on three programs — and on v3 it is gone. `describe_effect`
+scores the same 12/55 with one fewer false claim, which is also not a result.
+
+`DEFECT_AWARE_SUFFIX` stays in `prompt.py`, applied at **inference only** and
+only to `line_comments`/`explanation`/`review`, because it costs nothing to keep
+and the training render must stay untouched for the measurement to mean anything.
+**Do not put "a prompt change doubles defect finding" in the report.**
 
 **The remaining gap is one transformation, not four data shapes.** Grouped by
 what the rewrite must do: `table` (memoisation) 12/20, `accumulator` (tail

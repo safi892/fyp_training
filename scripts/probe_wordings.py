@@ -126,7 +126,7 @@ def main() -> None:
         description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter
     )
     parser.add_argument("--probe", type=Path, default=Path("test_results/optimization_probe_v3.json"))
-    parser.add_argument("--gguf", default="models/gguf/qwen-cpp-review-q4_k_m.gguf")
+    parser.add_argument("--gguf", default="models/gguf/qwen-cpp-review-v3-q4_k_m.gguf")
     parser.add_argument("--port", type=int, default=8098)
     parser.add_argument("--n-predict", type=int, default=600)
     parser.add_argument("--output", default="test_results/wording_search.json")

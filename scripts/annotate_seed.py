@@ -265,7 +265,7 @@ def main() -> None:
                         help="directory of pairs; reads seed.jsonl, DATASET.json and dataset.jsonl")
     parser.add_argument("--only", default="", help="restrict to one source file name")
     parser.add_argument("--limit", type=int, default=0, help="0 for every pair")
-    parser.add_argument("--gguf", default="models/gguf/qwen-cpp-review-q4_k_m.gguf")
+    parser.add_argument("--gguf", default="models/gguf/qwen-cpp-review-v3-q4_k_m.gguf")
     parser.add_argument("--tokenizer", default="models/qwen-cpp-review-merged")
     parser.add_argument("--port", type=int, default=8099)
     parser.add_argument("--n-predict", type=int, default=2400)
