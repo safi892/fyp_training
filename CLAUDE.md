@@ -36,38 +36,54 @@ GGUFs. Install CPU torch as `torch==2.13.0+cpu` from
 
 Both repos are on branch `language`, nothing merged.
 
-- training `b884d70` · **228 tests**
+- training `8be067b` · **228 tests**
 - backend `9086453` · **106 tests**
 
 Run before believing anything: `python3 -m pytest -q` and `ruff check`.
-One known pre-existing lint error, `tests/test_analyze_endpoint.py:58` E501.
+Four known pre-existing lint errors, all in `kaggle_training.ipynb` (cells 2 and
+3). The `tests/test_analyze_endpoint.py:58` E501 this note used to name is in the
+**backend** repo, not this one.
 
 `tests/test_loss_masking_setup.py` needs `trl`, which is not installed in a
-CPU-only checkout; `--ignore` it there. The other 228 run without a GPU.
+CPU-only checkout; `--ignore` it there. The other 228 run without a GPU — and
+`trl` missing also means `merge_lora.py` will not import, so merge an adapter
+with `transformers` + `peft` directly, as `model_improvement/v5_eval` did.
 
 **Read `.claude/skills/measuring-changes/SKILL.md` before running any
 evaluation or writing any number into the report.** Every wrong conclusion this
 project has reached came from the measurement, not the training.
 
-## The C++ model — four runs, and what separates them
+## The C++ model — five runs, and what separates them
 
 Qwen2.5-Coder-1.5B + QLoRA, merged, Q4_K_M GGUF (940 MB), served by llama.cpp on
 **port 8081** (the API owns 8080). 17.7 tok/s was measured on the Mac; the Linux
 box gets ~12.
 
-Four checkpoints exist. **Compare them only on one machine in one session** —
+Five checkpoints exist. **Compare them only on one machine in one session** —
 the same weights score 7/55 on the Mac and 9/55 on Linux at `temperature: 0`.
 
-| | phase 1 | phase 2 | v3 (`models/27aug01`) | v4 (`models/28aug-long`) |
-| --- | ---: | ---: | ---: | ---: |
-| mixture rows | 66,103 | 66,898 | 56,668 | 59,439 |
-| verified pairs | 0 | 159 | 253 | 253 |
-| rows >= 45 lines | 2.2% | 2.2% | 2.2% | **6.6%** |
-| algorithmic rewriting | 10/60 (17%) | **25/60 (42%)** | 24/60 (40%) | 30/60 (50%) |
-| problems named | — | 16/55 | 11/55 | 10/55 |
-| training time | — | 10.4 h | 6.8 h | ~7 h |
+| | phase 1 | phase 2 | v3 (`models/27aug01`) | v4 (`models/28aug-long`) | v5 (`models/archive`) |
+| --- | ---: | ---: | ---: | ---: | ---: |
+| mixture rows | 66,103 | 66,898 | 56,668 | 59,439 | 68,058 |
+| verified pairs | 0 | 159 | 253 | 253 | unknown |
+| rows >= 45 lines | 2.2% | 2.2% | 2.2% | **6.6%** | unknown |
+| algorithmic rewriting | 10/60 (17%) | **25/60 (42%)** | 24/60 (40%) | 30/60 (50%) | see below |
+| problems named | — | 16/55 | 11/55 | 10/55 | **11/55** |
+| training time | — | 10.4 h | 6.8 h | ~7 h | 10.5 h |
 
-Three findings sit in that table:
+The last three columns were re-measured together on this Linux box with the
+current harness, which is the only comparison worth quoting. On the 68 cells
+that pair exactly, algorithmic rewriting is **v3 29/68, v4 34/68, v5 32/68**;
+the `X/60` row above comes from an older harness and is kept only for the phase
+1 → phase 2 jump it records.
+
+**v5 trained on a mixture this repository cannot reproduce.** Its config points
+at `task_mixture_auto_optimization.jsonl`, 68,058 rows — v4's 59,439 plus 8,619
+more — and no builder here emits that name. The file lives on Kaggle. Put it, or
+at least its task histogram, in the repo before the next run: every other row
+count in this table traces to a script and a seed.
+
+Four findings sit in that table:
 
 1. **Introducing execution-verified data moved rewriting 17% → 42%**
    (p = 5.2e-04), from 159 pairs that were **1.9% of the mixture**. The 18,935
@@ -81,14 +97,26 @@ Three findings sit in that table:
    worse (11/55 -> 10/55 named, 6/20 -> 9/20 false) and its optimize gain
    (24/60 -> 30/60) does not reach significance (p = 0.109) and has no mechanism
    - the long files added only `line_comments` rows. **Ship v3.**
+4. **The auto-optimization run moved nothing either.** v5 added 8,619 rows and
+   10.5 GPU-hours and is flat on every axis measured, all paired and all on this
+   machine: rewriting 29/68 -> 32/68 (p = 0.5811), problems named 11/55 -> 11/55
+   (p = 1.0000), truncation and false-recursion claims unchanged at 1/20, anchors
+   94% -> 92%. The `stack` transformation is 2/5 -> 1/5, which is one sample and
+   points the wrong way. Its eval loss is the lowest of the three (0.4004 against
+   v3's 0.4120) and that is **not** evidence: each run's loss is computed on its
+   own 1% split of its own mixture. **Still ship v3.** Full working in
+   `model_improvement/REPORT.md` §3a-iv, raw runs in `model_improvement/v5_eval/`.
 
 **Every training-data intervention has returned nothing; both inference-time
-interventions worked.** That is the shape of the argument, not a run of bad luck:
+interventions worked.** Three such nulls became five with v5, across mixtures
+from 56,668 to 68,058 rows. That is the shape of the argument, not a run of bad
+luck:
 
 | intervention | result |
 | --- | --- |
 | 159 → 253 verified pairs | p = 1.0000 |
 | 2.2% → 6.6% long rows | flat |
+| +8,619 rows of auto-generated optimization data (v5) | p = 0.5811 |
 | defect-aware prompt, no training | **8/55 → 16/55** |
 | `best_of` sampling, no training | **24 → 4 objections**, p = 4.88e-04 |
 

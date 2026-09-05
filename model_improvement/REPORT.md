@@ -437,6 +437,86 @@ The salvageable remainder is **377 rows, not 18,681**, and hand-inspection shows
 even those are mostly describing handled edge cases rather than claiming a
 defect. The field was excluded on purpose, and correctly.
 
+## 3a-iv. The auto-optimization run, and the fifth null result
+
+`models/archive` holds a fourth checkpoint, trained on a mixture named
+`task_mixture_auto_optimization.jsonl`. It finished: 1,053 of 1,053 steps, epoch
+1.0, 10.5 hours on two GPUs, `Training completed` in the log. The traceback at
+the end of `train.log` is a `Directory not empty` failure while saving
+`last_adapter` **after** training ended, not a crash during it; `best_adapter`
+is complete, is step 1000, and merged without complaint.
+
+### What it trained on cannot be verified from this checkout
+
+The source file is 68,058 rows — 67,377 train plus a 681-row validation split.
+That is v4's mixture (59,439) plus **8,619 rows**, and no builder in this
+repository emits a file by that name. The mixture itself is on Kaggle, not here.
+
+So the composition of the change is unknown. This is worth fixing before the
+next run rather than after: every earlier row count in this report can be traced
+to a script and a seed, and this one cannot.
+
+### Measured on this machine, against same-machine baselines
+
+The trap from §3a-iii applies and was avoided: `test_results/hard_examples.md`
+and `test_results/seed_annotation.json` were measured on the Mac and are not
+baselines for anything here. The comparisons below use `v3_eval/` and
+`v4_eval/`, both measured on this Linux box.
+
+`probe_optimization.py` gained a second phase since v3 and v4 ran, so their
+saved runs hold only the 68 phase-1 cells. Those 68 are paired exactly —
+same sample, same wording, same naming strategy, same draw — and the rest of
+v5's 272 records are dropped rather than compared against nothing.
+
+| | v3 | v4 | **v5** | v3 → v5 |
+| --- | ---: | ---: | ---: | --- |
+| rewrote the algorithm (68 paired cells) | 29/68 | 34/68 | **32/68** | +8 −5, **p = 0.5811** |
+| — `table` | 5/5 | 4/5 | 5/5 | |
+| — `accumulator` | 5/7 | 7/7 | 7/7 | |
+| — **`stack`** | 2/5 | 2/5 | **1/5** | |
+| problems named (`eval_hard`, 55) | 11/55 | 10/55 | **11/55** | +2 −1, **p = 1.0000** |
+| confidently false answers (20) | 6/20 | 9/20 | 7/20 | +1 −0, p = 1.0000 |
+| truncated (seed set, 20) | 0/20 | 1/20 | 1/20 | p = 1.0000 |
+| false recursion claims (20) | 1/20 | 1/20 | 1/20 | p = 1.0000 |
+| anchors on a real line | 94% | 95% | 92% | flat |
+
+Every p-value is McNemar exact on the paired items, which is the only test the
+design supports: the same programs, the same prompts, `temperature: 0`.
+
+**Nothing moved.** The one cell that looks like a change is `stack` going 2/5 to
+1/5, which is one sample out of five and points the wrong way anyway.
+
+### The eval loss is the number most likely to be misread
+
+    v3  0.4120     v4  0.4076     v5  0.4004
+
+That is a monotone decrease across three runs, and it means nothing here. Each
+figure is computed on a different 1% validation split of a different mixture, so
+the three are not measuring the same thing. Held-out loss on your own mixture
+falls when you add rows the model finds easy; it is not evidence about behaviour
+on code the model has never seen, which is what every row of the table above
+measures.
+
+### What five null results in a row say
+
+The count in §3a-iii was three. It is now five, and the shape has not changed:
+
+| intervention | result |
+| --- | --- |
+| 159 → 253 verified pairs | p = 1.0000 |
+| 2.2% → 6.6% long rows | flat |
+| +8,619 rows of auto-generated optimization data | **p = 0.5811** |
+| defect-aware prompt, no training | **8/55 → 16/55** |
+| `best_of` sampling, no training | **24 → 4 objections**, p = 4.88e-04 |
+
+Both interventions that worked were at inference time and cost no GPU hours.
+Every intervention that added training data has returned nothing measurable,
+across four mixtures spanning 56,668 to 68,058 rows. That is the finding, and it
+is a stronger one than another checkpoint would have been.
+
+**Ship v3.** It remains the best-measured checkpoint, and v5 gives no reason to
+move.
+
 ## 4. What to do
 
 1. **Apply `assume_nothing` to the served instruction**, after confirming it on

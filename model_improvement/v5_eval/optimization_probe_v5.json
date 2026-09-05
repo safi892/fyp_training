@@ -1,0 +1,4825 @@
+[
+  {
+    "sample": "fibonacci",
+    "difficulty": "easy",
+    "kind": "table",
+    "draw": 0,
+    "phrasing": "trained_wording",
+    "strategy": "original",
+    "verdict": "ITERATIVE (no table)",
+    "wanted": [
+      "MEMOISED",
+      "TABULATED"
+    ],
+    "signals": [
+      "has a loop"
+    ],
+    "json_ok": true,
+    "improved_code": "int fib(int n)\n{\n  if (n <= 1)\n    return n;\n\n  int a = 0, b = 1;\n  for (int i = 2; i <= n; ++i) {\n    int c = a + b;\n    a = b;\n    b = c;\n  }\n  return b;\n}"
+  },
+  {
+    "sample": "fibonacci",
+    "difficulty": "easy",
+    "kind": "table",
+    "draw": 0,
+    "phrasing": "explicit_faster",
+    "strategy": "original",
+    "verdict": "ITERATIVE (no table)",
+    "wanted": [
+      "MEMOISED",
+      "TABULATED"
+    ],
+    "signals": [
+      "has a loop"
+    ],
+    "json_ok": true,
+    "improved_code": "int fib(int n)\n{\n  if (n <= 1)\n    return n;\n\n  int a = 0, b = 1;\n  for (int i = 2; i <= n; ++i) {\n    int c = a + b;\n    a = b;\n    b = c;\n  }\n  return b;\n}"
+  },
+  {
+    "sample": "fibonacci",
+    "difficulty": "easy",
+    "kind": "table",
+    "draw": 0,
+    "phrasing": "explicit_memo",
+    "strategy": "original",
+    "verdict": "TABULATED (bottom-up)",
+    "wanted": [
+      "MEMOISED",
+      "TABULATED"
+    ],
+    "signals": [
+      "stores results",
+      "has a loop"
+    ],
+    "json_ok": true,
+    "improved_code": "int fib(int n)\n{\n  if (n <= 1)\n    return n;\n\n  std::vector<int> dp(n + 1);\n  dp[0] = 0;\n  dp[1] = 1;\n\n  for (int i = 2; i <= n; ++i) {\n    dp[i] = dp[i - 1] + dp[i - 2];\n  }\n\n  return dp[n];\n}"
+  },
+  {
+    "sample": "fibonacci",
+    "difficulty": "easy",
+    "kind": "table",
+    "draw": 0,
+    "phrasing": "explicit_loop",
+    "strategy": "original",
+    "verdict": "ITERATIVE (no table)",
+    "wanted": [
+      "MEMOISED",
+      "TABULATED"
+    ],
+    "signals": [
+      "has a loop"
+    ],
+    "json_ok": true,
+    "improved_code": "int fib(int n)\n{\n  int a = 0, b = 1;\n  for (int i = 2; i <= n; ++i) {\n    int c = a + b;\n    a = b;\n    b = c;\n  }\n  return b;\n}"
+  },
+  {
+    "sample": "grid_paths",
+    "difficulty": "medium",
+    "kind": "table",
+    "draw": 0,
+    "phrasing": "trained_wording",
+    "strategy": "original",
+    "verdict": "unchanged algorithm",
+    "wanted": [
+      "MEMOISED",
+      "TABULATED"
+    ],
+    "signals": [
+      "still recursive"
+    ],
+    "json_ok": true,
+    "improved_code": "int paths(int rows, int cols)\n{\n    // Base case: only one way to reach the top\u2011left cell.\n    if (rows == 1 || cols == 1)\n        return 1;\n\n    // Recursive case: sum of paths from the cell above and to the left.\n    return paths(rows - 1, cols) + paths(rows, cols - 1);\n}"
+  },
+  {
+    "sample": "grid_paths",
+    "difficulty": "medium",
+    "kind": "table",
+    "draw": 0,
+    "phrasing": "explicit_faster",
+    "strategy": "original",
+    "verdict": "TABULATED (bottom-up)",
+    "wanted": [
+      "MEMOISED",
+      "TABULATED"
+    ],
+    "signals": [
+      "stores results",
+      "has a loop"
+    ],
+    "json_ok": true,
+    "improved_code": "int paths(int rows, int cols)\n{\n    if (rows == 1 || cols == 1)\n        return 1;\n\n    int dp[rows + 1][cols + 1];\n    for (int i = 0; i <= rows; ++i)\n        std::fill(dp[i], dp[i] + cols + 1, 0);\n\n    dp[1][1] = 1;\n    for (int i = 1; i <= rows; ++i)\n        for (int j = 1; j <= cols; ++j)\n            dp[i][j] = dp[i - 1][j] + dp[i][j - 1];\n\n    return dp[rows][cols];\n}"
+  },
+  {
+    "sample": "grid_paths",
+    "difficulty": "medium",
+    "kind": "table",
+    "draw": 0,
+    "phrasing": "explicit_memo",
+    "strategy": "original",
+    "verdict": "TABULATED (bottom-up)",
+    "wanted": [
+      "MEMOISED",
+      "TABULATED"
+    ],
+    "signals": [
+      "stores results",
+      "has a loop"
+    ],
+    "json_ok": true,
+    "improved_code": "int paths(int rows, int cols)\n{\n    // Base case: only one way to reach the top\u2011left cell.\n    if (rows == 1 || cols == 1)\n        return 1;\n\n    // Memoization table: dp[i][j] stores the number of paths to cell (i, j).\n    std::vector<std::vector<int>> dp(rows + 1, std::vector<int>(cols + 1, 0));\n\n    // Fill the table using the original recursive logic.\n    for (int i = 1; i <= rows; ++i)\n        for (int j = 1; j <= cols; ++j)\n            dp[i][j] = dp[i - 1][j] + dp[i][j - 1];\n\n    // Return the entry for the target cell.\n    return dp[rows][cols];\n}"
+  },
+  {
+    "sample": "grid_paths",
+    "difficulty": "medium",
+    "kind": "table",
+    "draw": 0,
+    "phrasing": "explicit_loop",
+    "strategy": "original",
+    "verdict": "TABULATED (bottom-up)",
+    "wanted": [
+      "MEMOISED",
+      "TABULATED"
+    ],
+    "signals": [
+      "stores results",
+      "has a loop"
+    ],
+    "json_ok": true,
+    "improved_code": "int paths(int rows, int cols)\n{\n    int dp[rows + 1][cols + 1];\n    for (int i = 0; i <= rows; ++i)\n        for (int j = 0; j <= cols; ++j)\n            dp[i][j] = 0;\n\n    for (int i = 1; i <= rows; ++i)\n        for (int j = 1; j <= cols; ++j)\n            dp[i][j] = dp[i - 1][j] + dp[i][j - 1];\n\n    return dp[rows][cols];\n}"
+  },
+  {
+    "sample": "coin_change",
+    "difficulty": "hard",
+    "kind": "table",
+    "draw": 0,
+    "phrasing": "trained_wording",
+    "strategy": "original",
+    "verdict": "TABULATED (bottom-up)",
+    "wanted": [
+      "MEMOISED",
+      "TABULATED"
+    ],
+    "signals": [
+      "stores results",
+      "has a loop"
+    ],
+    "json_ok": true,
+    "improved_code": "int ways(int coins[], int count, int amount)\n{\n    int dp[amount + 1][count + 1];\n    for (int i = 0; i <= amount; ++i)\n        std::fill(dp[i], dp[i] + count + 1, 0);\n\n    for (int i = 0; i <= count; ++i)\n        dp[0][i] = 1;\n\n    for (int i = 1; i <= amount; ++i)\n        for (int j = 1; j <= count; ++j)\n        {\n            dp[i][j] = dp[i][j - 1];\n            if (i >= coins[j - 1])\n                dp[i][j] += dp[i - coins[j - 1]][j - 1];\n        }\n\n    return dp[amount][count];\n}"
+  },
+  {
+    "sample": "coin_change",
+    "difficulty": "hard",
+    "kind": "table",
+    "draw": 0,
+    "phrasing": "explicit_faster",
+    "strategy": "original",
+    "verdict": "TABULATED (bottom-up)",
+    "wanted": [
+      "MEMOISED",
+      "TABULATED"
+    ],
+    "signals": [
+      "stores results",
+      "has a loop"
+    ],
+    "json_ok": true,
+    "improved_code": "int ways(int coins[], int count, int amount)\n{\n    std::vector<std::vector<int>> dp(count + 1, std::vector<int>(amount + 1, 0));\n\n    for (int i = 0; i <= count; ++i)\n    {\n        for (int j = 0; j <= amount; ++j)\n        {\n            if (j == 0)\n                dp[i][j] = 1;\n            else if (i == 0)\n                dp[i][j] = 0;\n            else\n                dp[i][j] = dp[i - 1][j] + (j >= coins[i - 1] ? dp[i][j - coins[i - 1]] : 0);\n        }\n    }\n\n    return dp[count][amount];\n}"
+  },
+  {
+    "sample": "coin_change",
+    "difficulty": "hard",
+    "kind": "table",
+    "draw": 0,
+    "phrasing": "explicit_memo",
+    "strategy": "original",
+    "verdict": "TABULATED (bottom-up)",
+    "wanted": [
+      "MEMOISED",
+      "TABULATED"
+    ],
+    "signals": [
+      "stores results",
+      "has a loop"
+    ],
+    "json_ok": true,
+    "improved_code": "int ways(int coins[], int count, int amount)\n{\n    // DP table: dp[i][j] = number of ways to make amount j using the first i coins\n    std::vector<std::vector<int>> dp(count + 1, std::vector<int>(amount + 1, 0));\n\n    for (int i = 0; i <= count; ++i) {\n        for (int j = 0; j <= amount; ++j) {\n            if (j == 0) {\n                dp[i][j] = 1; // one way: use no coins\n            } else if (i == 0) {\n                dp[i][j] = 0; // no coins left, cannot reach j\n            } else {\n                // ways using the current coin or skipping it\n                dp[i][j] = dp[i - 1][j] + (j >= coins[i - 1] ? dp[i][j - coins[i - 1]] : 0);\n            }\n        }\n    }\n\n    return dp[count][amount];\n}"
+  },
+  {
+    "sample": "coin_change",
+    "difficulty": "hard",
+    "kind": "table",
+    "draw": 0,
+    "phrasing": "explicit_loop",
+    "strategy": "original",
+    "verdict": "unchanged algorithm",
+    "wanted": [
+      "MEMOISED",
+      "TABULATED"
+    ],
+    "signals": [
+      "has a loop",
+      "still recursive"
+    ],
+    "json_ok": true,
+    "improved_code": "int ways(int coins[], int count, int amount)\n{\n    int ways = 0;\n    for (int i = 0; i < count; ++i) {\n        if (coins[i] > amount) continue;\n        ways += ways(coins + i + 1, count - i - 1, amount - coins[i]);\n    }\n    return ways;\n}"
+  },
+  {
+    "sample": "factorial",
+    "difficulty": "easy",
+    "kind": "accumulator",
+    "draw": 0,
+    "phrasing": "trained_wording",
+    "strategy": "original",
+    "verdict": "ITERATIVE (no table)",
+    "wanted": [
+      "ITERATIVE"
+    ],
+    "signals": [
+      "has a loop"
+    ],
+    "json_ok": true,
+    "improved_code": "long long fact(int n)\n{\n    long long result = 1;\n    while (n > 1) {\n        result *= n;\n        --n;\n    }\n    return result;\n}"
+  },
+  {
+    "sample": "factorial",
+    "difficulty": "easy",
+    "kind": "accumulator",
+    "draw": 0,
+    "phrasing": "explicit_faster",
+    "strategy": "original",
+    "verdict": "ITERATIVE (no table)",
+    "wanted": [
+      "ITERATIVE"
+    ],
+    "signals": [
+      "has a loop"
+    ],
+    "json_ok": true,
+    "improved_code": "long long fact(int n)\n{\n  long long result = 1;\n  while (n > 1) {\n    result *= n;\n    --n;\n  }\n  return result;\n}"
+  },
+  {
+    "sample": "factorial",
+    "difficulty": "easy",
+    "kind": "accumulator",
+    "draw": 0,
+    "phrasing": "explicit_memo",
+    "strategy": "original",
+    "verdict": "MEMOISED (top-down)",
+    "wanted": [
+      "ITERATIVE"
+    ],
+    "signals": [
+      "stores results",
+      "still recursive",
+      "static storage"
+    ],
+    "json_ok": true,
+    "improved_code": "long long fact(int n)\n{\n  if (n <= 1)\n    return 1;\n\n  static std::vector<long long> memo;\n  if (memo.empty())\n    memo.resize(n + 1, 0);\n\n  if (memo[n] == 0)\n    memo[n] = n * fact(n - 1);\n\n  return memo[n];\n}"
+  },
+  {
+    "sample": "factorial",
+    "difficulty": "easy",
+    "kind": "accumulator",
+    "draw": 0,
+    "phrasing": "explicit_loop",
+    "strategy": "original",
+    "verdict": "ITERATIVE (no table)",
+    "wanted": [
+      "ITERATIVE"
+    ],
+    "signals": [
+      "has a loop"
+    ],
+    "json_ok": true,
+    "improved_code": "long long fact(int n)\n{\n  long long result = 1;\n  for (int i = 2; i <= n; ++i) {\n    result *= i;\n  }\n  return result;\n}"
+  },
+  {
+    "sample": "array_sum",
+    "difficulty": "easy",
+    "kind": "accumulator",
+    "draw": 0,
+    "phrasing": "trained_wording",
+    "strategy": "original",
+    "verdict": "ITERATIVE (no table)",
+    "wanted": [
+      "ITERATIVE"
+    ],
+    "signals": [
+      "has a loop"
+    ],
+    "json_ok": true,
+    "improved_code": "int total(const int arr[], int n)\n{\n  int sum = 0;\n  for (int i = 0; i < n; ++i)\n    sum += arr[i];\n  return sum;\n}"
+  },
+  {
+    "sample": "array_sum",
+    "difficulty": "easy",
+    "kind": "accumulator",
+    "draw": 0,
+    "phrasing": "explicit_faster",
+    "strategy": "original",
+    "verdict": "ITERATIVE (no table)",
+    "wanted": [
+      "ITERATIVE"
+    ],
+    "signals": [
+      "has a loop"
+    ],
+    "json_ok": true,
+    "improved_code": "int total(const int arr[], int n)\n{\n  int sum = 0;\n  for (int i = 0; i < n; ++i)\n    sum += arr[i];\n  return sum;\n}"
+  },
+  {
+    "sample": "array_sum",
+    "difficulty": "easy",
+    "kind": "accumulator",
+    "draw": 0,
+    "phrasing": "explicit_memo",
+    "strategy": "original",
+    "verdict": "MEMOISED (top-down)",
+    "wanted": [
+      "ITERATIVE"
+    ],
+    "signals": [
+      "stores results",
+      "still recursive",
+      "static storage"
+    ],
+    "json_ok": true,
+    "improved_code": "int total(const int arr[], int n)\n{\n  if (n == 0)\n    return 0;\n\n  // Use a static array to store previously computed results.\n  static std::vector<int> memo;\n  if (memo.empty())\n    memo.resize(n + 1, 0);\n\n  // Return memoized result if available; otherwise compute and store.\n  if (memo[n] == 0)\n    memo[n] = arr[n - 1] + total(arr, n - 1);\n\n  return memo[n];\n}"
+  },
+  {
+    "sample": "array_sum",
+    "difficulty": "easy",
+    "kind": "accumulator",
+    "draw": 0,
+    "phrasing": "explicit_loop",
+    "strategy": "original",
+    "verdict": "ITERATIVE (no table)",
+    "wanted": [
+      "ITERATIVE"
+    ],
+    "signals": [
+      "has a loop"
+    ],
+    "json_ok": true,
+    "improved_code": "int total(const int arr[], int n)\n{\n  int sum = 0;\n  for (int i = 0; i < n; ++i)\n    sum += arr[i];\n  return sum;\n}"
+  },
+  {
+    "sample": "reverse_list",
+    "difficulty": "medium",
+    "kind": "accumulator",
+    "draw": 0,
+    "phrasing": "trained_wording",
+    "strategy": "original",
+    "verdict": "unchanged algorithm",
+    "wanted": [
+      "ITERATIVE"
+    ],
+    "signals": [
+      "still recursive"
+    ],
+    "json_ok": true,
+    "improved_code": "Node* reverse(Node* head, Node* prev = nullptr)\n{\n    if (head == nullptr)\n        return prev;\n\n    auto next = head->next;               // cache next node to avoid repeated dereferencing\n    head->next = prev;                     // reverse link\n    return reverse(next, head);            // recurse with current node as new prev\n}"
+  },
+  {
+    "sample": "reverse_list",
+    "difficulty": "medium",
+    "kind": "accumulator",
+    "draw": 0,
+    "phrasing": "explicit_faster",
+    "strategy": "original",
+    "verdict": "unchanged algorithm",
+    "wanted": [
+      "ITERATIVE"
+    ],
+    "signals": [
+      "still recursive"
+    ],
+    "json_ok": true,
+    "improved_code": "Node* reverse(Node* head, Node* prev = nullptr)\n{\n    if (head == nullptr)\n        return prev;\n\n    auto next = head->next;               // cache next node to avoid repeated dereferencing\n    head->next = prev;                    // reverse link\n    return reverse(next, head);           // recurse with current node as new head\n}"
+  },
+  {
+    "sample": "reverse_list",
+    "difficulty": "medium",
+    "kind": "accumulator",
+    "draw": 0,
+    "phrasing": "explicit_memo",
+    "strategy": "original",
+    "verdict": "unchanged algorithm",
+    "wanted": [
+      "ITERATIVE"
+    ],
+    "signals": [
+      "still recursive"
+    ],
+    "json_ok": true,
+    "improved_code": "Node* reverse(Node* head, Node* prev = nullptr)\n{\n    // Base case: when the list ends, return the accumulated reversed segment.\n    if (head == nullptr)\n        return prev;\n\n    // Store the next node to avoid mutating the original list.\n    auto next = head->next;\n\n    // Reverse the link from the current node to the accumulator.\n    head->next = prev;\n\n    // Recurse with the next node as the new accumulator.\n    return reverse(next, head);\n}"
+  },
+  {
+    "sample": "reverse_list",
+    "difficulty": "medium",
+    "kind": "accumulator",
+    "draw": 0,
+    "phrasing": "explicit_loop",
+    "strategy": "original",
+    "verdict": "ITERATIVE (no table)",
+    "wanted": [
+      "ITERATIVE"
+    ],
+    "signals": [
+      "has a loop"
+    ],
+    "json_ok": true,
+    "improved_code": "Node* reverse(Node* head, Node* prev = nullptr)\n{\n  Node* current = head;\n  while (current != nullptr)\n  {\n    Node* next = current->next;\n    current->next = prev;\n    prev = current;\n    current = next;\n  }\n  return prev;\n}"
+  },
+  {
+    "sample": "inorder_walk",
+    "difficulty": "hard",
+    "kind": "stack",
+    "draw": 0,
+    "phrasing": "trained_wording",
+    "strategy": "original",
+    "verdict": "unchanged algorithm",
+    "wanted": [
+      "ITERATIVE"
+    ],
+    "signals": [
+      "still recursive"
+    ],
+    "json_ok": true,
+    "improved_code": "void inorder(Node* node)\n{\n  if (node == nullptr)\n    return;\n\n  // Recursively traverse left subtree.\n  inorder(node->left);\n\n  // Process the current node.\n  visit(node->value);\n\n  // Recursively traverse right subtree.\n  inorder(node->right);\n}"
+  },
+  {
+    "sample": "inorder_walk",
+    "difficulty": "hard",
+    "kind": "stack",
+    "draw": 0,
+    "phrasing": "explicit_faster",
+    "strategy": "original",
+    "verdict": "unchanged algorithm",
+    "wanted": [
+      "ITERATIVE"
+    ],
+    "signals": [
+      "still recursive"
+    ],
+    "json_ok": true,
+    "improved_code": "void inorder(Node* node)\n{\n  if (node == nullptr)\n    return;\n\n  // Recursively traverse left subtree.\n  inorder(node->left);\n\n  // Process current node.\n  visit(node->value);\n\n  // Recursively traverse right subtree.\n  inorder(node->right);\n}"
+  },
+  {
+    "sample": "inorder_walk",
+    "difficulty": "hard",
+    "kind": "stack",
+    "draw": 0,
+    "phrasing": "explicit_memo",
+    "strategy": "original",
+    "verdict": "ITERATIVE (no table)",
+    "wanted": [
+      "ITERATIVE"
+    ],
+    "signals": [
+      "has a loop"
+    ],
+    "json_ok": true,
+    "improved_code": "void inorder(Node* node)\n{\n  if (node == nullptr)\n    return;\n\n  // Use a stack for iterative inorder traversal to avoid recursion overhead.\n  std::stack<Node*> st;\n  st.push(node);\n\n  while (!st.empty()) {\n    Node* current = st.top();\n    st.pop();\n\n    if (current == nullptr) {\n      continue; // Skip null nodes.\n    }\n\n    // Push right child first so left child is processed before right.\n    if (current->right != nullptr) {\n      st.push(current->right);\n    }\n\n    // Process the node.\n    visit(current->value);\n\n    // Push left child next.\n    if (current->left != nullptr) {\n      st.push(current->left);\n    }\n  }\n}"
+  },
+  {
+    "sample": "inorder_walk",
+    "difficulty": "hard",
+    "kind": "stack",
+    "draw": 0,
+    "phrasing": "explicit_loop",
+    "strategy": "original",
+    "verdict": "ITERATIVE (no table)",
+    "wanted": [
+      "ITERATIVE"
+    ],
+    "signals": [
+      "has a loop"
+    ],
+    "json_ok": true,
+    "improved_code": "void inorder(Node* node)\n{\n  if (node == nullptr)\n    return;\n\n  // Use a loop to traverse the left subtree; this avoids recursion overhead.\n  for (auto* cur = node; cur != nullptr; )\n  {\n    if (cur->left != nullptr)\n    {\n      // Find the rightmost node in the left subtree.\n      for (auto* rightmost = cur->left; rightmost->right != nullptr; rightmost = rightmost->right)\n        ;\n      // Connect the current node to the rightmost node.\n      rightmost->right = cur;\n      // Continue from the left child.\n      cur = cur->left;\n    }\n    else\n    {\n      // No left child: visit the node and move to the right.\n      visit(cur->value);\n      cur = cur->right;\n    }\n  }\n}"
+  },
+  {
+    "sample": "lcs",
+    "difficulty": "hard",
+    "kind": "table",
+    "draw": 0,
+    "phrasing": "trained_wording",
+    "strategy": "original",
+    "verdict": "unchanged algorithm",
+    "wanted": [
+      "MEMOISED",
+      "TABULATED"
+    ],
+    "signals": [
+      "still recursive"
+    ],
+    "json_ok": true,
+    "improved_code": "int lcs(const char* a, const char* b, int i, int j)\n{\n    // Base case: empty suffix \u2192 no common subsequence\n    if (i == 0 || j == 0)\n        return 0;\n\n    // Characters match \u2192 extend LCS\n    if (a[i - 1] == b[j - 1])\n        return 1 + lcs(a, b, i - 1, j - 1);\n\n    // Characters differ \u2192 choose the best of skipping either prefix\n    return std::max(lcs(a, b, i - 1, j), lcs(a, b, i, j - 1));\n}"
+  },
+  {
+    "sample": "lcs",
+    "difficulty": "hard",
+    "kind": "table",
+    "draw": 0,
+    "phrasing": "explicit_faster",
+    "strategy": "original",
+    "verdict": "unchanged algorithm",
+    "wanted": [
+      "MEMOISED",
+      "TABULATED"
+    ],
+    "signals": [
+      "still recursive"
+    ],
+    "json_ok": true,
+    "improved_code": "int lcs(const char* a, const char* b, int i, int j)\n{\n    // Base case: empty suffix \u2192 no common subsequence\n    if (i == 0 || j == 0)\n        return 0;\n\n    // Characters match \u2192 extend LCS\n    if (a[i - 1] == b[j - 1])\n        return 1 + lcs(a, b, i - 1, j - 1);\n\n    // Characters differ \u2192 choose the best of skipping either prefix\n    return std::max(lcs(a, b, i - 1, j), lcs(a, b, i, j - 1));\n}"
+  },
+  {
+    "sample": "lcs",
+    "difficulty": "hard",
+    "kind": "table",
+    "draw": 0,
+    "phrasing": "explicit_memo",
+    "strategy": "original",
+    "verdict": "MEMOISED (top-down)",
+    "wanted": [
+      "MEMOISED",
+      "TABULATED"
+    ],
+    "signals": [
+      "stores results",
+      "still recursive",
+      "static storage"
+    ],
+    "json_ok": true,
+    "improved_code": "int lcs(const char* a, const char* b, int i, int j)\n{\n    static std::unordered_map<std::pair<int,int>, int> memo;\n    auto key = std::make_pair(i, j);\n    auto it = memo.find(key);\n    if (it != memo.end())\n        return it->second;\n\n    int result;\n    if (i == 0 || j == 0)\n        result = 0;\n    else if (a[i - 1] == b[j - 1])\n        result = 1 + lcs(a, b, i - 1, j - 1);\n    else\n        result = std::max(lcs(a, b, i - 1, j), lcs(a, b, i, j - 1));\n\n    memo[key] = result;\n    return result;\n}"
+  },
+  {
+    "sample": "lcs",
+    "difficulty": "hard",
+    "kind": "table",
+    "draw": 0,
+    "phrasing": "explicit_loop",
+    "strategy": "original",
+    "verdict": "TABULATED (bottom-up)",
+    "wanted": [
+      "MEMOISED",
+      "TABULATED"
+    ],
+    "signals": [
+      "stores results",
+      "has a loop"
+    ],
+    "json_ok": true,
+    "improved_code": "int lcs(const char* a, const char* b, int i, int j)\n{\n    int dp[2][a[0] + 1][b[0] + 1];\n    for (int k = 0; k < 2; ++k)\n        for (int m = 0; m <= a[0]; ++m)\n            for (int n = 0; n <= b[0]; ++n)\n                dp[k][m][n] = 0;\n\n    int cur = 0, prev = 1;\n    for (int k = 0; k <= a[0]; ++k)\n    {\n        int* cur_row = dp[cur][k];\n        int* prev_row = dp[prev][k];\n        for (int m = 0; m <= b[0]; ++m)\n        {\n            if (k == 0 || m == 0)\n                cur_row[m] = 0;\n            else if (a[k - 1] == b[m - 1])\n                cur_row[m] = 1 + prev_row[m - 1];\n            else\n                cur_row[m] = std::max(prev_row[m], cur_row[m - 1]);\n        }\n        std::swap(cur, prev);\n    }\n    return dp[prev][a[0]][b[0]];\n}"
+  },
+  {
+    "sample": "binomial",
+    "difficulty": "medium",
+    "kind": "table",
+    "draw": 0,
+    "phrasing": "trained_wording",
+    "strategy": "original",
+    "verdict": "unchanged algorithm",
+    "wanted": [
+      "MEMOISED",
+      "TABULATED"
+    ],
+    "signals": [
+      "still recursive"
+    ],
+    "json_ok": true,
+    "improved_code": "int choose(int n, int k)\n{\n    // Base case: empty set or full set yields exactly one way.\n    if (k == 0 || k == n)\n        return 1;\n\n    // Recursive case: sum of choosing k elements from n\u20111 and k elements from n\u20111.\n    return choose(n - 1, k - 1) + choose(n - 1, k);\n}"
+  },
+  {
+    "sample": "binomial",
+    "difficulty": "medium",
+    "kind": "table",
+    "draw": 0,
+    "phrasing": "explicit_faster",
+    "strategy": "original",
+    "verdict": "TABULATED (bottom-up)",
+    "wanted": [
+      "MEMOISED",
+      "TABULATED"
+    ],
+    "signals": [
+      "stores results",
+      "has a loop"
+    ],
+    "json_ok": true,
+    "improved_code": "int choose(int n, int k)\n{\n    if (k == 0 || k == n)\n        return 1;\n\n    int memo[n + 1][k + 1];\n    for (int i = 0; i <= n; ++i)\n        std::fill(memo[i], memo[i] + k + 1, 0);\n\n    for (int i = 0; i <= n; ++i)\n        memo[i][0] = 1;\n\n    for (int i = 1; i <= n; ++i)\n        for (int j = 1; j <= k; ++j)\n            memo[i][j] = memo[i - 1][j - 1] + memo[i - 1][j];\n\n    return memo[n][k];\n}"
+  },
+  {
+    "sample": "binomial",
+    "difficulty": "medium",
+    "kind": "table",
+    "draw": 0,
+    "phrasing": "explicit_memo",
+    "strategy": "original",
+    "verdict": "TABULATED (bottom-up)",
+    "wanted": [
+      "MEMOISED",
+      "TABULATED"
+    ],
+    "signals": [
+      "stores results",
+      "has a loop"
+    ],
+    "json_ok": true,
+    "improved_code": "int choose(int n, int k)\n{\n    // Memoization table: dp[i][j] stores the number of ways to choose j elements from i.\n    std::vector<std::vector<int>> dp(n + 1, std::vector<int>(k + 1, 0));\n\n    // Base case: choosing 0 elements from i elements is always 1.\n    for (int i = 0; i <= n; ++i) {\n        dp[i][0] = 1;\n    }\n\n    // Fill the table using the recurrence relation.\n    for (int i = 1; i <= n; ++i) {\n        for (int j = 1; j <= std::min(i, k); ++j) {\n            dp[i][j] = dp[i - 1][j - 1] + dp[i - 1][j];\n        }\n    }\n\n    // Return the result for the full selection.\n    return dp[n][k];\n}"
+  },
+  {
+    "sample": "binomial",
+    "difficulty": "medium",
+    "kind": "table",
+    "draw": 0,
+    "phrasing": "explicit_loop",
+    "strategy": "original",
+    "verdict": "ITERATIVE (no table)",
+    "wanted": [
+      "MEMOISED",
+      "TABULATED"
+    ],
+    "signals": [
+      "has a loop"
+    ],
+    "json_ok": true,
+    "improved_code": "int choose(int n, int k)\n{\n    int result = 0;\n    for (int i = 0; i <= k; ++i)\n        result += std::pow(n - i, k - i) * std::pow(i, i) / std::pow(2, i);\n    return result;\n}"
+  },
+  {
+    "sample": "gcd_euclid",
+    "difficulty": "easy",
+    "kind": "accumulator",
+    "draw": 0,
+    "phrasing": "trained_wording",
+    "strategy": "original",
+    "verdict": "ITERATIVE (no table)",
+    "wanted": [
+      "ITERATIVE"
+    ],
+    "signals": [
+      "has a loop"
+    ],
+    "json_ok": true,
+    "improved_code": "int gcd(int a, int b)\n{\n    while (b != 0) {\n        int temp = b;\n        b = a % b;\n        a = temp;\n    }\n    return a;\n}"
+  },
+  {
+    "sample": "gcd_euclid",
+    "difficulty": "easy",
+    "kind": "accumulator",
+    "draw": 0,
+    "phrasing": "explicit_faster",
+    "strategy": "original",
+    "verdict": "ITERATIVE (no table)",
+    "wanted": [
+      "ITERATIVE"
+    ],
+    "signals": [
+      "has a loop"
+    ],
+    "json_ok": true,
+    "improved_code": "int gcd(int a, int b)\n{\n    while (b != 0)\n    {\n        int temp = a % b;\n        a = b;\n        b = temp;\n    }\n    return a;\n}"
+  },
+  {
+    "sample": "gcd_euclid",
+    "difficulty": "easy",
+    "kind": "accumulator",
+    "draw": 0,
+    "phrasing": "explicit_memo",
+    "strategy": "original",
+    "verdict": "MEMOISED (top-down)",
+    "wanted": [
+      "ITERATIVE"
+    ],
+    "signals": [
+      "stores results",
+      "still recursive"
+    ],
+    "json_ok": true,
+    "improved_code": "int gcd(int a, int b)\n{\n    std::unordered_map<std::pair<int,int>, int> memo;\n    auto helper = [&](int x, int y) -> int {\n        if (y == 0)\n            return x;\n        auto key = {x, y};\n        if (auto it = memo.find(key); it != memo.end())\n            return it->second;\n        int result = helper(y, x % y);\n        memo[key] = result;\n        return result;\n    };\n    return helper(a, b);\n}"
+  },
+  {
+    "sample": "gcd_euclid",
+    "difficulty": "easy",
+    "kind": "accumulator",
+    "draw": 0,
+    "phrasing": "explicit_loop",
+    "strategy": "original",
+    "verdict": "ITERATIVE (no table)",
+    "wanted": [
+      "ITERATIVE"
+    ],
+    "signals": [
+      "has a loop"
+    ],
+    "json_ok": true,
+    "improved_code": "int gcd(int a, int b)\n{\n    while (b != 0) {\n        int temp = b;\n        b = a % b;\n        a = temp;\n    }\n    return a;\n}"
+  },
+  {
+    "sample": "count_digits",
+    "difficulty": "easy",
+    "kind": "accumulator",
+    "draw": 0,
+    "phrasing": "trained_wording",
+    "strategy": "original",
+    "verdict": "ITERATIVE (no table)",
+    "wanted": [
+      "ITERATIVE"
+    ],
+    "signals": [
+      "has a loop"
+    ],
+    "json_ok": true,
+    "improved_code": "int digits(long long n)\n{\n    int count = 0;\n    while (n >= 10) {\n        ++count;\n        n /= 10;\n    }\n    return count + 1;\n}"
+  },
+  {
+    "sample": "count_digits",
+    "difficulty": "easy",
+    "kind": "accumulator",
+    "draw": 0,
+    "phrasing": "explicit_faster",
+    "strategy": "original",
+    "verdict": "ITERATIVE (no table)",
+    "wanted": [
+      "ITERATIVE"
+    ],
+    "signals": [
+      "has a loop"
+    ],
+    "json_ok": true,
+    "improved_code": "int digits(long long n)\n{\n  int count = 0;\n  while (n >= 10) {\n    ++count;\n    n /= 10;\n  }\n  return count + 1;\n}"
+  },
+  {
+    "sample": "count_digits",
+    "difficulty": "easy",
+    "kind": "accumulator",
+    "draw": 0,
+    "phrasing": "explicit_memo",
+    "strategy": "original",
+    "verdict": "TABULATED (bottom-up)",
+    "wanted": [
+      "ITERATIVE"
+    ],
+    "signals": [
+      "stores results",
+      "has a loop",
+      "static storage"
+    ],
+    "json_ok": true,
+    "improved_code": "int digits(long long n)\n{\n    static std::unordered_map<long long, int> memo;\n    auto it = memo.find(n);\n    if (it != memo.end())\n        return it->second;\n\n    int result = 1;\n    while (n >= 10) {\n        n /= 10;\n        ++result;\n    }\n    memo[n] = result;\n    return result;\n}"
+  },
+  {
+    "sample": "count_digits",
+    "difficulty": "easy",
+    "kind": "accumulator",
+    "draw": 0,
+    "phrasing": "explicit_loop",
+    "strategy": "original",
+    "verdict": "ITERATIVE (no table)",
+    "wanted": [
+      "ITERATIVE"
+    ],
+    "signals": [
+      "has a loop"
+    ],
+    "json_ok": true,
+    "improved_code": "int digits(long long n)\n{\n  int count = 0;\n  while (n >= 10) {\n    ++count;\n    n /= 10;\n  }\n  return count + 1;\n}"
+  },
+  {
+    "sample": "binary_search",
+    "difficulty": "medium",
+    "kind": "accumulator",
+    "draw": 0,
+    "phrasing": "trained_wording",
+    "strategy": "original",
+    "verdict": "ITERATIVE (no table)",
+    "wanted": [
+      "ITERATIVE"
+    ],
+    "signals": [
+      "has a loop"
+    ],
+    "json_ok": true,
+    "improved_code": "int search(const int* table, int low, int high, int wanted)\n{\n    while (low <= high) {\n        int probe = low + (high - low) / 2;\n        if (table[probe] == wanted)\n            return probe;\n        if (table[probe] < wanted)\n            low = probe + 1;\n        else\n            high = probe - 1;\n    }\n    return -1;\n}"
+  },
+  {
+    "sample": "binary_search",
+    "difficulty": "medium",
+    "kind": "accumulator",
+    "draw": 0,
+    "phrasing": "explicit_faster",
+    "strategy": "original",
+    "verdict": "ITERATIVE (no table)",
+    "wanted": [
+      "ITERATIVE"
+    ],
+    "signals": [
+      "has a loop"
+    ],
+    "json_ok": true,
+    "improved_code": "int search(const int* table, int low, int high, int wanted)\n{\n  while (low <= high) {\n    int probe = low + (high - low) / 2;\n    if (table[probe] == wanted)\n      return probe;\n    if (table[probe] < wanted)\n      low = probe + 1;\n    else\n      high = probe - 1;\n  }\n  return -1;\n}"
+  },
+  {
+    "sample": "binary_search",
+    "difficulty": "medium",
+    "kind": "accumulator",
+    "draw": 0,
+    "phrasing": "explicit_memo",
+    "strategy": "original",
+    "verdict": "unchanged algorithm",
+    "wanted": [
+      "ITERATIVE"
+    ],
+    "signals": [
+      "still recursive"
+    ],
+    "json_ok": true,
+    "improved_code": "int search(const int* table, int low, int high, int wanted)\n{\n    // Guard against an empty table; early exit avoids undefined behavior.\n    if (low > high)\n        return -1;\n\n    // Use the same midpoint formula to avoid overflow for large ranges.\n    const int probe = low + (high - low) / 2;\n\n    // Base case: found the element.\n    if (table[probe] == wanted)\n        return probe;\n\n    // Element is larger; search the left half.\n    if (table[probe] < wanted)\n        return search(table, probe + 1, high, wanted);\n\n    // Element is smaller; search the right half.\n    return search(table, low, probe - 1, wanted);\n}"
+  },
+  {
+    "sample": "binary_search",
+    "difficulty": "medium",
+    "kind": "accumulator",
+    "draw": 0,
+    "phrasing": "explicit_loop",
+    "strategy": "original",
+    "verdict": "ITERATIVE (no table)",
+    "wanted": [
+      "ITERATIVE"
+    ],
+    "signals": [
+      "has a loop"
+    ],
+    "json_ok": true,
+    "improved_code": "int search(const int* table, int low, int high, int wanted)\n{\n    while (low <= high) {\n        int probe = low + (high - low) / 2;\n        if (table[probe] == wanted)\n            return probe;\n        if (table[probe] < wanted)\n            low = probe + 1;\n        else\n            high = probe - 1;\n    }\n    return -1;\n}"
+  },
+  {
+    "sample": "list_length",
+    "difficulty": "medium",
+    "kind": "accumulator",
+    "draw": 0,
+    "phrasing": "trained_wording",
+    "strategy": "original",
+    "verdict": "ITERATIVE (no table)",
+    "wanted": [
+      "ITERATIVE"
+    ],
+    "signals": [
+      "has a loop"
+    ],
+    "json_ok": true,
+    "improved_code": "int length(Node* head)\n{\n    int len = 0;\n    for (Node* cur = head; cur != nullptr; cur = cur->next)\n        ++len;\n    return len;\n}"
+  },
+  {
+    "sample": "list_length",
+    "difficulty": "medium",
+    "kind": "accumulator",
+    "draw": 0,
+    "phrasing": "explicit_faster",
+    "strategy": "original",
+    "verdict": "ITERATIVE (no table)",
+    "wanted": [
+      "ITERATIVE"
+    ],
+    "signals": [
+      "has a loop"
+    ],
+    "json_ok": true,
+    "improved_code": "int length(Node* head)\n{\n  int len = 0;\n  for (Node* cur = head; cur != nullptr; cur = cur->next)\n    ++len;\n  return len;\n}"
+  },
+  {
+    "sample": "list_length",
+    "difficulty": "medium",
+    "kind": "accumulator",
+    "draw": 0,
+    "phrasing": "explicit_memo",
+    "strategy": "original",
+    "verdict": "MEMOISED (top-down)",
+    "wanted": [
+      "ITERATIVE"
+    ],
+    "signals": [
+      "stores results",
+      "still recursive",
+      "static storage"
+    ],
+    "json_ok": true,
+    "improved_code": "int length(Node* head)\n{\n  if (head == nullptr)\n    return 0;\n\n  static std::unordered_map<Node*, int> memo;\n  auto it = memo.find(head);\n  if (it != memo.end())\n    return it->second;\n\n  const int result = 1 + length(head->next);\n  memo[head] = result;\n  return result;\n}"
+  },
+  {
+    "sample": "list_length",
+    "difficulty": "medium",
+    "kind": "accumulator",
+    "draw": 0,
+    "phrasing": "explicit_loop",
+    "strategy": "original",
+    "verdict": "ITERATIVE (no table)",
+    "wanted": [
+      "ITERATIVE"
+    ],
+    "signals": [
+      "has a loop"
+    ],
+    "json_ok": true,
+    "improved_code": "int length(Node* head)\n{\n  int len = 0;\n  for (Node* cur = head; cur != nullptr; cur = cur->next)\n    ++len;\n  return len;\n}"
+  },
+  {
+    "sample": "preorder_walk",
+    "difficulty": "hard",
+    "kind": "stack",
+    "draw": 0,
+    "phrasing": "trained_wording",
+    "strategy": "original",
+    "verdict": "unchanged algorithm",
+    "wanted": [
+      "ITERATIVE"
+    ],
+    "signals": [
+      "still recursive"
+    ],
+    "json_ok": true,
+    "improved_code": "void preorder(Node* node)\n{\n  if (node == nullptr)\n    return; // empty subtree\n\n  visit(node->value); // process current node\n\n  // Recursively traverse left subtree\n  preorder(node->left);\n\n  // Recursively traverse right subtree\n  preorder(node->right);\n}"
+  },
+  {
+    "sample": "preorder_walk",
+    "difficulty": "hard",
+    "kind": "stack",
+    "draw": 0,
+    "phrasing": "explicit_faster",
+    "strategy": "original",
+    "verdict": "unchanged algorithm",
+    "wanted": [
+      "ITERATIVE"
+    ],
+    "signals": [
+      "still recursive"
+    ],
+    "json_ok": true,
+    "improved_code": "void preorder(Node* node)\n{\n  if (node == nullptr)\n    return;\n\n  // Use a local variable for the visit call to avoid repeated dereferencing.\n  const auto visitNode = node->value;\n  visit(visitNode);\n\n  // Recurse left subtree first to achieve preorder traversal order.\n  preorder(node->left);\n  preorder(node->right);\n}"
+  },
+  {
+    "sample": "preorder_walk",
+    "difficulty": "hard",
+    "kind": "stack",
+    "draw": 0,
+    "phrasing": "explicit_memo",
+    "strategy": "original",
+    "verdict": "MEMOISED (top-down)",
+    "wanted": [
+      "ITERATIVE"
+    ],
+    "signals": [
+      "stores results",
+      "still recursive"
+    ],
+    "json_ok": true,
+    "improved_code": "void preorder(Node* node)\n{\n  if (node == nullptr)\n    return;\n\n  // Memoization table: key = (node, visited) where visited is a bitmask.\n  // The bitmask indicates which children have been visited.\n  std::unordered_map<std::pair<Node*, int>, bool> memo;\n\n  auto visitNode = [&](Node* n) {\n    visit(n->value);\n  };\n\n  auto dfs = [&](Node* n, int visited) -> bool {\n    if (n == nullptr)\n      return false;\n\n    auto key = {n, visited};\n    auto it = memo.find(key);\n    if (it != memo.end())\n      return it->second;\n\n    bool result = true;\n    if ((visited & 1) == 0) {\n      visitNode(n);\n      result &= dfs(n->left, visited | 1);\n    }\n    if ((visited & 2) == 0) {\n      result &= dfs(n->right, visited | 2);\n    }\n    memo[key] = result;\n    return result;\n  };\n\n  dfs(node, 0);\n}"
+  },
+  {
+    "sample": "preorder_walk",
+    "difficulty": "hard",
+    "kind": "stack",
+    "draw": 0,
+    "phrasing": "explicit_loop",
+    "strategy": "original",
+    "verdict": "unchanged algorithm",
+    "wanted": [
+      "ITERATIVE"
+    ],
+    "signals": [
+      "still recursive"
+    ],
+    "json_ok": true,
+    "improved_code": "void preorder(Node* node)\n{\n  if (node == nullptr)\n    return;\n\n  visit(node->value);               // visit current node\n\n  // Recursively process left subtree\n  preorder(node->left);\n\n  // Recursively process right subtree\n  preorder(node->right);\n}"
+  },
+  {
+    "sample": "tree_height",
+    "difficulty": "hard",
+    "kind": "stack",
+    "draw": 0,
+    "phrasing": "trained_wording",
+    "strategy": "original",
+    "verdict": "unchanged algorithm",
+    "wanted": [
+      "ITERATIVE"
+    ],
+    "signals": [
+      "still recursive"
+    ],
+    "json_ok": true,
+    "improved_code": "int height(Node* node)\n{\n    if (node == nullptr)\n        return 0;\n    // Use auto for type deduction and const for read\u2011only access.\n    const auto leftHeight = height(node->left);\n    const auto rightHeight = height(node->right);\n    // Return the larger subtree height plus the current node.\n    return 1 + std::max(leftHeight, rightHeight);\n}"
+  },
+  {
+    "sample": "tree_height",
+    "difficulty": "hard",
+    "kind": "stack",
+    "draw": 0,
+    "phrasing": "explicit_faster",
+    "strategy": "original",
+    "verdict": "unchanged algorithm",
+    "wanted": [
+      "ITERATIVE"
+    ],
+    "signals": [
+      "still recursive"
+    ],
+    "json_ok": true,
+    "improved_code": "int height(Node* node)\n{\n  if (node == nullptr)\n    return 0;\n  // Use a local variable for clarity and potential compiler optimizations.\n  const auto leftHeight = height(node->left);\n  const auto rightHeight = height(node->right);\n  // Return the maximum height of the two subtrees plus one for the current node.\n  return 1 + std::max(leftHeight, rightHeight);\n}"
+  },
+  {
+    "sample": "tree_height",
+    "difficulty": "hard",
+    "kind": "stack",
+    "draw": 0,
+    "phrasing": "explicit_memo",
+    "strategy": "original",
+    "verdict": "MEMOISED (top-down)",
+    "wanted": [
+      "ITERATIVE"
+    ],
+    "signals": [
+      "stores results",
+      "still recursive",
+      "static storage"
+    ],
+    "json_ok": true,
+    "improved_code": "int height(Node* node)\n{\n  if (node == nullptr)\n    return 0;\n\n  // Use a static local to store the computed heights for memoization.\n  static std::unordered_map<Node*, int> memo;\n  auto it = memo.find(node);\n  if (it != memo.end())\n    return it->second;\n\n  const int leftHeight = height(node->left);\n  const int rightHeight = height(node->right);\n  const int maxHeight = 1 + std::max(leftHeight, rightHeight);\n\n  memo[node] = maxHeight; // Cache the result for future calls.\n  return maxHeight;\n}"
+  },
+  {
+    "sample": "tree_height",
+    "difficulty": "hard",
+    "kind": "stack",
+    "draw": 0,
+    "phrasing": "explicit_loop",
+    "strategy": "original",
+    "verdict": "unchanged algorithm",
+    "wanted": [
+      "ITERATIVE"
+    ],
+    "signals": [
+      "still recursive"
+    ],
+    "json_ok": true,
+    "improved_code": "int height(Node* node)\n{\n  if (node == nullptr)\n    return 0;\n\n  int leftHeight = height(node->left);\n  int rightHeight = height(node->right);\n\n  return 1 + std::max(leftHeight, rightHeight);\n}"
+  },
+  {
+    "sample": "quicksort",
+    "difficulty": "hard",
+    "kind": "stack",
+    "draw": 0,
+    "phrasing": "trained_wording",
+    "strategy": "original",
+    "verdict": "unchanged algorithm",
+    "wanted": [
+      "ITERATIVE"
+    ],
+    "signals": [
+      "still recursive"
+    ],
+    "json_ok": true,
+    "improved_code": "void quicksort(int* values, int low, int high)\n{\n    // Guard against invalid ranges; no work needed.\n    if (low >= high)\n        return;\n\n    // Partition the array around a pivot and obtain its index.\n    const int split = partition(values, low, high);\n\n    // Recursively sort the left sub\u2011array.\n    quicksort(values, low, split - 1);\n\n    // Recursively sort the right sub\u2011array.\n    quicksort(values, split + 1, high);\n}"
+  },
+  {
+    "sample": "quicksort",
+    "difficulty": "hard",
+    "kind": "stack",
+    "draw": 0,
+    "phrasing": "explicit_faster",
+    "strategy": "original",
+    "verdict": "unchanged algorithm",
+    "wanted": [
+      "ITERATIVE"
+    ],
+    "signals": [
+      "still recursive"
+    ],
+    "json_ok": true,
+    "improved_code": "void quicksort(int* values, int low, int high)\n{\n    if (low >= high)\n        return;\n\n    // Use a mutable copy to avoid modifying the original array while sorting.\n    int* const arr = values;\n    int split = partition(arr, low, high);\n\n    // Recursively sort the left partition.\n    quicksort(arr, low, split - 1);\n\n    // Recursively sort the right partition.\n    quicksort(arr, split + 1, high);\n}"
+  },
+  {
+    "sample": "quicksort",
+    "difficulty": "hard",
+    "kind": "stack",
+    "draw": 0,
+    "phrasing": "explicit_memo",
+    "strategy": "original",
+    "verdict": "unchanged algorithm",
+    "wanted": [
+      "ITERATIVE"
+    ],
+    "signals": [
+      "still recursive"
+    ],
+    "json_ok": true,
+    "improved_code": "void quicksort(int* values, int low, int high)\n{\n    // Base case: empty or single\u2011element range.\n    if (low >= high)\n        return;\n\n    // Partition the range; the pivot index is returned.\n    const int split = partition(values, low, high);\n\n    // Recursively sort the left sub\u2011array.\n    quicksort(values, low, split - 1);\n\n    // Recursively sort the right sub\u2011array.\n    quicksort(values, split + 1, high);\n}"
+  },
+  {
+    "sample": "quicksort",
+    "difficulty": "hard",
+    "kind": "stack",
+    "draw": 0,
+    "phrasing": "explicit_loop",
+    "strategy": "original",
+    "verdict": "unchanged algorithm",
+    "wanted": [
+      "ITERATIVE"
+    ],
+    "signals": [
+      "has a loop",
+      "still recursive"
+    ],
+    "json_ok": true,
+    "improved_code": "void quicksort(int* values, int low, int high)\n{\n  while (low < high)\n  {\n    int split = partition(values, low, high);\n    quicksort(values, low, split - 1);\n    low = split + 1;\n  }\n}"
+  },
+  {
+    "sample": "flood_fill",
+    "difficulty": "hard",
+    "kind": "stack",
+    "draw": 0,
+    "phrasing": "trained_wording",
+    "strategy": "original",
+    "verdict": "unchanged algorithm",
+    "wanted": [
+      "ITERATIVE"
+    ],
+    "signals": [
+      "still recursive"
+    ],
+    "json_ok": true,
+    "improved_code": "void fill(int** grid, int row, int col, int from, int to)\n{\n  // Guard against invalid indices or non\u2011matching value.\n  if (row < 0 || col < 0 || !grid || !grid[row] || grid[row][col] != from)\n    return;\n\n  // Replace the target cell with the replacement value.\n  grid[row][col] = to;\n\n  // Recursively fill the four adjacent cells.\n  fill(grid, row + 1, col, from, to);\n  fill(grid, row - 1, col, from, to);\n  fill(grid, row, col + 1, from, to);\n  fill(grid, row, col - 1, from, to);\n}"
+  },
+  {
+    "sample": "flood_fill",
+    "difficulty": "hard",
+    "kind": "stack",
+    "draw": 0,
+    "phrasing": "explicit_faster",
+    "strategy": "original",
+    "verdict": "unchanged algorithm",
+    "wanted": [
+      "ITERATIVE"
+    ],
+    "signals": [
+      "still recursive"
+    ],
+    "json_ok": true,
+    "improved_code": "void fill(int** grid, int row, int col, int from, int to)\n{\n  // Guard against invalid indices or non\u2011matching value.\n  if (row < 0 || col < 0 || !grid || !grid[row] || grid[row][col] != from)\n    return;\n\n  // Replace the target cell with the replacement value.\n  grid[row][col] = to;\n\n  // Recursively fill the four orthogonal neighbours.\n  fill(grid, row + 1, col, from, to);\n  fill(grid, row - 1, col, from, to);\n  fill(grid, row, col + 1, from, to);\n  fill(grid, row, col - 1, from, to);\n}"
+  },
+  {
+    "sample": "flood_fill",
+    "difficulty": "hard",
+    "kind": "stack",
+    "draw": 0,
+    "phrasing": "explicit_memo",
+    "strategy": "original",
+    "verdict": "unchanged algorithm",
+    "wanted": [
+      "ITERATIVE"
+    ],
+    "signals": [
+      "still recursive"
+    ],
+    "json_ok": true,
+    "improved_code": "void fill(int** grid, int row, int col, int from, int to)\n{\n  // Guard against invalid indices or non\u2011matching value.\n  if (row < 0 || col < 0 || grid[row][col] != from)\n    return;\n\n  // Store the original value for later restoration.\n  const int original = grid[row][col];\n\n  // Replace the cell with the target value.\n  grid[row][col] = to;\n\n  // Recurse on all four orthogonal neighbours.\n  fill(grid, row + 1, col, from, to);\n  fill(grid, row - 1, col, from, to);\n  fill(grid, row, col + 1, from, to);\n  fill(grid, row, col - 1, from, to);\n\n  // Restore the original value to preserve the original grid.\n  grid[row][col] = original;\n}"
+  },
+  {
+    "sample": "flood_fill",
+    "difficulty": "hard",
+    "kind": "stack",
+    "draw": 0,
+    "phrasing": "explicit_loop",
+    "strategy": "original",
+    "verdict": "unchanged algorithm",
+    "wanted": [
+      "ITERATIVE"
+    ],
+    "signals": [
+      "still recursive"
+    ],
+    "json_ok": true,
+    "improved_code": "void fill(int** grid, int row, int col, int from, int to)\n{\n  // Guard against invalid indices or non\u2011matching value.\n  if (row < 0 || col < 0 || !grid || !grid[row] || grid[row][col] != from)\n    return;\n\n  // Replace the target cell with the replacement value.\n  grid[row][col] = to;\n\n  // Recursively fill the four orthogonal neighbours.\n  fill(grid, row + 1, col, from, to);\n  fill(grid, row - 1, col, from, to);\n  fill(grid, row, col + 1, from, to);\n  fill(grid, row, col - 1, from, to);\n}"
+  },
+  {
+    "sample": "fibonacci",
+    "difficulty": "easy",
+    "kind": "table",
+    "draw": 0,
+    "phrasing": "explicit_memo",
+    "strategy": "clear",
+    "verdict": "TABULATED (bottom-up)",
+    "wanted": [
+      "MEMOISED",
+      "TABULATED"
+    ],
+    "signals": [
+      "stores results",
+      "has a loop"
+    ],
+    "json_ok": true,
+    "improved_code": "int total(int count)\n{\n  if (count <= 1)\n    return count;\n\n  std::vector<int> dp(count + 1, 0);\n  dp[0] = 0;\n  dp[1] = 1;\n\n  for (int i = 2; i <= count; ++i) {\n    dp[i] = dp[i - 1] + dp[i - 2];\n  }\n\n  return dp[count];\n}"
+  },
+  {
+    "sample": "fibonacci",
+    "difficulty": "easy",
+    "kind": "table",
+    "draw": 1,
+    "phrasing": "explicit_memo",
+    "strategy": "clear",
+    "verdict": "TABULATED (bottom-up)",
+    "wanted": [
+      "MEMOISED",
+      "TABULATED"
+    ],
+    "signals": [
+      "stores results",
+      "has a loop"
+    ],
+    "json_ok": true,
+    "improved_code": "int total(int count)\n{\n  if (count <= 1)\n    return count;\n\n  std::vector<int> dp(count + 1, 0);\n  dp[0] = 0;\n  dp[1] = 1;\n\n  for (int i = 2; i <= count; ++i) {\n    dp[i] = dp[i - 1] + dp[i - 2];\n  }\n\n  return dp[count];\n}"
+  },
+  {
+    "sample": "fibonacci",
+    "difficulty": "easy",
+    "kind": "table",
+    "draw": 2,
+    "phrasing": "explicit_memo",
+    "strategy": "clear",
+    "verdict": "TABULATED (bottom-up)",
+    "wanted": [
+      "MEMOISED",
+      "TABULATED"
+    ],
+    "signals": [
+      "stores results",
+      "has a loop"
+    ],
+    "json_ok": true,
+    "improved_code": "int total(int count)\n{\n  if (count <= 1)\n    return count;\n\n  std::vector<int> dp(count + 1, 0);\n  dp[0] = 0;\n  dp[1] = 1;\n\n  for (int i = 2; i <= count; ++i) {\n    dp[i] = dp[i - 1] + dp[i - 2];\n  }\n\n  return dp[count];\n}"
+  },
+  {
+    "sample": "fibonacci",
+    "difficulty": "easy",
+    "kind": "table",
+    "draw": 0,
+    "phrasing": "explicit_memo",
+    "strategy": "terse",
+    "verdict": "TABULATED (bottom-up)",
+    "wanted": [
+      "MEMOISED",
+      "TABULATED"
+    ],
+    "signals": [
+      "stores results",
+      "has a loop"
+    ],
+    "json_ok": true,
+    "improved_code": "int a(int b)\n{\n  if (b <= 1)\n    return b;\n\n  std::vector<int> dp(b + 1);\n  dp[0] = 0;\n  dp[1] = 1;\n\n  for (int i = 2; i <= b; ++i) {\n    dp[i] = dp[i - 1] + dp[i - 2];\n  }\n\n  return dp[b];\n}"
+  },
+  {
+    "sample": "fibonacci",
+    "difficulty": "easy",
+    "kind": "table",
+    "draw": 1,
+    "phrasing": "explicit_memo",
+    "strategy": "terse",
+    "verdict": "TABULATED (bottom-up)",
+    "wanted": [
+      "MEMOISED",
+      "TABULATED"
+    ],
+    "signals": [
+      "stores results",
+      "has a loop"
+    ],
+    "json_ok": true,
+    "improved_code": "int a(int b)\n{\n  if (b <= 1)\n    return b;\n\n  std::vector<int> dp(b + 1);\n  dp[0] = 0;\n  dp[1] = 1;\n\n  for (int i = 2; i <= b; ++i) {\n    dp[i] = dp[i - 1] + dp[i - 2];\n  }\n\n  return dp[b];\n}"
+  },
+  {
+    "sample": "fibonacci",
+    "difficulty": "easy",
+    "kind": "table",
+    "draw": 2,
+    "phrasing": "explicit_memo",
+    "strategy": "terse",
+    "verdict": "TABULATED (bottom-up)",
+    "wanted": [
+      "MEMOISED",
+      "TABULATED"
+    ],
+    "signals": [
+      "stores results",
+      "has a loop"
+    ],
+    "json_ok": true,
+    "improved_code": "int a(int b)\n{\n  if (b <= 1)\n    return b;\n\n  std::vector<int> dp(b + 1);\n  dp[0] = 0;\n  dp[1] = 1;\n\n  for (int i = 2; i <= b; ++i) {\n    dp[i] = dp[i - 1] + dp[i - 2];\n  }\n\n  return dp[b];\n}"
+  },
+  {
+    "sample": "fibonacci",
+    "difficulty": "easy",
+    "kind": "table",
+    "draw": 0,
+    "phrasing": "explicit_memo",
+    "strategy": "misleading",
+    "verdict": "TABULATED (bottom-up)",
+    "wanted": [
+      "MEMOISED",
+      "TABULATED"
+    ],
+    "signals": [
+      "stores results",
+      "has a loop"
+    ],
+    "json_ok": true,
+    "improved_code": "int product(int average)\n{\n    if (average <= 1)\n        return average;\n\n    std::vector<int> dp(average + 1, 0);\n    dp[0] = 0;\n    dp[1] = 1;\n\n    for (int i = 2; i <= average; ++i) {\n        dp[i] = dp[i - 1] + dp[i - 2];\n    }\n\n    return dp[average];\n}"
+  },
+  {
+    "sample": "fibonacci",
+    "difficulty": "easy",
+    "kind": "table",
+    "draw": 1,
+    "phrasing": "explicit_memo",
+    "strategy": "misleading",
+    "verdict": "TABULATED (bottom-up)",
+    "wanted": [
+      "MEMOISED",
+      "TABULATED"
+    ],
+    "signals": [
+      "stores results",
+      "has a loop"
+    ],
+    "json_ok": true,
+    "improved_code": "int product(int average)\n{\n    if (average <= 1)\n        return average;\n\n    std::vector<int> dp(average + 1, 0);\n    dp[0] = 0;\n    dp[1] = 1;\n\n    for (int i = 2; i <= average; ++i) {\n        dp[i] = dp[i - 1] + dp[i - 2];\n    }\n\n    return dp[average];\n}"
+  },
+  {
+    "sample": "fibonacci",
+    "difficulty": "easy",
+    "kind": "table",
+    "draw": 2,
+    "phrasing": "explicit_memo",
+    "strategy": "misleading",
+    "verdict": "TABULATED (bottom-up)",
+    "wanted": [
+      "MEMOISED",
+      "TABULATED"
+    ],
+    "signals": [
+      "stores results",
+      "has a loop"
+    ],
+    "json_ok": true,
+    "improved_code": "int product(int average)\n{\n    if (average <= 1)\n        return average;\n\n    std::vector<int> dp(average + 1, 0);\n    dp[0] = 0;\n    dp[1] = 1;\n\n    for (int i = 2; i <= average; ++i) {\n        dp[i] = dp[i - 1] + dp[i - 2];\n    }\n\n    return dp[average];\n}"
+  },
+  {
+    "sample": "fibonacci",
+    "difficulty": "easy",
+    "kind": "table",
+    "draw": 0,
+    "phrasing": "explicit_memo",
+    "strategy": "noise",
+    "verdict": "MEMOISED (top-down)",
+    "wanted": [
+      "MEMOISED",
+      "TABULATED"
+    ],
+    "signals": [
+      "stores results",
+      "still recursive",
+      "static storage"
+    ],
+    "json_ok": true,
+    "improved_code": "int lllIII(int IllIlI)\n{\n  if (IllIlI <= 1)\n    return IllIlI;\n\n  // Use a static array to store previously computed results.\n  static std::vector<int> memo;\n  if (memo.empty())\n    memo.reserve(100); // Initial capacity; can be adjusted as needed.\n\n  // Lookup the result using memoization.\n  auto it = memo.find(IllIlI);\n  if (it != memo.end())\n    return it->second;\n\n  // Compute the value and store it in the memoization table.\n  int result = lllIII(IllIlI - 1) + lllIII(IllIlI - 2);\n  memo[IllIlI] = result;\n  return result;\n}"
+  },
+  {
+    "sample": "fibonacci",
+    "difficulty": "easy",
+    "kind": "table",
+    "draw": 1,
+    "phrasing": "explicit_memo",
+    "strategy": "noise",
+    "verdict": "MEMOISED (top-down)",
+    "wanted": [
+      "MEMOISED",
+      "TABULATED"
+    ],
+    "signals": [
+      "stores results",
+      "still recursive",
+      "static storage"
+    ],
+    "json_ok": true,
+    "improved_code": "int lllIII(int IllIlI)\n{\n  if (IllIlI <= 1)\n    return IllIlI;\n\n  // Use a static array to store previously computed results.\n  static std::vector<int> memo;\n  if (memo.empty())\n    memo.reserve(100); // Initial capacity; can be adjusted as needed.\n\n  // Lookup the result using memoization.\n  auto it = memo.find(IllIlI);\n  if (it != memo.end())\n    return it->second;\n\n  // Compute the value and store it in the memoization table.\n  int result = lllIII(IllIlI - 1) + lllIII(IllIlI - 2);\n  memo[IllIlI] = result;\n  return result;\n}"
+  },
+  {
+    "sample": "fibonacci",
+    "difficulty": "easy",
+    "kind": "table",
+    "draw": 2,
+    "phrasing": "explicit_memo",
+    "strategy": "noise",
+    "verdict": "MEMOISED (top-down)",
+    "wanted": [
+      "MEMOISED",
+      "TABULATED"
+    ],
+    "signals": [
+      "stores results",
+      "still recursive",
+      "static storage"
+    ],
+    "json_ok": true,
+    "improved_code": "int lllIII(int IllIlI)\n{\n  if (IllIlI <= 1)\n    return IllIlI;\n\n  // Use a static array to store previously computed results.\n  static std::vector<int> memo;\n  if (memo.empty())\n    memo.reserve(100); // Initial capacity; can be adjusted as needed.\n\n  // Lookup the result using memoization.\n  auto it = memo.find(IllIlI);\n  if (it != memo.end())\n    return it->second;\n\n  // Compute the value and store it in the memoization table.\n  int result = lllIII(IllIlI - 1) + lllIII(IllIlI - 2);\n  memo[IllIlI] = result;\n  return result;\n}"
+  },
+  {
+    "sample": "grid_paths",
+    "difficulty": "medium",
+    "kind": "table",
+    "draw": 0,
+    "phrasing": "explicit_memo",
+    "strategy": "clear",
+    "verdict": "MEMOISED (top-down)",
+    "wanted": [
+      "MEMOISED",
+      "TABULATED"
+    ],
+    "signals": [
+      "stores results",
+      "still recursive",
+      "static storage"
+    ],
+    "json_ok": true,
+    "improved_code": "int total(int count, int index)\n{\n    static std::unordered_map<std::pair<int,int>, int> memo;\n    auto key = std::make_pair(count, index);\n    auto it = memo.find(key);\n    if (it != memo.end())\n        return it->second;\n\n    int result;\n    if (count == 1 || index == 1)\n        result = 1;\n    else\n        result = total(count - 1, index) + total(count, index - 1);\n\n    memo[key] = result;\n    return result;\n}"
+  },
+  {
+    "sample": "grid_paths",
+    "difficulty": "medium",
+    "kind": "table",
+    "draw": 1,
+    "phrasing": "explicit_memo",
+    "strategy": "clear",
+    "verdict": "MEMOISED (top-down)",
+    "wanted": [
+      "MEMOISED",
+      "TABULATED"
+    ],
+    "signals": [
+      "stores results",
+      "still recursive",
+      "static storage"
+    ],
+    "json_ok": true,
+    "improved_code": "int total(int count, int index)\n{\n    static std::unordered_map<std::pair<int,int>, int> memo;\n    auto key = std::make_pair(count, index);\n    auto it = memo.find(key);\n    if (it != memo.end())\n        return it->second;\n\n    int result;\n    if (count == 1 || index == 1)\n        result = 1;\n    else\n        result = total(count - 1, index) + total(count, index - 1);\n\n    memo[key] = result;\n    return result;\n}"
+  },
+  {
+    "sample": "grid_paths",
+    "difficulty": "medium",
+    "kind": "table",
+    "draw": 2,
+    "phrasing": "explicit_memo",
+    "strategy": "clear",
+    "verdict": "MEMOISED (top-down)",
+    "wanted": [
+      "MEMOISED",
+      "TABULATED"
+    ],
+    "signals": [
+      "stores results",
+      "still recursive",
+      "static storage"
+    ],
+    "json_ok": true,
+    "improved_code": "int total(int count, int index)\n{\n    static std::unordered_map<std::pair<int,int>, int> memo;\n    auto key = std::make_pair(count, index);\n    auto it = memo.find(key);\n    if (it != memo.end())\n        return it->second;\n\n    int result;\n    if (count == 1 || index == 1)\n        result = 1;\n    else\n        result = total(count - 1, index) + total(count, index - 1);\n\n    memo[key] = result;\n    return result;\n}"
+  },
+  {
+    "sample": "grid_paths",
+    "difficulty": "medium",
+    "kind": "table",
+    "draw": 0,
+    "phrasing": "explicit_memo",
+    "strategy": "terse",
+    "verdict": "MEMOISED (top-down)",
+    "wanted": [
+      "MEMOISED",
+      "TABULATED"
+    ],
+    "signals": [
+      "stores results",
+      "still recursive"
+    ],
+    "json_ok": true,
+    "improved_code": "int a(int b, int c)\n{\n    // Memoization table: dp[i][j] stores the result for (i, j)\n    std::vector<std::vector<int>> dp(b + 1, std::vector<int>(c + 1, 0));\n\n    // Helper function that fills the table\n    auto fill = [&](int i, int j) -> int {\n        if (i == 1 || j == 1)\n            return 1;\n        if (dp[i][j] == 0)\n            dp[i][j] = fill(i - 1, j) + fill(i, j - 1);\n        return dp[i][j];\n    };\n\n    return fill(b, c);\n}"
+  },
+  {
+    "sample": "grid_paths",
+    "difficulty": "medium",
+    "kind": "table",
+    "draw": 1,
+    "phrasing": "explicit_memo",
+    "strategy": "terse",
+    "verdict": "MEMOISED (top-down)",
+    "wanted": [
+      "MEMOISED",
+      "TABULATED"
+    ],
+    "signals": [
+      "stores results",
+      "still recursive"
+    ],
+    "json_ok": true,
+    "improved_code": "int a(int b, int c)\n{\n    // Memoization table: dp[i][j] stores the result for (i, j)\n    std::vector<std::vector<int>> dp(b + 1, std::vector<int>(c + 1, 0));\n\n    // Helper function that fills the table\n    auto fill = [&](int i, int j) -> int {\n        if (i == 1 || j == 1)\n            return 1;\n        if (dp[i][j] == 0)\n            dp[i][j] = fill(i - 1, j) + fill(i, j - 1);\n        return dp[i][j];\n    };\n\n    return fill(b, c);\n}"
+  },
+  {
+    "sample": "grid_paths",
+    "difficulty": "medium",
+    "kind": "table",
+    "draw": 2,
+    "phrasing": "explicit_memo",
+    "strategy": "terse",
+    "verdict": "MEMOISED (top-down)",
+    "wanted": [
+      "MEMOISED",
+      "TABULATED"
+    ],
+    "signals": [
+      "stores results",
+      "still recursive"
+    ],
+    "json_ok": true,
+    "improved_code": "int a(int b, int c)\n{\n    // Memoization table: dp[i][j] stores the result for (i, j)\n    std::vector<std::vector<int>> dp(b + 1, std::vector<int>(c + 1, 0));\n\n    // Helper function that fills the table\n    auto fill = [&](int i, int j) -> int {\n        if (i == 1 || j == 1)\n            return 1;\n        if (dp[i][j] == 0)\n            dp[i][j] = fill(i - 1, j) + fill(i, j - 1);\n        return dp[i][j];\n    };\n\n    return fill(b, c);\n}"
+  },
+  {
+    "sample": "grid_paths",
+    "difficulty": "medium",
+    "kind": "table",
+    "draw": 0,
+    "phrasing": "explicit_memo",
+    "strategy": "misleading",
+    "verdict": "MEMOISED (top-down)",
+    "wanted": [
+      "MEMOISED",
+      "TABULATED"
+    ],
+    "signals": [
+      "stores results",
+      "still recursive"
+    ],
+    "json_ok": true,
+    "improved_code": "int product(int average, int maximum)\n{\n    // Memoization table: dp[i][j] stores the product for (average, maximum) = (i, j)\n    std::vector<std::vector<int>> dp(average + 1, std::vector<int>(maximum + 1, 0));\n\n    // Helper function that fills the table using recursion with memoization\n    auto fill = [&](int a, int b) -> int {\n        if (a == 1 || b == 1)\n            return 1;\n        if (dp[a][b] != 0)\n            return dp[a][b];\n        dp[a][b] = fill(a - 1, b) + fill(a, b - 1);\n        return dp[a][b];\n    };\n\n    return fill(average, maximum);\n}"
+  },
+  {
+    "sample": "grid_paths",
+    "difficulty": "medium",
+    "kind": "table",
+    "draw": 1,
+    "phrasing": "explicit_memo",
+    "strategy": "misleading",
+    "verdict": "MEMOISED (top-down)",
+    "wanted": [
+      "MEMOISED",
+      "TABULATED"
+    ],
+    "signals": [
+      "stores results",
+      "still recursive"
+    ],
+    "json_ok": true,
+    "improved_code": "int product(int average, int maximum)\n{\n    // Memoization table: dp[i][j] stores the product for (average, maximum) = (i, j)\n    std::vector<std::vector<int>> dp(average + 1, std::vector<int>(maximum + 1, 0));\n\n    // Helper function that fills the table using recursion with memoization\n    auto fill = [&](int a, int b) -> int {\n        if (a == 1 || b == 1)\n            return 1;\n        if (dp[a][b] != 0)\n            return dp[a][b];\n        dp[a][b] = fill(a - 1, b) + fill(a, b - 1);\n        return dp[a][b];\n    };\n\n    return fill(average, maximum);\n}"
+  },
+  {
+    "sample": "grid_paths",
+    "difficulty": "medium",
+    "kind": "table",
+    "draw": 2,
+    "phrasing": "explicit_memo",
+    "strategy": "misleading",
+    "verdict": "MEMOISED (top-down)",
+    "wanted": [
+      "MEMOISED",
+      "TABULATED"
+    ],
+    "signals": [
+      "stores results",
+      "still recursive"
+    ],
+    "json_ok": true,
+    "improved_code": "int product(int average, int maximum)\n{\n    // Memoization table: dp[i][j] stores the product for (average, maximum) = (i, j)\n    std::vector<std::vector<int>> dp(average + 1, std::vector<int>(maximum + 1, 0));\n\n    // Helper function that fills the table using recursion with memoization\n    auto fill = [&](int a, int b) -> int {\n        if (a == 1 || b == 1)\n            return 1;\n        if (dp[a][b] != 0)\n            return dp[a][b];\n        dp[a][b] = fill(a - 1, b) + fill(a, b - 1);\n        return dp[a][b];\n    };\n\n    return fill(average, maximum);\n}"
+  },
+  {
+    "sample": "grid_paths",
+    "difficulty": "medium",
+    "kind": "table",
+    "draw": 0,
+    "phrasing": "explicit_memo",
+    "strategy": "noise",
+    "verdict": "MEMOISED (top-down)",
+    "wanted": [
+      "MEMOISED",
+      "TABULATED"
+    ],
+    "signals": [
+      "stores results",
+      "still recursive",
+      "static storage"
+    ],
+    "json_ok": true,
+    "improved_code": "int lllIII(int IllIlI, int l1lIl1)\n{\n    static std::unordered_map<std::pair<int,int>, int> memo;\n    auto key = std::make_pair(IllIlI, l1lIl1);\n    auto it = memo.find(key);\n    if (it != memo.end())\n        return it->second;\n\n    int result;\n    if (IllIlI == 1 || l1lIl1 == 1)\n        result = 1;\n    else\n        result = lllIII(IllIlI - 1, l1lIl1) + lllIII(IllIlI, l1lIl1 - 1);\n\n    memo[key] = result;\n    return result;\n}"
+  },
+  {
+    "sample": "grid_paths",
+    "difficulty": "medium",
+    "kind": "table",
+    "draw": 1,
+    "phrasing": "explicit_memo",
+    "strategy": "noise",
+    "verdict": "MEMOISED (top-down)",
+    "wanted": [
+      "MEMOISED",
+      "TABULATED"
+    ],
+    "signals": [
+      "stores results",
+      "still recursive",
+      "static storage"
+    ],
+    "json_ok": true,
+    "improved_code": "int lllIII(int IllIlI, int l1lIl1)\n{\n    static std::unordered_map<std::pair<int,int>, int> memo;\n    auto key = std::make_pair(IllIlI, l1lIl1);\n    auto it = memo.find(key);\n    if (it != memo.end())\n        return it->second;\n\n    int result;\n    if (IllIlI == 1 || l1lIl1 == 1)\n        result = 1;\n    else\n        result = lllIII(IllIlI - 1, l1lIl1) + lllIII(IllIlI, l1lIl1 - 1);\n\n    memo[key] = result;\n    return result;\n}"
+  },
+  {
+    "sample": "grid_paths",
+    "difficulty": "medium",
+    "kind": "table",
+    "draw": 2,
+    "phrasing": "explicit_memo",
+    "strategy": "noise",
+    "verdict": "MEMOISED (top-down)",
+    "wanted": [
+      "MEMOISED",
+      "TABULATED"
+    ],
+    "signals": [
+      "stores results",
+      "still recursive",
+      "static storage"
+    ],
+    "json_ok": true,
+    "improved_code": "int lllIII(int IllIlI, int l1lIl1)\n{\n    static std::unordered_map<std::pair<int,int>, int> memo;\n    auto key = std::make_pair(IllIlI, l1lIl1);\n    auto it = memo.find(key);\n    if (it != memo.end())\n        return it->second;\n\n    int result;\n    if (IllIlI == 1 || l1lIl1 == 1)\n        result = 1;\n    else\n        result = lllIII(IllIlI - 1, l1lIl1) + lllIII(IllIlI, l1lIl1 - 1);\n\n    memo[key] = result;\n    return result;\n}"
+  },
+  {
+    "sample": "coin_change",
+    "difficulty": "hard",
+    "kind": "table",
+    "draw": 0,
+    "phrasing": "explicit_memo",
+    "strategy": "clear",
+    "verdict": "MEMOISED (top-down)",
+    "wanted": [
+      "MEMOISED",
+      "TABULATED"
+    ],
+    "signals": [
+      "stores results",
+      "still recursive",
+      "static storage"
+    ],
+    "json_ok": true,
+    "improved_code": "int total(int count_1[], int index, int result)\n{\n    static std::unordered_map<std::tuple<int,int,int>, int> memo;\n    auto key = std::make_tuple(index, result);\n    auto it = memo.find(key);\n    if (it != memo.end())\n        return it->second;\n\n    int res = 0;\n    if (result == 0)\n        res = 1;\n    else if (result < 0 || index == 0)\n        res = 0;\n    else\n        res = total(count_1, index - 1, result) + total(count_1, index, result - count_1[index - 1]);\n\n    memo[key] = res;\n    return res;\n}"
+  },
+  {
+    "sample": "coin_change",
+    "difficulty": "hard",
+    "kind": "table",
+    "draw": 1,
+    "phrasing": "explicit_memo",
+    "strategy": "clear",
+    "verdict": "MEMOISED (top-down)",
+    "wanted": [
+      "MEMOISED",
+      "TABULATED"
+    ],
+    "signals": [
+      "stores results",
+      "still recursive",
+      "static storage"
+    ],
+    "json_ok": true,
+    "improved_code": "int total(int count_1[], int index, int result)\n{\n    static std::unordered_map<std::tuple<int,int,int>, int> memo;\n    auto key = std::make_tuple(index, result);\n    auto it = memo.find(key);\n    if (it != memo.end())\n        return it->second;\n\n    int res = 0;\n    if (result == 0)\n        res = 1;\n    else if (result < 0 || index == 0)\n        res = 0;\n    else\n        res = total(count_1, index - 1, result) + total(count_1, index, result - count_1[index - 1]);\n\n    memo[key] = res;\n    return res;\n}"
+  },
+  {
+    "sample": "coin_change",
+    "difficulty": "hard",
+    "kind": "table",
+    "draw": 2,
+    "phrasing": "explicit_memo",
+    "strategy": "clear",
+    "verdict": "MEMOISED (top-down)",
+    "wanted": [
+      "MEMOISED",
+      "TABULATED"
+    ],
+    "signals": [
+      "stores results",
+      "still recursive",
+      "static storage"
+    ],
+    "json_ok": true,
+    "improved_code": "int total(int count_1[], int index, int result)\n{\n    static std::unordered_map<std::tuple<int,int,int>, int> memo;\n    auto key = std::make_tuple(index, result);\n    auto it = memo.find(key);\n    if (it != memo.end())\n        return it->second;\n\n    int res = 0;\n    if (result == 0)\n        res = 1;\n    else if (result < 0 || index == 0)\n        res = 0;\n    else\n        res = total(count_1, index - 1, result) + total(count_1, index, result - count_1[index - 1]);\n\n    memo[key] = res;\n    return res;\n}"
+  },
+  {
+    "sample": "coin_change",
+    "difficulty": "hard",
+    "kind": "table",
+    "draw": 0,
+    "phrasing": "explicit_memo",
+    "strategy": "terse",
+    "verdict": "TABULATED (bottom-up)",
+    "wanted": [
+      "MEMOISED",
+      "TABULATED"
+    ],
+    "signals": [
+      "stores results",
+      "has a loop"
+    ],
+    "json_ok": true,
+    "improved_code": "int a(int b[], int c, int d)\n{\n    // Memoization table: dp[i][j][k] = number of ways to choose j elements from b[0..i] with sum k\n    std::vector<std::vector<std::vector<int>>> dp(b[0] + 1, std::vector<std::vector<int>>(c + 1, std::vector<int>(d + 1, 0)));\n\n    // Base case: empty subset yields one way (sum 0)\n    dp[0][0][0] = 1;\n\n    // Fill the table using the original recurrence\n    for (int i = 0; i <= b[0]; ++i)\n    {\n        for (int j = 0; j <= c; ++j)\n        {\n            for (int k = 0; k <= d; ++k)\n            {\n                if (k == 0)\n                    dp[i][j][k] = 1;\n                else if (k < 0 || j == 0)\n                    dp[i][j][k] = 0;\n                else\n                    dp[i][j][k] = dp[i][j - 1][k] + dp[i][j][k - b[i]];\n            }\n        }\n    }\n\n    return dp[b[0]][c][d];\n}"
+  },
+  {
+    "sample": "coin_change",
+    "difficulty": "hard",
+    "kind": "table",
+    "draw": 1,
+    "phrasing": "explicit_memo",
+    "strategy": "terse",
+    "verdict": "TABULATED (bottom-up)",
+    "wanted": [
+      "MEMOISED",
+      "TABULATED"
+    ],
+    "signals": [
+      "stores results",
+      "has a loop"
+    ],
+    "json_ok": true,
+    "improved_code": "int a(int b[], int c, int d)\n{\n    // Memoization table: dp[i][j][k] = number of ways to choose j elements from b[0..i] with sum k\n    std::vector<std::vector<std::vector<int>>> dp(b[0] + 1, std::vector<std::vector<int>>(c + 1, std::vector<int>(d + 1, 0)));\n\n    // Base case: empty subset yields one way (sum 0)\n    dp[0][0][0] = 1;\n\n    // Fill the table using the original recurrence\n    for (int i = 0; i <= b[0]; ++i)\n    {\n        for (int j = 0; j <= c; ++j)\n        {\n            for (int k = 0; k <= d; ++k)\n            {\n                if (k == 0)\n                    dp[i][j][k] = 1;\n                else if (k < 0 || j == 0)\n                    dp[i][j][k] = 0;\n                else\n                    dp[i][j][k] = dp[i][j - 1][k] + dp[i][j][k - b[i]];\n            }\n        }\n    }\n\n    return dp[b[0]][c][d];\n}"
+  },
+  {
+    "sample": "coin_change",
+    "difficulty": "hard",
+    "kind": "table",
+    "draw": 2,
+    "phrasing": "explicit_memo",
+    "strategy": "terse",
+    "verdict": "TABULATED (bottom-up)",
+    "wanted": [
+      "MEMOISED",
+      "TABULATED"
+    ],
+    "signals": [
+      "stores results",
+      "has a loop"
+    ],
+    "json_ok": true,
+    "improved_code": "int a(int b[], int c, int d)\n{\n    // Memoization table: dp[i][j][k] = number of ways to choose j elements from b[0..i] with sum k\n    std::vector<std::vector<std::vector<int>>> dp(b[0] + 1, std::vector<std::vector<int>>(c + 1, std::vector<int>(d + 1, 0)));\n\n    // Base case: empty subset yields one way (sum 0)\n    dp[0][0][0] = 1;\n\n    // Fill the table using the original recurrence\n    for (int i = 0; i <= b[0]; ++i)\n    {\n        for (int j = 0; j <= c; ++j)\n        {\n            for (int k = 0; k <= d; ++k)\n            {\n                if (k == 0)\n                    dp[i][j][k] = 1;\n                else if (k < 0 || j == 0)\n                    dp[i][j][k] = 0;\n                else\n                    dp[i][j][k] = dp[i][j - 1][k] + dp[i][j][k - b[i]];\n            }\n        }\n    }\n\n    return dp[b[0]][c][d];\n}"
+  },
+  {
+    "sample": "coin_change",
+    "difficulty": "hard",
+    "kind": "table",
+    "draw": 0,
+    "phrasing": "explicit_memo",
+    "strategy": "misleading",
+    "verdict": "unchanged algorithm",
+    "wanted": [
+      "MEMOISED",
+      "TABULATED"
+    ],
+    "signals": [
+      "still recursive"
+    ],
+    "json_ok": true,
+    "improved_code": "int product(int average[], int maximum, int minimum)\n{\n    // Base case: when the smallest element is zero, the product is 1.\n    if (minimum == 0)\n        return 1;\n\n    // Base case: when the smallest element is negative or the maximum is zero,\n    // the product is zero.\n    if (minimum < 0 || maximum == 0)\n        return 0;\n\n    // Recursive case: compute the product for the current state and the next.\n    // The recursion stops when the maximum reaches zero, at which point the\n    // product is 1.\n    return product(average, maximum - 1, minimum) + product(average, maximum, minimum - average[maximum - 1]);\n}"
+  },
+  {
+    "sample": "coin_change",
+    "difficulty": "hard",
+    "kind": "table",
+    "draw": 1,
+    "phrasing": "explicit_memo",
+    "strategy": "misleading",
+    "verdict": "unchanged algorithm",
+    "wanted": [
+      "MEMOISED",
+      "TABULATED"
+    ],
+    "signals": [
+      "still recursive"
+    ],
+    "json_ok": true,
+    "improved_code": "int product(int average[], int maximum, int minimum)\n{\n    // Base case: when the smallest element is zero, the product is 1.\n    if (minimum == 0)\n        return 1;\n\n    // Base case: when the smallest element is negative or the maximum is zero,\n    // the product is zero.\n    if (minimum < 0 || maximum == 0)\n        return 0;\n\n    // Recursive case: compute the product for the current state and the next.\n    // The recursion stops when the maximum reaches zero, at which point the\n    // product is 1.\n    return product(average, maximum - 1, minimum) + product(average, maximum, minimum - average[maximum - 1]);\n}"
+  },
+  {
+    "sample": "coin_change",
+    "difficulty": "hard",
+    "kind": "table",
+    "draw": 2,
+    "phrasing": "explicit_memo",
+    "strategy": "misleading",
+    "verdict": "unchanged algorithm",
+    "wanted": [
+      "MEMOISED",
+      "TABULATED"
+    ],
+    "signals": [
+      "still recursive"
+    ],
+    "json_ok": true,
+    "improved_code": "int product(int average[], int maximum, int minimum)\n{\n    // Base case: when the smallest element is zero, the product is 1.\n    if (minimum == 0)\n        return 1;\n\n    // Base case: when the smallest element is negative or the maximum is zero,\n    // the product is zero.\n    if (minimum < 0 || maximum == 0)\n        return 0;\n\n    // Recursive case: compute the product for the current state and the next.\n    // The recursion stops when the maximum reaches zero, at which point the\n    // product is 1.\n    return product(average, maximum - 1, minimum) + product(average, maximum, minimum - average[maximum - 1]);\n}"
+  },
+  {
+    "sample": "coin_change",
+    "difficulty": "hard",
+    "kind": "table",
+    "draw": 0,
+    "phrasing": "explicit_memo",
+    "strategy": "noise",
+    "verdict": "TABULATED (bottom-up)",
+    "wanted": [
+      "MEMOISED",
+      "TABULATED"
+    ],
+    "signals": [
+      "stores results",
+      "has a loop"
+    ],
+    "json_ok": true,
+    "improved_code": "int lllIII(int IllIlI[], int l1lIl1, int O0OoO0)\n{\n    // Base case: no elements left to choose from.\n    if (O0OoO0 == 0)\n        return 1;\n\n    // Invalid input: cannot pick any element when there are none.\n    if (O0OoO0 < 0 || l1lIl1 == 0)\n        return 0;\n\n    // Memoization table: dp[i][j] stores the number of ways to pick j elements from IllIlI[0..i].\n    std::vector<std::vector<int>> dp(l1lIl1 + 1, std::vector<int>(O0OoO0 + 1, 0));\n\n    // Fill the table using a bottom-up DP approach.\n    for (int i = 0; i <= l1lIl1; ++i)\n    {\n        for (int j = 0; j <= O0OoO0; ++j)\n        {\n            if (j == 0)\n                dp[i][j] = 1; // Base case: only one way to pick 0 elements.\n            else if (j < 0 || i == 0)\n                dp[i][j] = 0; // Invalid state: cannot pick any element when there are none.\n            else\n                dp[i][j] = dp[i - 1][j] + dp[i - 1][j - IllIlI[i - 1]];\n        }\n    }\n\n    return dp[l1lIl1][O0OoO0];\n}"
+  },
+  {
+    "sample": "coin_change",
+    "difficulty": "hard",
+    "kind": "table",
+    "draw": 1,
+    "phrasing": "explicit_memo",
+    "strategy": "noise",
+    "verdict": "TABULATED (bottom-up)",
+    "wanted": [
+      "MEMOISED",
+      "TABULATED"
+    ],
+    "signals": [
+      "stores results",
+      "has a loop"
+    ],
+    "json_ok": true,
+    "improved_code": "int lllIII(int IllIlI[], int l1lIl1, int O0OoO0)\n{\n    // Base case: no elements left to choose from.\n    if (O0OoO0 == 0)\n        return 1;\n\n    // Invalid input: cannot pick any element when there are none.\n    if (O0OoO0 < 0 || l1lIl1 == 0)\n        return 0;\n\n    // Memoization table: dp[i][j] stores the number of ways to pick j elements from IllIlI[0..i].\n    std::vector<std::vector<int>> dp(l1lIl1 + 1, std::vector<int>(O0OoO0 + 1, 0));\n\n    // Fill the table using a bottom-up DP approach.\n    for (int i = 0; i <= l1lIl1; ++i)\n    {\n        for (int j = 0; j <= O0OoO0; ++j)\n        {\n            if (j == 0)\n                dp[i][j] = 1; // Base case: only one way to pick 0 elements.\n            else if (j < 0 || i == 0)\n                dp[i][j] = 0; // Invalid state: cannot pick any element when there are none.\n            else\n                dp[i][j] = dp[i - 1][j] + dp[i - 1][j - IllIlI[i - 1]];\n        }\n    }\n\n    return dp[l1lIl1][O0OoO0];\n}"
+  },
+  {
+    "sample": "coin_change",
+    "difficulty": "hard",
+    "kind": "table",
+    "draw": 2,
+    "phrasing": "explicit_memo",
+    "strategy": "noise",
+    "verdict": "TABULATED (bottom-up)",
+    "wanted": [
+      "MEMOISED",
+      "TABULATED"
+    ],
+    "signals": [
+      "stores results",
+      "has a loop"
+    ],
+    "json_ok": true,
+    "improved_code": "int lllIII(int IllIlI[], int l1lIl1, int O0OoO0)\n{\n    // Base case: no elements left to choose from.\n    if (O0OoO0 == 0)\n        return 1;\n\n    // Invalid input: cannot pick any element when there are none.\n    if (O0OoO0 < 0 || l1lIl1 == 0)\n        return 0;\n\n    // Memoization table: dp[i][j] stores the number of ways to pick j elements from IllIlI[0..i].\n    std::vector<std::vector<int>> dp(l1lIl1 + 1, std::vector<int>(O0OoO0 + 1, 0));\n\n    // Fill the table using a bottom-up DP approach.\n    for (int i = 0; i <= l1lIl1; ++i)\n    {\n        for (int j = 0; j <= O0OoO0; ++j)\n        {\n            if (j == 0)\n                dp[i][j] = 1; // Base case: only one way to pick 0 elements.\n            else if (j < 0 || i == 0)\n                dp[i][j] = 0; // Invalid state: cannot pick any element when there are none.\n            else\n                dp[i][j] = dp[i - 1][j] + dp[i - 1][j - IllIlI[i - 1]];\n        }\n    }\n\n    return dp[l1lIl1][O0OoO0];\n}"
+  },
+  {
+    "sample": "factorial",
+    "difficulty": "easy",
+    "kind": "accumulator",
+    "draw": 0,
+    "phrasing": "explicit_loop",
+    "strategy": "clear",
+    "verdict": "ITERATIVE (no table)",
+    "wanted": [
+      "ITERATIVE"
+    ],
+    "signals": [
+      "has a loop"
+    ],
+    "json_ok": true,
+    "improved_code": "long long total(int count)\n{\n    long long result = 1;\n    while (count > 1) {\n        result *= count;\n        --count;\n    }\n    return result;\n}"
+  },
+  {
+    "sample": "factorial",
+    "difficulty": "easy",
+    "kind": "accumulator",
+    "draw": 1,
+    "phrasing": "explicit_loop",
+    "strategy": "clear",
+    "verdict": "ITERATIVE (no table)",
+    "wanted": [
+      "ITERATIVE"
+    ],
+    "signals": [
+      "has a loop"
+    ],
+    "json_ok": true,
+    "improved_code": "long long total(int count)\n{\n    long long result = 1;\n    while (count > 1) {\n        result *= count;\n        --count;\n    }\n    return result;\n}"
+  },
+  {
+    "sample": "factorial",
+    "difficulty": "easy",
+    "kind": "accumulator",
+    "draw": 2,
+    "phrasing": "explicit_loop",
+    "strategy": "clear",
+    "verdict": "ITERATIVE (no table)",
+    "wanted": [
+      "ITERATIVE"
+    ],
+    "signals": [
+      "has a loop"
+    ],
+    "json_ok": true,
+    "improved_code": "long long total(int count)\n{\n    long long result = 1;\n    while (count > 1) {\n        result *= count;\n        --count;\n    }\n    return result;\n}"
+  },
+  {
+    "sample": "factorial",
+    "difficulty": "easy",
+    "kind": "accumulator",
+    "draw": 0,
+    "phrasing": "explicit_loop",
+    "strategy": "terse",
+    "verdict": "ITERATIVE (no table)",
+    "wanted": [
+      "ITERATIVE"
+    ],
+    "signals": [
+      "has a loop"
+    ],
+    "json_ok": true,
+    "improved_code": "long long a(int b)\n{\n    long long result = 1;\n    while (b > 1) {\n        result *= b;\n        --b;\n    }\n    return result;\n}"
+  },
+  {
+    "sample": "factorial",
+    "difficulty": "easy",
+    "kind": "accumulator",
+    "draw": 1,
+    "phrasing": "explicit_loop",
+    "strategy": "terse",
+    "verdict": "ITERATIVE (no table)",
+    "wanted": [
+      "ITERATIVE"
+    ],
+    "signals": [
+      "has a loop"
+    ],
+    "json_ok": true,
+    "improved_code": "long long a(int b)\n{\n    long long result = 1;\n    while (b > 1) {\n        result *= b;\n        --b;\n    }\n    return result;\n}"
+  },
+  {
+    "sample": "factorial",
+    "difficulty": "easy",
+    "kind": "accumulator",
+    "draw": 2,
+    "phrasing": "explicit_loop",
+    "strategy": "terse",
+    "verdict": "ITERATIVE (no table)",
+    "wanted": [
+      "ITERATIVE"
+    ],
+    "signals": [
+      "has a loop"
+    ],
+    "json_ok": true,
+    "improved_code": "long long a(int b)\n{\n    long long result = 1;\n    while (b > 1) {\n        result *= b;\n        --b;\n    }\n    return result;\n}"
+  },
+  {
+    "sample": "factorial",
+    "difficulty": "easy",
+    "kind": "accumulator",
+    "draw": 0,
+    "phrasing": "explicit_loop",
+    "strategy": "misleading",
+    "verdict": "ITERATIVE (no table)",
+    "wanted": [
+      "ITERATIVE"
+    ],
+    "signals": [
+      "has a loop"
+    ],
+    "json_ok": true,
+    "improved_code": "long long product(int average)\n{\n  long long result = 1;\n  while (average > 1) {\n    result *= average;\n    --average;\n  }\n  return result;\n}"
+  },
+  {
+    "sample": "factorial",
+    "difficulty": "easy",
+    "kind": "accumulator",
+    "draw": 1,
+    "phrasing": "explicit_loop",
+    "strategy": "misleading",
+    "verdict": "ITERATIVE (no table)",
+    "wanted": [
+      "ITERATIVE"
+    ],
+    "signals": [
+      "has a loop"
+    ],
+    "json_ok": true,
+    "improved_code": "long long product(int average)\n{\n  long long result = 1;\n  while (average > 1) {\n    result *= average;\n    --average;\n  }\n  return result;\n}"
+  },
+  {
+    "sample": "factorial",
+    "difficulty": "easy",
+    "kind": "accumulator",
+    "draw": 2,
+    "phrasing": "explicit_loop",
+    "strategy": "misleading",
+    "verdict": "ITERATIVE (no table)",
+    "wanted": [
+      "ITERATIVE"
+    ],
+    "signals": [
+      "has a loop"
+    ],
+    "json_ok": true,
+    "improved_code": "long long product(int average)\n{\n  long long result = 1;\n  while (average > 1) {\n    result *= average;\n    --average;\n  }\n  return result;\n}"
+  },
+  {
+    "sample": "factorial",
+    "difficulty": "easy",
+    "kind": "accumulator",
+    "draw": 0,
+    "phrasing": "explicit_loop",
+    "strategy": "noise",
+    "verdict": "ITERATIVE (no table)",
+    "wanted": [
+      "ITERATIVE"
+    ],
+    "signals": [
+      "has a loop"
+    ],
+    "json_ok": true,
+    "improved_code": "long long lllIII(int IllIlI)\n{\n    long long result = 1;\n    while (IllIlI > 1) {\n        result *= IllIlI;\n        IllIlI--;\n    }\n    return result;\n}"
+  },
+  {
+    "sample": "factorial",
+    "difficulty": "easy",
+    "kind": "accumulator",
+    "draw": 1,
+    "phrasing": "explicit_loop",
+    "strategy": "noise",
+    "verdict": "ITERATIVE (no table)",
+    "wanted": [
+      "ITERATIVE"
+    ],
+    "signals": [
+      "has a loop"
+    ],
+    "json_ok": true,
+    "improved_code": "long long lllIII(int IllIlI)\n{\n    long long result = 1;\n    while (IllIlI > 1) {\n        result *= IllIlI;\n        IllIlI--;\n    }\n    return result;\n}"
+  },
+  {
+    "sample": "factorial",
+    "difficulty": "easy",
+    "kind": "accumulator",
+    "draw": 2,
+    "phrasing": "explicit_loop",
+    "strategy": "noise",
+    "verdict": "ITERATIVE (no table)",
+    "wanted": [
+      "ITERATIVE"
+    ],
+    "signals": [
+      "has a loop"
+    ],
+    "json_ok": true,
+    "improved_code": "long long lllIII(int IllIlI)\n{\n    long long result = 1;\n    while (IllIlI > 1) {\n        result *= IllIlI;\n        IllIlI--;\n    }\n    return result;\n}"
+  },
+  {
+    "sample": "array_sum",
+    "difficulty": "easy",
+    "kind": "accumulator",
+    "draw": 0,
+    "phrasing": "explicit_loop",
+    "strategy": "clear",
+    "verdict": "ITERATIVE (no table)",
+    "wanted": [
+      "ITERATIVE"
+    ],
+    "signals": [
+      "has a loop"
+    ],
+    "json_ok": true,
+    "improved_code": "int total_0(const int count[], int index)\n{\n  int sum = 0;\n  while (index >= 0) {\n    sum += count[index];\n    --index;\n  }\n  return sum;\n}"
+  },
+  {
+    "sample": "array_sum",
+    "difficulty": "easy",
+    "kind": "accumulator",
+    "draw": 1,
+    "phrasing": "explicit_loop",
+    "strategy": "clear",
+    "verdict": "ITERATIVE (no table)",
+    "wanted": [
+      "ITERATIVE"
+    ],
+    "signals": [
+      "has a loop"
+    ],
+    "json_ok": true,
+    "improved_code": "int total_0(const int count[], int index)\n{\n  int sum = 0;\n  while (index >= 0) {\n    sum += count[index];\n    --index;\n  }\n  return sum;\n}"
+  },
+  {
+    "sample": "array_sum",
+    "difficulty": "easy",
+    "kind": "accumulator",
+    "draw": 2,
+    "phrasing": "explicit_loop",
+    "strategy": "clear",
+    "verdict": "ITERATIVE (no table)",
+    "wanted": [
+      "ITERATIVE"
+    ],
+    "signals": [
+      "has a loop"
+    ],
+    "json_ok": true,
+    "improved_code": "int total_0(const int count[], int index)\n{\n  int sum = 0;\n  while (index >= 0) {\n    sum += count[index];\n    --index;\n  }\n  return sum;\n}"
+  },
+  {
+    "sample": "array_sum",
+    "difficulty": "easy",
+    "kind": "accumulator",
+    "draw": 0,
+    "phrasing": "explicit_loop",
+    "strategy": "terse",
+    "verdict": "ITERATIVE (no table)",
+    "wanted": [
+      "ITERATIVE"
+    ],
+    "signals": [
+      "has a loop"
+    ],
+    "json_ok": true,
+    "improved_code": "int a(const int b[], int c)\n{\n  int sum = 0;\n  while (c > 0) {\n    sum += b[c - 1];\n    --c;\n  }\n  return sum;\n}"
+  },
+  {
+    "sample": "array_sum",
+    "difficulty": "easy",
+    "kind": "accumulator",
+    "draw": 1,
+    "phrasing": "explicit_loop",
+    "strategy": "terse",
+    "verdict": "ITERATIVE (no table)",
+    "wanted": [
+      "ITERATIVE"
+    ],
+    "signals": [
+      "has a loop"
+    ],
+    "json_ok": true,
+    "improved_code": "int a(const int b[], int c)\n{\n  int sum = 0;\n  while (c > 0) {\n    sum += b[c - 1];\n    --c;\n  }\n  return sum;\n}"
+  },
+  {
+    "sample": "array_sum",
+    "difficulty": "easy",
+    "kind": "accumulator",
+    "draw": 2,
+    "phrasing": "explicit_loop",
+    "strategy": "terse",
+    "verdict": "ITERATIVE (no table)",
+    "wanted": [
+      "ITERATIVE"
+    ],
+    "signals": [
+      "has a loop"
+    ],
+    "json_ok": true,
+    "improved_code": "int a(const int b[], int c)\n{\n  int sum = 0;\n  while (c > 0) {\n    sum += b[c - 1];\n    --c;\n  }\n  return sum;\n}"
+  },
+  {
+    "sample": "array_sum",
+    "difficulty": "easy",
+    "kind": "accumulator",
+    "draw": 0,
+    "phrasing": "explicit_loop",
+    "strategy": "misleading",
+    "verdict": "ITERATIVE (no table)",
+    "wanted": [
+      "ITERATIVE"
+    ],
+    "signals": [
+      "has a loop"
+    ],
+    "json_ok": true,
+    "improved_code": "int product(const int average[], int maximum)\n{\n    int result = 0;\n    while (maximum > 0) {\n        result += average[maximum - 1];\n        --maximum;\n    }\n    return result;\n}"
+  },
+  {
+    "sample": "array_sum",
+    "difficulty": "easy",
+    "kind": "accumulator",
+    "draw": 1,
+    "phrasing": "explicit_loop",
+    "strategy": "misleading",
+    "verdict": "ITERATIVE (no table)",
+    "wanted": [
+      "ITERATIVE"
+    ],
+    "signals": [
+      "has a loop"
+    ],
+    "json_ok": true,
+    "improved_code": "int product(const int average[], int maximum)\n{\n    int result = 0;\n    while (maximum > 0) {\n        result += average[maximum - 1];\n        --maximum;\n    }\n    return result;\n}"
+  },
+  {
+    "sample": "array_sum",
+    "difficulty": "easy",
+    "kind": "accumulator",
+    "draw": 2,
+    "phrasing": "explicit_loop",
+    "strategy": "misleading",
+    "verdict": "ITERATIVE (no table)",
+    "wanted": [
+      "ITERATIVE"
+    ],
+    "signals": [
+      "has a loop"
+    ],
+    "json_ok": true,
+    "improved_code": "int product(const int average[], int maximum)\n{\n    int result = 0;\n    while (maximum > 0) {\n        result += average[maximum - 1];\n        --maximum;\n    }\n    return result;\n}"
+  },
+  {
+    "sample": "array_sum",
+    "difficulty": "easy",
+    "kind": "accumulator",
+    "draw": 0,
+    "phrasing": "explicit_loop",
+    "strategy": "noise",
+    "verdict": "ITERATIVE (no table)",
+    "wanted": [
+      "ITERATIVE"
+    ],
+    "signals": [
+      "has a loop"
+    ],
+    "json_ok": true,
+    "improved_code": "int lllIII(const int IllIlI[], int l1lIl1)\n{\n  int sum = 0;\n  while (l1lIl1 > 0) {\n    sum += IllIlI[l1lIl1 - 1];\n    --l1lIl1;\n  }\n  return sum;\n}"
+  },
+  {
+    "sample": "array_sum",
+    "difficulty": "easy",
+    "kind": "accumulator",
+    "draw": 1,
+    "phrasing": "explicit_loop",
+    "strategy": "noise",
+    "verdict": "ITERATIVE (no table)",
+    "wanted": [
+      "ITERATIVE"
+    ],
+    "signals": [
+      "has a loop"
+    ],
+    "json_ok": true,
+    "improved_code": "int lllIII(const int IllIlI[], int l1lIl1)\n{\n  int sum = 0;\n  while (l1lIl1 > 0) {\n    sum += IllIlI[l1lIl1 - 1];\n    --l1lIl1;\n  }\n  return sum;\n}"
+  },
+  {
+    "sample": "array_sum",
+    "difficulty": "easy",
+    "kind": "accumulator",
+    "draw": 2,
+    "phrasing": "explicit_loop",
+    "strategy": "noise",
+    "verdict": "ITERATIVE (no table)",
+    "wanted": [
+      "ITERATIVE"
+    ],
+    "signals": [
+      "has a loop"
+    ],
+    "json_ok": true,
+    "improved_code": "int lllIII(const int IllIlI[], int l1lIl1)\n{\n  int sum = 0;\n  while (l1lIl1 > 0) {\n    sum += IllIlI[l1lIl1 - 1];\n    --l1lIl1;\n  }\n  return sum;\n}"
+  },
+  {
+    "sample": "reverse_list",
+    "difficulty": "medium",
+    "kind": "accumulator",
+    "draw": 0,
+    "phrasing": "explicit_loop",
+    "strategy": "clear",
+    "verdict": "ITERATIVE (no table)",
+    "wanted": [
+      "ITERATIVE"
+    ],
+    "signals": [
+      "has a loop"
+    ],
+    "json_ok": true,
+    "improved_code": "Node* total(Node* count, Node* index = nullptr)\n{\n    while (count != nullptr) {\n        Node* result = count->result;\n        count->result = index;\n        index = count;\n        count = result;\n    }\n    return index;\n}"
+  },
+  {
+    "sample": "reverse_list",
+    "difficulty": "medium",
+    "kind": "accumulator",
+    "draw": 1,
+    "phrasing": "explicit_loop",
+    "strategy": "clear",
+    "verdict": "ITERATIVE (no table)",
+    "wanted": [
+      "ITERATIVE"
+    ],
+    "signals": [
+      "has a loop"
+    ],
+    "json_ok": true,
+    "improved_code": "Node* total(Node* count, Node* index = nullptr)\n{\n    while (count != nullptr) {\n        Node* result = count->result;\n        count->result = index;\n        index = count;\n        count = result;\n    }\n    return index;\n}"
+  },
+  {
+    "sample": "reverse_list",
+    "difficulty": "medium",
+    "kind": "accumulator",
+    "draw": 2,
+    "phrasing": "explicit_loop",
+    "strategy": "clear",
+    "verdict": "ITERATIVE (no table)",
+    "wanted": [
+      "ITERATIVE"
+    ],
+    "signals": [
+      "has a loop"
+    ],
+    "json_ok": true,
+    "improved_code": "Node* total(Node* count, Node* index = nullptr)\n{\n    while (count != nullptr) {\n        Node* result = count->result;\n        count->result = index;\n        index = count;\n        count = result;\n    }\n    return index;\n}"
+  },
+  {
+    "sample": "reverse_list",
+    "difficulty": "medium",
+    "kind": "accumulator",
+    "draw": 0,
+    "phrasing": "explicit_loop",
+    "strategy": "terse",
+    "verdict": "ITERATIVE (no table)",
+    "wanted": [
+      "ITERATIVE"
+    ],
+    "signals": [
+      "has a loop"
+    ],
+    "json_ok": true,
+    "improved_code": "Node* a(Node* b, Node* c = nullptr)\n{\n  while (b != nullptr)\n  {\n    Node* d = b->d;\n    b->d = c;\n    c = b;\n    b = d;\n  }\n  return c;\n}"
+  },
+  {
+    "sample": "reverse_list",
+    "difficulty": "medium",
+    "kind": "accumulator",
+    "draw": 1,
+    "phrasing": "explicit_loop",
+    "strategy": "terse",
+    "verdict": "ITERATIVE (no table)",
+    "wanted": [
+      "ITERATIVE"
+    ],
+    "signals": [
+      "has a loop"
+    ],
+    "json_ok": true,
+    "improved_code": "Node* a(Node* b, Node* c = nullptr)\n{\n  while (b != nullptr)\n  {\n    Node* d = b->d;\n    b->d = c;\n    c = b;\n    b = d;\n  }\n  return c;\n}"
+  },
+  {
+    "sample": "reverse_list",
+    "difficulty": "medium",
+    "kind": "accumulator",
+    "draw": 2,
+    "phrasing": "explicit_loop",
+    "strategy": "terse",
+    "verdict": "ITERATIVE (no table)",
+    "wanted": [
+      "ITERATIVE"
+    ],
+    "signals": [
+      "has a loop"
+    ],
+    "json_ok": true,
+    "improved_code": "Node* a(Node* b, Node* c = nullptr)\n{\n  while (b != nullptr)\n  {\n    Node* d = b->d;\n    b->d = c;\n    c = b;\n    b = d;\n  }\n  return c;\n}"
+  },
+  {
+    "sample": "reverse_list",
+    "difficulty": "medium",
+    "kind": "accumulator",
+    "draw": 0,
+    "phrasing": "explicit_loop",
+    "strategy": "misleading",
+    "verdict": "unchanged algorithm",
+    "wanted": [
+      "ITERATIVE"
+    ],
+    "signals": [
+      "still recursive"
+    ],
+    "json_ok": true,
+    "improved_code": "Node* product(Node* average, Node* maximum = nullptr)\n{\n    if (average == nullptr)\n        return maximum;\n\n    auto minimum = average->minimum;\n    average->minimum = maximum;\n    return product(minimum, average);\n}"
+  },
+  {
+    "sample": "reverse_list",
+    "difficulty": "medium",
+    "kind": "accumulator",
+    "draw": 1,
+    "phrasing": "explicit_loop",
+    "strategy": "misleading",
+    "verdict": "unchanged algorithm",
+    "wanted": [
+      "ITERATIVE"
+    ],
+    "signals": [
+      "still recursive"
+    ],
+    "json_ok": true,
+    "improved_code": "Node* product(Node* average, Node* maximum = nullptr)\n{\n    if (average == nullptr)\n        return maximum;\n\n    auto minimum = average->minimum;\n    average->minimum = maximum;\n    return product(minimum, average);\n}"
+  },
+  {
+    "sample": "reverse_list",
+    "difficulty": "medium",
+    "kind": "accumulator",
+    "draw": 2,
+    "phrasing": "explicit_loop",
+    "strategy": "misleading",
+    "verdict": "unchanged algorithm",
+    "wanted": [
+      "ITERATIVE"
+    ],
+    "signals": [
+      "still recursive"
+    ],
+    "json_ok": true,
+    "improved_code": "Node* product(Node* average, Node* maximum = nullptr)\n{\n    if (average == nullptr)\n        return maximum;\n\n    auto minimum = average->minimum;\n    average->minimum = maximum;\n    return product(minimum, average);\n}"
+  },
+  {
+    "sample": "reverse_list",
+    "difficulty": "medium",
+    "kind": "accumulator",
+    "draw": 0,
+    "phrasing": "explicit_loop",
+    "strategy": "noise",
+    "verdict": "unchanged algorithm",
+    "wanted": [
+      "ITERATIVE"
+    ],
+    "signals": [
+      "still recursive"
+    ],
+    "json_ok": true,
+    "improved_code": "Node* lllIII(Node* IllIlI, Node* l1lIl1 = nullptr)\n{\n  if (IllIlI == nullptr)\n    return l1lIl1;\n\n  Node* O0OoO0 = IllIlI->O0OoO0;\n  IllIlI->O0OoO0 = l1lIl1;\n\n  // Recursively swap the next pointer with the current node.\n  return lllIII(O0OoO0, IllIlI);\n}"
+  },
+  {
+    "sample": "reverse_list",
+    "difficulty": "medium",
+    "kind": "accumulator",
+    "draw": 1,
+    "phrasing": "explicit_loop",
+    "strategy": "noise",
+    "verdict": "unchanged algorithm",
+    "wanted": [
+      "ITERATIVE"
+    ],
+    "signals": [
+      "still recursive"
+    ],
+    "json_ok": true,
+    "improved_code": "Node* lllIII(Node* IllIlI, Node* l1lIl1 = nullptr)\n{\n  if (IllIlI == nullptr)\n    return l1lIl1;\n\n  Node* O0OoO0 = IllIlI->O0OoO0;\n  IllIlI->O0OoO0 = l1lIl1;\n\n  // Recursively swap the next pointer with the current node.\n  return lllIII(O0OoO0, IllIlI);\n}"
+  },
+  {
+    "sample": "reverse_list",
+    "difficulty": "medium",
+    "kind": "accumulator",
+    "draw": 2,
+    "phrasing": "explicit_loop",
+    "strategy": "noise",
+    "verdict": "unchanged algorithm",
+    "wanted": [
+      "ITERATIVE"
+    ],
+    "signals": [
+      "still recursive"
+    ],
+    "json_ok": true,
+    "improved_code": "Node* lllIII(Node* IllIlI, Node* l1lIl1 = nullptr)\n{\n  if (IllIlI == nullptr)\n    return l1lIl1;\n\n  Node* O0OoO0 = IllIlI->O0OoO0;\n  IllIlI->O0OoO0 = l1lIl1;\n\n  // Recursively swap the next pointer with the current node.\n  return lllIII(O0OoO0, IllIlI);\n}"
+  },
+  {
+    "sample": "inorder_walk",
+    "difficulty": "hard",
+    "kind": "stack",
+    "draw": 0,
+    "phrasing": "explicit_loop",
+    "strategy": "clear",
+    "verdict": "ITERATIVE (no table)",
+    "wanted": [
+      "ITERATIVE"
+    ],
+    "signals": [
+      "has a loop"
+    ],
+    "json_ok": true,
+    "improved_code": "void total(Node* count)\n{\n  if (count == nullptr)\n    return;\n\n  // Use a loop to traverse the tree in in\u2011order; this avoids recursion overhead.\n  for (Node* cur = count; cur != nullptr; ) {\n    if (cur->left != nullptr) {\n      // Move to the rightmost node of the left subtree.\n      for (Node* rightmost = cur->left; rightmost->right != nullptr; rightmost = rightmost->right);\n      // Link the current node after the rightmost node.\n      rightmost->right = cur;\n      // Continue from the left child.\n      cur = cur->left;\n    } else {\n      // No left child \u2192 visit the node and move to the right child.\n      visit(cur->value);\n      cur = cur->right;\n    }\n  }\n}"
+  },
+  {
+    "sample": "inorder_walk",
+    "difficulty": "hard",
+    "kind": "stack",
+    "draw": 1,
+    "phrasing": "explicit_loop",
+    "strategy": "clear",
+    "verdict": "ITERATIVE (no table)",
+    "wanted": [
+      "ITERATIVE"
+    ],
+    "signals": [
+      "has a loop"
+    ],
+    "json_ok": true,
+    "improved_code": "void total(Node* count)\n{\n  if (count == nullptr)\n    return;\n\n  // Use a loop to traverse the tree in in\u2011order; this avoids recursion overhead.\n  for (Node* cur = count; cur != nullptr; ) {\n    if (cur->left != nullptr) {\n      // Move to the rightmost node of the left subtree.\n      for (Node* rightmost = cur->left; rightmost->right != nullptr; rightmost = rightmost->right);\n      // Link the current node after the rightmost node.\n      rightmost->right = cur;\n      // Continue from the left child.\n      cur = cur->left;\n    } else {\n      // No left child \u2192 visit the node and move to the right child.\n      visit(cur->value);\n      cur = cur->right;\n    }\n  }\n}"
+  },
+  {
+    "sample": "inorder_walk",
+    "difficulty": "hard",
+    "kind": "stack",
+    "draw": 2,
+    "phrasing": "explicit_loop",
+    "strategy": "clear",
+    "verdict": "ITERATIVE (no table)",
+    "wanted": [
+      "ITERATIVE"
+    ],
+    "signals": [
+      "has a loop"
+    ],
+    "json_ok": true,
+    "improved_code": "void total(Node* count)\n{\n  if (count == nullptr)\n    return;\n\n  // Use a loop to traverse the tree in in\u2011order; this avoids recursion overhead.\n  for (Node* cur = count; cur != nullptr; ) {\n    if (cur->left != nullptr) {\n      // Move to the rightmost node of the left subtree.\n      for (Node* rightmost = cur->left; rightmost->right != nullptr; rightmost = rightmost->right);\n      // Link the current node after the rightmost node.\n      rightmost->right = cur;\n      // Continue from the left child.\n      cur = cur->left;\n    } else {\n      // No left child \u2192 visit the node and move to the right child.\n      visit(cur->value);\n      cur = cur->right;\n    }\n  }\n}"
+  },
+  {
+    "sample": "inorder_walk",
+    "difficulty": "hard",
+    "kind": "stack",
+    "draw": 0,
+    "phrasing": "explicit_loop",
+    "strategy": "terse",
+    "verdict": "unchanged algorithm",
+    "wanted": [
+      "ITERATIVE"
+    ],
+    "signals": [
+      "has a loop",
+      "still recursive"
+    ],
+    "json_ok": true,
+    "improved_code": "void a(Node* b)\n{\n  if (b == nullptr)\n    return;\n\n  // Use a loop to traverse the left subtree first.\n  for (Node* cur = b; cur != nullptr; ) {\n    if (cur->left != nullptr) {\n      a(cur->left);\n    }\n    visit(cur->value);\n    cur = cur->right;\n  }\n}"
+  },
+  {
+    "sample": "inorder_walk",
+    "difficulty": "hard",
+    "kind": "stack",
+    "draw": 1,
+    "phrasing": "explicit_loop",
+    "strategy": "terse",
+    "verdict": "unchanged algorithm",
+    "wanted": [
+      "ITERATIVE"
+    ],
+    "signals": [
+      "has a loop",
+      "still recursive"
+    ],
+    "json_ok": true,
+    "improved_code": "void a(Node* b)\n{\n  if (b == nullptr)\n    return;\n\n  // Use a loop to traverse the left subtree first.\n  for (Node* cur = b; cur != nullptr; ) {\n    if (cur->left != nullptr) {\n      a(cur->left);\n    }\n    visit(cur->value);\n    cur = cur->right;\n  }\n}"
+  },
+  {
+    "sample": "inorder_walk",
+    "difficulty": "hard",
+    "kind": "stack",
+    "draw": 2,
+    "phrasing": "explicit_loop",
+    "strategy": "terse",
+    "verdict": "unchanged algorithm",
+    "wanted": [
+      "ITERATIVE"
+    ],
+    "signals": [
+      "has a loop",
+      "still recursive"
+    ],
+    "json_ok": true,
+    "improved_code": "void a(Node* b)\n{\n  if (b == nullptr)\n    return;\n\n  // Use a loop to traverse the left subtree first.\n  for (Node* cur = b; cur != nullptr; ) {\n    if (cur->left != nullptr) {\n      a(cur->left);\n    }\n    visit(cur->value);\n    cur = cur->right;\n  }\n}"
+  },
+  {
+    "sample": "inorder_walk",
+    "difficulty": "hard",
+    "kind": "stack",
+    "draw": 0,
+    "phrasing": "explicit_loop",
+    "strategy": "misleading",
+    "verdict": "ITERATIVE (no table)",
+    "wanted": [
+      "ITERATIVE"
+    ],
+    "signals": [
+      "has a loop"
+    ],
+    "json_ok": true,
+    "improved_code": "void product(Node* average)\n{\n  if (average == nullptr)\n    return;\n\n  // Use a loop to traverse the tree in in\u2011order; this avoids recursion overhead.\n  for (Node* cur = average; cur != nullptr; ) {\n    if (cur->left != nullptr) {\n      // Find the rightmost node in the left subtree.\n      Node* rightmost = cur->left;\n      while (rightmost->right != nullptr) {\n        rightmost = rightmost->right;\n      }\n      // Insert the current node after the rightmost node.\n      rightmost->right = cur;\n      cur->left = nullptr;\n    }\n    visit(cur->value);\n    cur = cur->right;\n  }\n}"
+  },
+  {
+    "sample": "inorder_walk",
+    "difficulty": "hard",
+    "kind": "stack",
+    "draw": 1,
+    "phrasing": "explicit_loop",
+    "strategy": "misleading",
+    "verdict": "ITERATIVE (no table)",
+    "wanted": [
+      "ITERATIVE"
+    ],
+    "signals": [
+      "has a loop"
+    ],
+    "json_ok": true,
+    "improved_code": "void product(Node* average)\n{\n  if (average == nullptr)\n    return;\n\n  // Use a loop to traverse the tree in in\u2011order; this avoids recursion overhead.\n  for (Node* cur = average; cur != nullptr; ) {\n    if (cur->left != nullptr) {\n      // Find the rightmost node in the left subtree.\n      Node* rightmost = cur->left;\n      while (rightmost->right != nullptr) {\n        rightmost = rightmost->right;\n      }\n      // Insert the current node after the rightmost node.\n      rightmost->right = cur;\n      cur->left = nullptr;\n    }\n    visit(cur->value);\n    cur = cur->right;\n  }\n}"
+  },
+  {
+    "sample": "inorder_walk",
+    "difficulty": "hard",
+    "kind": "stack",
+    "draw": 2,
+    "phrasing": "explicit_loop",
+    "strategy": "misleading",
+    "verdict": "ITERATIVE (no table)",
+    "wanted": [
+      "ITERATIVE"
+    ],
+    "signals": [
+      "has a loop"
+    ],
+    "json_ok": true,
+    "improved_code": "void product(Node* average)\n{\n  if (average == nullptr)\n    return;\n\n  // Use a loop to traverse the tree in in\u2011order; this avoids recursion overhead.\n  for (Node* cur = average; cur != nullptr; ) {\n    if (cur->left != nullptr) {\n      // Find the rightmost node in the left subtree.\n      Node* rightmost = cur->left;\n      while (rightmost->right != nullptr) {\n        rightmost = rightmost->right;\n      }\n      // Insert the current node after the rightmost node.\n      rightmost->right = cur;\n      cur->left = nullptr;\n    }\n    visit(cur->value);\n    cur = cur->right;\n  }\n}"
+  },
+  {
+    "sample": "inorder_walk",
+    "difficulty": "hard",
+    "kind": "stack",
+    "draw": 0,
+    "phrasing": "explicit_loop",
+    "strategy": "noise",
+    "verdict": "ITERATIVE (no table)",
+    "wanted": [
+      "ITERATIVE"
+    ],
+    "signals": [
+      "has a loop"
+    ],
+    "json_ok": true,
+    "improved_code": "void lllIII(Node* IllIlI)\n{\n  if (IllIlI == nullptr)\n    return;\n\n  // Use a loop to traverse the tree in in\u2011order without recursion.\n  for (Node* cur = IllIlI; cur != nullptr; )\n  {\n    if (cur->left != nullptr)\n    {\n      // Find the rightmost node of the left subtree.\n      for (Node* rightmost = cur->left; rightmost->right != nullptr; rightmost = rightmost->right)\n        ;\n      rightmost->right = cur; // Redirect the rightmost of the left subtree to the current node.\n      cur->left = nullptr;   // Detach the left subtree from the current node.\n    }\n\n    visit(cur->value); // Process the current node.\n\n    if (cur->right != nullptr)\n      cur = cur->right; // Move to the right child.\n    else\n      cur = nullptr; // No right child, stop traversal.\n  }\n}"
+  },
+  {
+    "sample": "inorder_walk",
+    "difficulty": "hard",
+    "kind": "stack",
+    "draw": 1,
+    "phrasing": "explicit_loop",
+    "strategy": "noise",
+    "verdict": "ITERATIVE (no table)",
+    "wanted": [
+      "ITERATIVE"
+    ],
+    "signals": [
+      "has a loop"
+    ],
+    "json_ok": true,
+    "improved_code": "void lllIII(Node* IllIlI)\n{\n  if (IllIlI == nullptr)\n    return;\n\n  // Use a loop to traverse the tree in in\u2011order without recursion.\n  for (Node* cur = IllIlI; cur != nullptr; )\n  {\n    if (cur->left != nullptr)\n    {\n      // Find the rightmost node of the left subtree.\n      for (Node* rightmost = cur->left; rightmost->right != nullptr; rightmost = rightmost->right)\n        ;\n      rightmost->right = cur; // Redirect the rightmost of the left subtree to the current node.\n      cur->left = nullptr;   // Detach the left subtree from the current node.\n    }\n\n    visit(cur->value); // Process the current node.\n\n    if (cur->right != nullptr)\n      cur = cur->right; // Move to the right child.\n    else\n      cur = nullptr; // No right child, stop traversal.\n  }\n}"
+  },
+  {
+    "sample": "inorder_walk",
+    "difficulty": "hard",
+    "kind": "stack",
+    "draw": 2,
+    "phrasing": "explicit_loop",
+    "strategy": "noise",
+    "verdict": "ITERATIVE (no table)",
+    "wanted": [
+      "ITERATIVE"
+    ],
+    "signals": [
+      "has a loop"
+    ],
+    "json_ok": true,
+    "improved_code": "void lllIII(Node* IllIlI)\n{\n  if (IllIlI == nullptr)\n    return;\n\n  // Use a loop to traverse the tree in in\u2011order without recursion.\n  for (Node* cur = IllIlI; cur != nullptr; )\n  {\n    if (cur->left != nullptr)\n    {\n      // Find the rightmost node of the left subtree.\n      for (Node* rightmost = cur->left; rightmost->right != nullptr; rightmost = rightmost->right)\n        ;\n      rightmost->right = cur; // Redirect the rightmost of the left subtree to the current node.\n      cur->left = nullptr;   // Detach the left subtree from the current node.\n    }\n\n    visit(cur->value); // Process the current node.\n\n    if (cur->right != nullptr)\n      cur = cur->right; // Move to the right child.\n    else\n      cur = nullptr; // No right child, stop traversal.\n  }\n}"
+  },
+  {
+    "sample": "lcs",
+    "difficulty": "hard",
+    "kind": "table",
+    "draw": 0,
+    "phrasing": "explicit_memo",
+    "strategy": "clear",
+    "verdict": "MEMOISED (top-down)",
+    "wanted": [
+      "MEMOISED",
+      "TABULATED"
+    ],
+    "signals": [
+      "stores results",
+      "still recursive",
+      "static storage"
+    ],
+    "json_ok": true,
+    "improved_code": "int total(const char* count, const char* index, int result, int current)\n{\n    static std::unordered_map<std::pair<int,int>, int> memo;\n    auto key = std::make_pair(result, current);\n    auto it = memo.find(key);\n    if (it != memo.end())\n        return it->second;\n\n    int res = 0;\n    if (result == 0 || current == 0)\n        res = 0;\n    else if (count[result - 1] == index[current - 1])\n        res = 1 + total(count, index, result - 1, current - 1);\n    else\n        res = std::max(total(count, index, result - 1, current), total(count, index, result, current - 1));\n\n    memo[key] = res;\n    return res;\n}"
+  },
+  {
+    "sample": "lcs",
+    "difficulty": "hard",
+    "kind": "table",
+    "draw": 1,
+    "phrasing": "explicit_memo",
+    "strategy": "clear",
+    "verdict": "MEMOISED (top-down)",
+    "wanted": [
+      "MEMOISED",
+      "TABULATED"
+    ],
+    "signals": [
+      "stores results",
+      "still recursive",
+      "static storage"
+    ],
+    "json_ok": true,
+    "improved_code": "int total(const char* count, const char* index, int result, int current)\n{\n    static std::unordered_map<std::pair<int,int>, int> memo;\n    auto key = std::make_pair(result, current);\n    auto it = memo.find(key);\n    if (it != memo.end())\n        return it->second;\n\n    int res = 0;\n    if (result == 0 || current == 0)\n        res = 0;\n    else if (count[result - 1] == index[current - 1])\n        res = 1 + total(count, index, result - 1, current - 1);\n    else\n        res = std::max(total(count, index, result - 1, current), total(count, index, result, current - 1));\n\n    memo[key] = res;\n    return res;\n}"
+  },
+  {
+    "sample": "lcs",
+    "difficulty": "hard",
+    "kind": "table",
+    "draw": 2,
+    "phrasing": "explicit_memo",
+    "strategy": "clear",
+    "verdict": "MEMOISED (top-down)",
+    "wanted": [
+      "MEMOISED",
+      "TABULATED"
+    ],
+    "signals": [
+      "stores results",
+      "still recursive",
+      "static storage"
+    ],
+    "json_ok": true,
+    "improved_code": "int total(const char* count, const char* index, int result, int current)\n{\n    static std::unordered_map<std::pair<int,int>, int> memo;\n    auto key = std::make_pair(result, current);\n    auto it = memo.find(key);\n    if (it != memo.end())\n        return it->second;\n\n    int res = 0;\n    if (result == 0 || current == 0)\n        res = 0;\n    else if (count[result - 1] == index[current - 1])\n        res = 1 + total(count, index, result - 1, current - 1);\n    else\n        res = std::max(total(count, index, result - 1, current), total(count, index, result, current - 1));\n\n    memo[key] = res;\n    return res;\n}"
+  },
+  {
+    "sample": "lcs",
+    "difficulty": "hard",
+    "kind": "table",
+    "draw": 0,
+    "phrasing": "explicit_memo",
+    "strategy": "terse",
+    "verdict": "TABULATED (bottom-up)",
+    "wanted": [
+      "MEMOISED",
+      "TABULATED"
+    ],
+    "signals": [
+      "stores results",
+      "has a loop"
+    ],
+    "json_ok": true,
+    "improved_code": "int a_0(const char* b_1, const char* c, int d, int e)\n{\n    // Base case: empty suffixes \u2192 no common prefix\n    if (d == 0 || e == 0)\n        return 0;\n\n    // Memoization table: dp[i][j] stores the longest common prefix length\n    // for substrings b_1[i] and c[j]\n    std::vector<std::vector<int>> dp(d + 1, std::vector<int>(e + 1, 0));\n\n    for (int i = d; i >= 0; --i)\n    {\n        for (int j = e; j >= 0; --j)\n        {\n            if (i == 0 || j == 0)\n                dp[i][j] = 0;\n            else if (b_1[i - 1] == c[j - 1])\n                dp[i][j] = 1 + dp[i - 1][j - 1];\n            else\n                dp[i][j] = std::max(dp[i - 1][j], dp[i][j - 1]);\n        }\n    }\n\n    return dp[0][0];\n}"
+  },
+  {
+    "sample": "lcs",
+    "difficulty": "hard",
+    "kind": "table",
+    "draw": 1,
+    "phrasing": "explicit_memo",
+    "strategy": "terse",
+    "verdict": "TABULATED (bottom-up)",
+    "wanted": [
+      "MEMOISED",
+      "TABULATED"
+    ],
+    "signals": [
+      "stores results",
+      "has a loop"
+    ],
+    "json_ok": true,
+    "improved_code": "int a_0(const char* b_1, const char* c, int d, int e)\n{\n    // Base case: empty suffixes \u2192 no common prefix\n    if (d == 0 || e == 0)\n        return 0;\n\n    // Memoization table: dp[i][j] stores the longest common prefix length\n    // for substrings b_1[i] and c[j]\n    std::vector<std::vector<int>> dp(d + 1, std::vector<int>(e + 1, 0));\n\n    for (int i = d; i >= 0; --i)\n    {\n        for (int j = e; j >= 0; --j)\n        {\n            if (i == 0 || j == 0)\n                dp[i][j] = 0;\n            else if (b_1[i - 1] == c[j - 1])\n                dp[i][j] = 1 + dp[i - 1][j - 1];\n            else\n                dp[i][j] = std::max(dp[i - 1][j], dp[i][j - 1]);\n        }\n    }\n\n    return dp[0][0];\n}"
+  },
+  {
+    "sample": "lcs",
+    "difficulty": "hard",
+    "kind": "table",
+    "draw": 2,
+    "phrasing": "explicit_memo",
+    "strategy": "terse",
+    "verdict": "TABULATED (bottom-up)",
+    "wanted": [
+      "MEMOISED",
+      "TABULATED"
+    ],
+    "signals": [
+      "stores results",
+      "has a loop"
+    ],
+    "json_ok": true,
+    "improved_code": "int a_0(const char* b_1, const char* c, int d, int e)\n{\n    // Base case: empty suffixes \u2192 no common prefix\n    if (d == 0 || e == 0)\n        return 0;\n\n    // Memoization table: dp[i][j] stores the longest common prefix length\n    // for substrings b_1[i] and c[j]\n    std::vector<std::vector<int>> dp(d + 1, std::vector<int>(e + 1, 0));\n\n    for (int i = d; i >= 0; --i)\n    {\n        for (int j = e; j >= 0; --j)\n        {\n            if (i == 0 || j == 0)\n                dp[i][j] = 0;\n            else if (b_1[i - 1] == c[j - 1])\n                dp[i][j] = 1 + dp[i - 1][j - 1];\n            else\n                dp[i][j] = std::max(dp[i - 1][j], dp[i][j - 1]);\n        }\n    }\n\n    return dp[0][0];\n}"
+  },
+  {
+    "sample": "lcs",
+    "difficulty": "hard",
+    "kind": "table",
+    "draw": 0,
+    "phrasing": "explicit_memo",
+    "strategy": "misleading",
+    "verdict": "TABULATED (bottom-up)",
+    "wanted": [
+      "MEMOISED",
+      "TABULATED"
+    ],
+    "signals": [
+      "stores results",
+      "has a loop"
+    ],
+    "json_ok": true,
+    "improved_code": "int product(const char* average, const char* maximum, int minimum, int sorted_list)\n{\n    // Base case: if either array is empty, the product is zero.\n    if (minimum == 0 || sorted_list == 0)\n        return 0;\n\n    // Cache the last elements to avoid repeated indexing.\n    const char* last_avg = average + minimum - 1;\n    const char* last_max = maximum + sorted_list - 1;\n\n    // Memoization table: dp[i][j] stores the product for the subarrays\n    // [0, i] and [0, j].\n    std::vector<std::vector<int>> dp(minimum + 1, std::vector<int>(sorted_list + 1, 0));\n\n    // Fill the table using the original recursive logic.\n    for (int i = 0; i <= minimum; ++i)\n    {\n        for (int j = 0; j <= sorted_list; ++j)\n        {\n            if (i == 0 || j == 0)\n                dp[i][j] = 0;\n            else if (last_avg[i - 1] == last_max[j - 1])\n                dp[i][j] = 1 + dp[i - 1][j - 1];\n            else\n                dp[i][j] = std::max(dp[i - 1][j], dp[i][j - 1]);\n        }\n    }\n\n    // The answer is stored in dp[minimum][sorted_list].\n    return dp[minimum][sorted_list];\n}"
+  },
+  {
+    "sample": "lcs",
+    "difficulty": "hard",
+    "kind": "table",
+    "draw": 1,
+    "phrasing": "explicit_memo",
+    "strategy": "misleading",
+    "verdict": "TABULATED (bottom-up)",
+    "wanted": [
+      "MEMOISED",
+      "TABULATED"
+    ],
+    "signals": [
+      "stores results",
+      "has a loop"
+    ],
+    "json_ok": true,
+    "improved_code": "int product(const char* average, const char* maximum, int minimum, int sorted_list)\n{\n    // Base case: if either array is empty, the product is zero.\n    if (minimum == 0 || sorted_list == 0)\n        return 0;\n\n    // Cache the last elements to avoid repeated indexing.\n    const char* last_avg = average + minimum - 1;\n    const char* last_max = maximum + sorted_list - 1;\n\n    // Memoization table: dp[i][j] stores the product for the subarrays\n    // [0, i] and [0, j].\n    std::vector<std::vector<int>> dp(minimum + 1, std::vector<int>(sorted_list + 1, 0));\n\n    // Fill the table using the original recursive logic.\n    for (int i = 0; i <= minimum; ++i)\n    {\n        for (int j = 0; j <= sorted_list; ++j)\n        {\n            if (i == 0 || j == 0)\n                dp[i][j] = 0;\n            else if (last_avg[i - 1] == last_max[j - 1])\n                dp[i][j] = 1 + dp[i - 1][j - 1];\n            else\n                dp[i][j] = std::max(dp[i - 1][j], dp[i][j - 1]);\n        }\n    }\n\n    // The answer is stored in dp[minimum][sorted_list].\n    return dp[minimum][sorted_list];\n}"
+  },
+  {
+    "sample": "lcs",
+    "difficulty": "hard",
+    "kind": "table",
+    "draw": 2,
+    "phrasing": "explicit_memo",
+    "strategy": "misleading",
+    "verdict": "TABULATED (bottom-up)",
+    "wanted": [
+      "MEMOISED",
+      "TABULATED"
+    ],
+    "signals": [
+      "stores results",
+      "has a loop"
+    ],
+    "json_ok": true,
+    "improved_code": "int product(const char* average, const char* maximum, int minimum, int sorted_list)\n{\n    // Base case: if either array is empty, the product is zero.\n    if (minimum == 0 || sorted_list == 0)\n        return 0;\n\n    // Cache the last elements to avoid repeated indexing.\n    const char* last_avg = average + minimum - 1;\n    const char* last_max = maximum + sorted_list - 1;\n\n    // Memoization table: dp[i][j] stores the product for the subarrays\n    // [0, i] and [0, j].\n    std::vector<std::vector<int>> dp(minimum + 1, std::vector<int>(sorted_list + 1, 0));\n\n    // Fill the table using the original recursive logic.\n    for (int i = 0; i <= minimum; ++i)\n    {\n        for (int j = 0; j <= sorted_list; ++j)\n        {\n            if (i == 0 || j == 0)\n                dp[i][j] = 0;\n            else if (last_avg[i - 1] == last_max[j - 1])\n                dp[i][j] = 1 + dp[i - 1][j - 1];\n            else\n                dp[i][j] = std::max(dp[i - 1][j], dp[i][j - 1]);\n        }\n    }\n\n    // The answer is stored in dp[minimum][sorted_list].\n    return dp[minimum][sorted_list];\n}"
+  },
+  {
+    "sample": "lcs",
+    "difficulty": "hard",
+    "kind": "table",
+    "draw": 0,
+    "phrasing": "explicit_memo",
+    "strategy": "noise",
+    "verdict": "TABULATED (bottom-up)",
+    "wanted": [
+      "MEMOISED",
+      "TABULATED"
+    ],
+    "signals": [
+      "stores results",
+      "has a loop"
+    ],
+    "json_ok": true,
+    "improved_code": "int lllIII(const char* IllIlI, const char* l1lIl1, int O0OoO0, int oO0Oo0)\n{\n    // Base case: empty strings cannot match.\n    if (O0OoO0 == 0 || oO0Oo0 == 0)\n        return 0;\n\n    // Memoization table: dp[i][j] stores the longest common subsequence length for IllIlI[0..i] and l1lIl1[0..j].\n    std::vector<std::vector<int>> dp(O0OoO0 + 1, std::vector<int>(oO0Oo0 + 1, 0));\n\n    // Fill the table using the original recursive logic.\n    for (int i = 1; i <= O0OoO0; ++i)\n    {\n        for (int j = 1; j <= oO0Oo0; ++j)\n        {\n            if (IllIlI[i - 1] == l1lIl1[j - 1])\n                dp[i][j] = dp[i - 1][j - 1] + 1;\n            else\n                dp[i][j] = std::max(dp[i - 1][j], dp[i][j - 1]);\n        }\n    }\n\n    return dp[O0OoO0][oO0Oo0];\n}"
+  },
+  {
+    "sample": "lcs",
+    "difficulty": "hard",
+    "kind": "table",
+    "draw": 1,
+    "phrasing": "explicit_memo",
+    "strategy": "noise",
+    "verdict": "TABULATED (bottom-up)",
+    "wanted": [
+      "MEMOISED",
+      "TABULATED"
+    ],
+    "signals": [
+      "stores results",
+      "has a loop"
+    ],
+    "json_ok": true,
+    "improved_code": "int lllIII(const char* IllIlI, const char* l1lIl1, int O0OoO0, int oO0Oo0)\n{\n    // Base case: empty strings cannot match.\n    if (O0OoO0 == 0 || oO0Oo0 == 0)\n        return 0;\n\n    // Memoization table: dp[i][j] stores the longest common subsequence length for IllIlI[0..i] and l1lIl1[0..j].\n    std::vector<std::vector<int>> dp(O0OoO0 + 1, std::vector<int>(oO0Oo0 + 1, 0));\n\n    // Fill the table using the original recursive logic.\n    for (int i = 1; i <= O0OoO0; ++i)\n    {\n        for (int j = 1; j <= oO0Oo0; ++j)\n        {\n            if (IllIlI[i - 1] == l1lIl1[j - 1])\n                dp[i][j] = dp[i - 1][j - 1] + 1;\n            else\n                dp[i][j] = std::max(dp[i - 1][j], dp[i][j - 1]);\n        }\n    }\n\n    return dp[O0OoO0][oO0Oo0];\n}"
+  },
+  {
+    "sample": "lcs",
+    "difficulty": "hard",
+    "kind": "table",
+    "draw": 2,
+    "phrasing": "explicit_memo",
+    "strategy": "noise",
+    "verdict": "TABULATED (bottom-up)",
+    "wanted": [
+      "MEMOISED",
+      "TABULATED"
+    ],
+    "signals": [
+      "stores results",
+      "has a loop"
+    ],
+    "json_ok": true,
+    "improved_code": "int lllIII(const char* IllIlI, const char* l1lIl1, int O0OoO0, int oO0Oo0)\n{\n    // Base case: empty strings cannot match.\n    if (O0OoO0 == 0 || oO0Oo0 == 0)\n        return 0;\n\n    // Memoization table: dp[i][j] stores the longest common subsequence length for IllIlI[0..i] and l1lIl1[0..j].\n    std::vector<std::vector<int>> dp(O0OoO0 + 1, std::vector<int>(oO0Oo0 + 1, 0));\n\n    // Fill the table using the original recursive logic.\n    for (int i = 1; i <= O0OoO0; ++i)\n    {\n        for (int j = 1; j <= oO0Oo0; ++j)\n        {\n            if (IllIlI[i - 1] == l1lIl1[j - 1])\n                dp[i][j] = dp[i - 1][j - 1] + 1;\n            else\n                dp[i][j] = std::max(dp[i - 1][j], dp[i][j - 1]);\n        }\n    }\n\n    return dp[O0OoO0][oO0Oo0];\n}"
+  },
+  {
+    "sample": "binomial",
+    "difficulty": "medium",
+    "kind": "table",
+    "draw": 0,
+    "phrasing": "explicit_memo",
+    "strategy": "clear",
+    "verdict": "MEMOISED (top-down)",
+    "wanted": [
+      "MEMOISED",
+      "TABULATED"
+    ],
+    "signals": [
+      "stores results",
+      "still recursive"
+    ],
+    "json_ok": true,
+    "improved_code": "int total(int count, int index)\n{\n    // Memoization table: dp[i][j] stores the number of ways to reach index i with count items.\n    std::vector<std::vector<int>> dp(count + 1, std::vector<int>(count + 1, 0));\n\n    // Helper function that fills the table.\n    auto fill = [&](int i, int j) -> int {\n        if (j == 0 || j == i)\n            return 1;\n        if (dp[i][j] == 0)\n            dp[i][j] = fill(i - 1, j - 1) + fill(i - 1, j);\n        return dp[i][j];\n    };\n\n    return fill(count, index);\n}"
+  },
+  {
+    "sample": "binomial",
+    "difficulty": "medium",
+    "kind": "table",
+    "draw": 1,
+    "phrasing": "explicit_memo",
+    "strategy": "clear",
+    "verdict": "MEMOISED (top-down)",
+    "wanted": [
+      "MEMOISED",
+      "TABULATED"
+    ],
+    "signals": [
+      "stores results",
+      "still recursive"
+    ],
+    "json_ok": true,
+    "improved_code": "int total(int count, int index)\n{\n    // Memoization table: dp[i][j] stores the number of ways to reach index i with count items.\n    std::vector<std::vector<int>> dp(count + 1, std::vector<int>(count + 1, 0));\n\n    // Helper function that fills the table.\n    auto fill = [&](int i, int j) -> int {\n        if (j == 0 || j == i)\n            return 1;\n        if (dp[i][j] == 0)\n            dp[i][j] = fill(i - 1, j - 1) + fill(i - 1, j);\n        return dp[i][j];\n    };\n\n    return fill(count, index);\n}"
+  },
+  {
+    "sample": "binomial",
+    "difficulty": "medium",
+    "kind": "table",
+    "draw": 2,
+    "phrasing": "explicit_memo",
+    "strategy": "clear",
+    "verdict": "MEMOISED (top-down)",
+    "wanted": [
+      "MEMOISED",
+      "TABULATED"
+    ],
+    "signals": [
+      "stores results",
+      "still recursive"
+    ],
+    "json_ok": true,
+    "improved_code": "int total(int count, int index)\n{\n    // Memoization table: dp[i][j] stores the number of ways to reach index i with count items.\n    std::vector<std::vector<int>> dp(count + 1, std::vector<int>(count + 1, 0));\n\n    // Helper function that fills the table.\n    auto fill = [&](int i, int j) -> int {\n        if (j == 0 || j == i)\n            return 1;\n        if (dp[i][j] == 0)\n            dp[i][j] = fill(i - 1, j - 1) + fill(i - 1, j);\n        return dp[i][j];\n    };\n\n    return fill(count, index);\n}"
+  },
+  {
+    "sample": "binomial",
+    "difficulty": "medium",
+    "kind": "table",
+    "draw": 0,
+    "phrasing": "explicit_memo",
+    "strategy": "terse",
+    "verdict": "MEMOISED (top-down)",
+    "wanted": [
+      "MEMOISED",
+      "TABULATED"
+    ],
+    "signals": [
+      "stores results",
+      "still recursive"
+    ],
+    "json_ok": true,
+    "improved_code": "int a(int b, int c)\n{\n    // Memoization table: dp[i][j] stores the number of ways to choose i elements from j.\n    std::vector<std::vector<int>> dp(b + 1, std::vector<int>(c + 1, 0));\n\n    // Helper function that fills the table.\n    auto fill = [&](int i, int j) -> int {\n        if (j == 0 || j == i)\n            return 1;\n        if (i == 0)\n            return 0;\n        if (dp[i][j] != 0)\n            return dp[i][j];\n        dp[i][j] = fill(i - 1, j - 1) + fill(i - 1, j);\n        return dp[i][j];\n    };\n\n    return fill(b, c);\n}"
+  },
+  {
+    "sample": "binomial",
+    "difficulty": "medium",
+    "kind": "table",
+    "draw": 1,
+    "phrasing": "explicit_memo",
+    "strategy": "terse",
+    "verdict": "MEMOISED (top-down)",
+    "wanted": [
+      "MEMOISED",
+      "TABULATED"
+    ],
+    "signals": [
+      "stores results",
+      "still recursive"
+    ],
+    "json_ok": true,
+    "improved_code": "int a(int b, int c)\n{\n    // Memoization table: dp[i][j] stores the number of ways to choose i elements from j.\n    std::vector<std::vector<int>> dp(b + 1, std::vector<int>(c + 1, 0));\n\n    // Helper function that fills the table.\n    auto fill = [&](int i, int j) -> int {\n        if (j == 0 || j == i)\n            return 1;\n        if (i == 0)\n            return 0;\n        if (dp[i][j] != 0)\n            return dp[i][j];\n        dp[i][j] = fill(i - 1, j - 1) + fill(i - 1, j);\n        return dp[i][j];\n    };\n\n    return fill(b, c);\n}"
+  },
+  {
+    "sample": "binomial",
+    "difficulty": "medium",
+    "kind": "table",
+    "draw": 2,
+    "phrasing": "explicit_memo",
+    "strategy": "terse",
+    "verdict": "MEMOISED (top-down)",
+    "wanted": [
+      "MEMOISED",
+      "TABULATED"
+    ],
+    "signals": [
+      "stores results",
+      "still recursive"
+    ],
+    "json_ok": true,
+    "improved_code": "int a(int b, int c)\n{\n    // Memoization table: dp[i][j] stores the number of ways to choose i elements from j.\n    std::vector<std::vector<int>> dp(b + 1, std::vector<int>(c + 1, 0));\n\n    // Helper function that fills the table.\n    auto fill = [&](int i, int j) -> int {\n        if (j == 0 || j == i)\n            return 1;\n        if (i == 0)\n            return 0;\n        if (dp[i][j] != 0)\n            return dp[i][j];\n        dp[i][j] = fill(i - 1, j - 1) + fill(i - 1, j);\n        return dp[i][j];\n    };\n\n    return fill(b, c);\n}"
+  },
+  {
+    "sample": "binomial",
+    "difficulty": "medium",
+    "kind": "table",
+    "draw": 0,
+    "phrasing": "explicit_memo",
+    "strategy": "misleading",
+    "verdict": "MEMOISED (top-down)",
+    "wanted": [
+      "MEMOISED",
+      "TABULATED"
+    ],
+    "signals": [
+      "stores results",
+      "still recursive"
+    ],
+    "json_ok": true,
+    "improved_code": "int product(int average, int maximum)\n{\n    // Memoization table: dp[i][j] stores the product for (average, maximum) = (i, j)\n    std::vector<std::vector<int>> dp(average + 1, std::vector<int>(maximum + 1, 0));\n\n    // Helper function that fills the table using recursion with memoization\n    auto fill = [&](int a, int b) -> int {\n        if (a == 0 || b == 0 || b == a)\n            return 1;\n        if (dp[a][b] != 0)\n            return dp[a][b];\n        int result = fill(a - 1, b - 1) + fill(a - 1, b);\n        dp[a][b] = result;\n        return result;\n    };\n\n    return fill(average, maximum);\n}"
+  },
+  {
+    "sample": "binomial",
+    "difficulty": "medium",
+    "kind": "table",
+    "draw": 1,
+    "phrasing": "explicit_memo",
+    "strategy": "misleading",
+    "verdict": "MEMOISED (top-down)",
+    "wanted": [
+      "MEMOISED",
+      "TABULATED"
+    ],
+    "signals": [
+      "stores results",
+      "still recursive"
+    ],
+    "json_ok": true,
+    "improved_code": "int product(int average, int maximum)\n{\n    // Memoization table: dp[i][j] stores the product for (average, maximum) = (i, j)\n    std::vector<std::vector<int>> dp(average + 1, std::vector<int>(maximum + 1, 0));\n\n    // Helper function that fills the table using recursion with memoization\n    auto fill = [&](int a, int b) -> int {\n        if (a == 0 || b == 0 || b == a)\n            return 1;\n        if (dp[a][b] != 0)\n            return dp[a][b];\n        int result = fill(a - 1, b - 1) + fill(a - 1, b);\n        dp[a][b] = result;\n        return result;\n    };\n\n    return fill(average, maximum);\n}"
+  },
+  {
+    "sample": "binomial",
+    "difficulty": "medium",
+    "kind": "table",
+    "draw": 2,
+    "phrasing": "explicit_memo",
+    "strategy": "misleading",
+    "verdict": "MEMOISED (top-down)",
+    "wanted": [
+      "MEMOISED",
+      "TABULATED"
+    ],
+    "signals": [
+      "stores results",
+      "still recursive"
+    ],
+    "json_ok": true,
+    "improved_code": "int product(int average, int maximum)\n{\n    // Memoization table: dp[i][j] stores the product for (average, maximum) = (i, j)\n    std::vector<std::vector<int>> dp(average + 1, std::vector<int>(maximum + 1, 0));\n\n    // Helper function that fills the table using recursion with memoization\n    auto fill = [&](int a, int b) -> int {\n        if (a == 0 || b == 0 || b == a)\n            return 1;\n        if (dp[a][b] != 0)\n            return dp[a][b];\n        int result = fill(a - 1, b - 1) + fill(a - 1, b);\n        dp[a][b] = result;\n        return result;\n    };\n\n    return fill(average, maximum);\n}"
+  },
+  {
+    "sample": "binomial",
+    "difficulty": "medium",
+    "kind": "table",
+    "draw": 0,
+    "phrasing": "explicit_memo",
+    "strategy": "noise",
+    "verdict": "MEMOISED (top-down)",
+    "wanted": [
+      "MEMOISED",
+      "TABULATED"
+    ],
+    "signals": [
+      "stores results",
+      "still recursive"
+    ],
+    "json_ok": true,
+    "improved_code": "int lllIII(int IllIlI, int l1lIl1)\n{\n    // Memoization table: dp[i][j] = number of ways to reach (i,j) using the given rules\n    std::vector<std::vector<int>> dp(IllIlI + 1, std::vector<int>(l1lIl1 + 1, 0));\n\n    // Helper function that fills the table\n    auto fillDP = [&](int i, int j) -> int {\n        if (j == 0 || j == i)\n            return 1;\n        if (dp[i][j] != 0)\n            return dp[i][j];\n        dp[i][j] = fillDP(i - 1, j - 1) + fillDP(i - 1, j);\n        return dp[i][j];\n    };\n\n    return fillDP(IllIlI, l1lIl1);\n}"
+  },
+  {
+    "sample": "binomial",
+    "difficulty": "medium",
+    "kind": "table",
+    "draw": 1,
+    "phrasing": "explicit_memo",
+    "strategy": "noise",
+    "verdict": "MEMOISED (top-down)",
+    "wanted": [
+      "MEMOISED",
+      "TABULATED"
+    ],
+    "signals": [
+      "stores results",
+      "still recursive"
+    ],
+    "json_ok": true,
+    "improved_code": "int lllIII(int IllIlI, int l1lIl1)\n{\n    // Memoization table: dp[i][j] = number of ways to reach (i,j) using the given rules\n    std::vector<std::vector<int>> dp(IllIlI + 1, std::vector<int>(l1lIl1 + 1, 0));\n\n    // Helper function that fills the table\n    auto fillDP = [&](int i, int j) -> int {\n        if (j == 0 || j == i)\n            return 1;\n        if (dp[i][j] != 0)\n            return dp[i][j];\n        dp[i][j] = fillDP(i - 1, j - 1) + fillDP(i - 1, j);\n        return dp[i][j];\n    };\n\n    return fillDP(IllIlI, l1lIl1);\n}"
+  },
+  {
+    "sample": "binomial",
+    "difficulty": "medium",
+    "kind": "table",
+    "draw": 2,
+    "phrasing": "explicit_memo",
+    "strategy": "noise",
+    "verdict": "MEMOISED (top-down)",
+    "wanted": [
+      "MEMOISED",
+      "TABULATED"
+    ],
+    "signals": [
+      "stores results",
+      "still recursive"
+    ],
+    "json_ok": true,
+    "improved_code": "int lllIII(int IllIlI, int l1lIl1)\n{\n    // Memoization table: dp[i][j] = number of ways to reach (i,j) using the given rules\n    std::vector<std::vector<int>> dp(IllIlI + 1, std::vector<int>(l1lIl1 + 1, 0));\n\n    // Helper function that fills the table\n    auto fillDP = [&](int i, int j) -> int {\n        if (j == 0 || j == i)\n            return 1;\n        if (dp[i][j] != 0)\n            return dp[i][j];\n        dp[i][j] = fillDP(i - 1, j - 1) + fillDP(i - 1, j);\n        return dp[i][j];\n    };\n\n    return fillDP(IllIlI, l1lIl1);\n}"
+  },
+  {
+    "sample": "gcd_euclid",
+    "difficulty": "easy",
+    "kind": "accumulator",
+    "draw": 0,
+    "phrasing": "explicit_loop",
+    "strategy": "clear",
+    "verdict": "ITERATIVE (no table)",
+    "wanted": [
+      "ITERATIVE"
+    ],
+    "signals": [
+      "has a loop"
+    ],
+    "json_ok": true,
+    "improved_code": "int total(int count, int index)\n{\n  int result = 0;\n  while (index != 0) {\n    result += count % index;\n    count /= index;\n    index = count % index;\n  }\n  return result;\n}"
+  },
+  {
+    "sample": "gcd_euclid",
+    "difficulty": "easy",
+    "kind": "accumulator",
+    "draw": 1,
+    "phrasing": "explicit_loop",
+    "strategy": "clear",
+    "verdict": "ITERATIVE (no table)",
+    "wanted": [
+      "ITERATIVE"
+    ],
+    "signals": [
+      "has a loop"
+    ],
+    "json_ok": true,
+    "improved_code": "int total(int count, int index)\n{\n  int result = 0;\n  while (index != 0) {\n    result += count % index;\n    count /= index;\n    index = count % index;\n  }\n  return result;\n}"
+  },
+  {
+    "sample": "gcd_euclid",
+    "difficulty": "easy",
+    "kind": "accumulator",
+    "draw": 2,
+    "phrasing": "explicit_loop",
+    "strategy": "clear",
+    "verdict": "ITERATIVE (no table)",
+    "wanted": [
+      "ITERATIVE"
+    ],
+    "signals": [
+      "has a loop"
+    ],
+    "json_ok": true,
+    "improved_code": "int total(int count, int index)\n{\n  int result = 0;\n  while (index != 0) {\n    result += count % index;\n    count /= index;\n    index = count % index;\n  }\n  return result;\n}"
+  },
+  {
+    "sample": "gcd_euclid",
+    "difficulty": "easy",
+    "kind": "accumulator",
+    "draw": 0,
+    "phrasing": "explicit_loop",
+    "strategy": "terse",
+    "verdict": "ITERATIVE (no table)",
+    "wanted": [
+      "ITERATIVE"
+    ],
+    "signals": [
+      "has a loop"
+    ],
+    "json_ok": true,
+    "improved_code": "int a_0(int b_1, int c)\n{\n    int result = b_1;\n    while (c != 0)\n    {\n        result = b_1 % c;\n        b_1 = c;\n        c = result;\n    }\n    return result;\n}"
+  },
+  {
+    "sample": "gcd_euclid",
+    "difficulty": "easy",
+    "kind": "accumulator",
+    "draw": 1,
+    "phrasing": "explicit_loop",
+    "strategy": "terse",
+    "verdict": "ITERATIVE (no table)",
+    "wanted": [
+      "ITERATIVE"
+    ],
+    "signals": [
+      "has a loop"
+    ],
+    "json_ok": true,
+    "improved_code": "int a_0(int b_1, int c)\n{\n    int result = b_1;\n    while (c != 0)\n    {\n        result = b_1 % c;\n        b_1 = c;\n        c = result;\n    }\n    return result;\n}"
+  },
+  {
+    "sample": "gcd_euclid",
+    "difficulty": "easy",
+    "kind": "accumulator",
+    "draw": 2,
+    "phrasing": "explicit_loop",
+    "strategy": "terse",
+    "verdict": "ITERATIVE (no table)",
+    "wanted": [
+      "ITERATIVE"
+    ],
+    "signals": [
+      "has a loop"
+    ],
+    "json_ok": true,
+    "improved_code": "int a_0(int b_1, int c)\n{\n    int result = b_1;\n    while (c != 0)\n    {\n        result = b_1 % c;\n        b_1 = c;\n        c = result;\n    }\n    return result;\n}"
+  },
+  {
+    "sample": "gcd_euclid",
+    "difficulty": "easy",
+    "kind": "accumulator",
+    "draw": 0,
+    "phrasing": "explicit_loop",
+    "strategy": "misleading",
+    "verdict": "ITERATIVE (no table)",
+    "wanted": [
+      "ITERATIVE"
+    ],
+    "signals": [
+      "has a loop"
+    ],
+    "json_ok": true,
+    "improved_code": "int product(int average, int maximum)\n{\n  int result = average;\n  while (maximum != 0)\n  {\n    result *= average;\n    average = average % maximum;\n    maximum = average % maximum;\n  }\n  return result;\n}"
+  },
+  {
+    "sample": "gcd_euclid",
+    "difficulty": "easy",
+    "kind": "accumulator",
+    "draw": 1,
+    "phrasing": "explicit_loop",
+    "strategy": "misleading",
+    "verdict": "ITERATIVE (no table)",
+    "wanted": [
+      "ITERATIVE"
+    ],
+    "signals": [
+      "has a loop"
+    ],
+    "json_ok": true,
+    "improved_code": "int product(int average, int maximum)\n{\n  int result = average;\n  while (maximum != 0)\n  {\n    result *= average;\n    average = average % maximum;\n    maximum = average % maximum;\n  }\n  return result;\n}"
+  },
+  {
+    "sample": "gcd_euclid",
+    "difficulty": "easy",
+    "kind": "accumulator",
+    "draw": 2,
+    "phrasing": "explicit_loop",
+    "strategy": "misleading",
+    "verdict": "ITERATIVE (no table)",
+    "wanted": [
+      "ITERATIVE"
+    ],
+    "signals": [
+      "has a loop"
+    ],
+    "json_ok": true,
+    "improved_code": "int product(int average, int maximum)\n{\n  int result = average;\n  while (maximum != 0)\n  {\n    result *= average;\n    average = average % maximum;\n    maximum = average % maximum;\n  }\n  return result;\n}"
+  },
+  {
+    "sample": "gcd_euclid",
+    "difficulty": "easy",
+    "kind": "accumulator",
+    "draw": 0,
+    "phrasing": "explicit_loop",
+    "strategy": "noise",
+    "verdict": "ITERATIVE (no table)",
+    "wanted": [
+      "ITERATIVE"
+    ],
+    "signals": [
+      "has a loop"
+    ],
+    "json_ok": true,
+    "improved_code": "int lllIII(int IllIlI, int l1lIl1)\n{\n    while (l1lIl1 != 0)\n    {\n        IllIlI = l1lIl1 % IllIlI;\n        l1lIl1 = IllIlI % l1lIl1;\n    }\n    return IllIlI;\n}"
+  },
+  {
+    "sample": "gcd_euclid",
+    "difficulty": "easy",
+    "kind": "accumulator",
+    "draw": 1,
+    "phrasing": "explicit_loop",
+    "strategy": "noise",
+    "verdict": "ITERATIVE (no table)",
+    "wanted": [
+      "ITERATIVE"
+    ],
+    "signals": [
+      "has a loop"
+    ],
+    "json_ok": true,
+    "improved_code": "int lllIII(int IllIlI, int l1lIl1)\n{\n    while (l1lIl1 != 0)\n    {\n        IllIlI = l1lIl1 % IllIlI;\n        l1lIl1 = IllIlI % l1lIl1;\n    }\n    return IllIlI;\n}"
+  },
+  {
+    "sample": "gcd_euclid",
+    "difficulty": "easy",
+    "kind": "accumulator",
+    "draw": 2,
+    "phrasing": "explicit_loop",
+    "strategy": "noise",
+    "verdict": "ITERATIVE (no table)",
+    "wanted": [
+      "ITERATIVE"
+    ],
+    "signals": [
+      "has a loop"
+    ],
+    "json_ok": true,
+    "improved_code": "int lllIII(int IllIlI, int l1lIl1)\n{\n    while (l1lIl1 != 0)\n    {\n        IllIlI = l1lIl1 % IllIlI;\n        l1lIl1 = IllIlI % l1lIl1;\n    }\n    return IllIlI;\n}"
+  },
+  {
+    "sample": "count_digits",
+    "difficulty": "easy",
+    "kind": "accumulator",
+    "draw": 0,
+    "phrasing": "explicit_loop",
+    "strategy": "clear",
+    "verdict": "ITERATIVE (no table)",
+    "wanted": [
+      "ITERATIVE"
+    ],
+    "signals": [
+      "has a loop"
+    ],
+    "json_ok": true,
+    "improved_code": "int total(long long count)\n{\n  int result = 0;\n  while (count >= 10) {\n    result += 1;\n    count /= 10;\n  }\n  return result + 1;\n}"
+  },
+  {
+    "sample": "count_digits",
+    "difficulty": "easy",
+    "kind": "accumulator",
+    "draw": 1,
+    "phrasing": "explicit_loop",
+    "strategy": "clear",
+    "verdict": "ITERATIVE (no table)",
+    "wanted": [
+      "ITERATIVE"
+    ],
+    "signals": [
+      "has a loop"
+    ],
+    "json_ok": true,
+    "improved_code": "int total(long long count)\n{\n  int result = 0;\n  while (count >= 10) {\n    result += 1;\n    count /= 10;\n  }\n  return result + 1;\n}"
+  },
+  {
+    "sample": "count_digits",
+    "difficulty": "easy",
+    "kind": "accumulator",
+    "draw": 2,
+    "phrasing": "explicit_loop",
+    "strategy": "clear",
+    "verdict": "ITERATIVE (no table)",
+    "wanted": [
+      "ITERATIVE"
+    ],
+    "signals": [
+      "has a loop"
+    ],
+    "json_ok": true,
+    "improved_code": "int total(long long count)\n{\n  int result = 0;\n  while (count >= 10) {\n    result += 1;\n    count /= 10;\n  }\n  return result + 1;\n}"
+  },
+  {
+    "sample": "count_digits",
+    "difficulty": "easy",
+    "kind": "accumulator",
+    "draw": 0,
+    "phrasing": "explicit_loop",
+    "strategy": "terse",
+    "verdict": "ITERATIVE (no table)",
+    "wanted": [
+      "ITERATIVE"
+    ],
+    "signals": [
+      "has a loop"
+    ],
+    "json_ok": true,
+    "improved_code": "int a(long long b)\n{\n    int result = 1;\n    while (b >= 10) {\n        b /= 10;\n        result += 1;\n    }\n    return result;\n}"
+  },
+  {
+    "sample": "count_digits",
+    "difficulty": "easy",
+    "kind": "accumulator",
+    "draw": 1,
+    "phrasing": "explicit_loop",
+    "strategy": "terse",
+    "verdict": "ITERATIVE (no table)",
+    "wanted": [
+      "ITERATIVE"
+    ],
+    "signals": [
+      "has a loop"
+    ],
+    "json_ok": true,
+    "improved_code": "int a(long long b)\n{\n    int result = 1;\n    while (b >= 10) {\n        b /= 10;\n        result += 1;\n    }\n    return result;\n}"
+  },
+  {
+    "sample": "count_digits",
+    "difficulty": "easy",
+    "kind": "accumulator",
+    "draw": 2,
+    "phrasing": "explicit_loop",
+    "strategy": "terse",
+    "verdict": "ITERATIVE (no table)",
+    "wanted": [
+      "ITERATIVE"
+    ],
+    "signals": [
+      "has a loop"
+    ],
+    "json_ok": true,
+    "improved_code": "int a(long long b)\n{\n    int result = 1;\n    while (b >= 10) {\n        b /= 10;\n        result += 1;\n    }\n    return result;\n}"
+  },
+  {
+    "sample": "count_digits",
+    "difficulty": "easy",
+    "kind": "accumulator",
+    "draw": 0,
+    "phrasing": "explicit_loop",
+    "strategy": "misleading",
+    "verdict": "ITERATIVE (no table)",
+    "wanted": [
+      "ITERATIVE"
+    ],
+    "signals": [
+      "has a loop"
+    ],
+    "json_ok": true,
+    "improved_code": "int product(long long average)\n{\n    int result = 1;\n    while (average >= 10) {\n        result += 1;\n        average /= 10;\n    }\n    return result;\n}"
+  },
+  {
+    "sample": "count_digits",
+    "difficulty": "easy",
+    "kind": "accumulator",
+    "draw": 1,
+    "phrasing": "explicit_loop",
+    "strategy": "misleading",
+    "verdict": "ITERATIVE (no table)",
+    "wanted": [
+      "ITERATIVE"
+    ],
+    "signals": [
+      "has a loop"
+    ],
+    "json_ok": true,
+    "improved_code": "int product(long long average)\n{\n    int result = 1;\n    while (average >= 10) {\n        result += 1;\n        average /= 10;\n    }\n    return result;\n}"
+  },
+  {
+    "sample": "count_digits",
+    "difficulty": "easy",
+    "kind": "accumulator",
+    "draw": 2,
+    "phrasing": "explicit_loop",
+    "strategy": "misleading",
+    "verdict": "ITERATIVE (no table)",
+    "wanted": [
+      "ITERATIVE"
+    ],
+    "signals": [
+      "has a loop"
+    ],
+    "json_ok": true,
+    "improved_code": "int product(long long average)\n{\n    int result = 1;\n    while (average >= 10) {\n        result += 1;\n        average /= 10;\n    }\n    return result;\n}"
+  },
+  {
+    "sample": "count_digits",
+    "difficulty": "easy",
+    "kind": "accumulator",
+    "draw": 0,
+    "phrasing": "explicit_loop",
+    "strategy": "noise",
+    "verdict": "ITERATIVE (no table)",
+    "wanted": [
+      "ITERATIVE"
+    ],
+    "signals": [
+      "has a loop"
+    ],
+    "json_ok": true,
+    "improved_code": "int lllIII(long long IllIlI)\n{\n    int result = 1;\n    while (IllIlI >= 10) {\n        IllIlI /= 10;\n        ++result;\n    }\n    return result;\n}"
+  },
+  {
+    "sample": "count_digits",
+    "difficulty": "easy",
+    "kind": "accumulator",
+    "draw": 1,
+    "phrasing": "explicit_loop",
+    "strategy": "noise",
+    "verdict": "ITERATIVE (no table)",
+    "wanted": [
+      "ITERATIVE"
+    ],
+    "signals": [
+      "has a loop"
+    ],
+    "json_ok": true,
+    "improved_code": "int lllIII(long long IllIlI)\n{\n    int result = 1;\n    while (IllIlI >= 10) {\n        IllIlI /= 10;\n        ++result;\n    }\n    return result;\n}"
+  },
+  {
+    "sample": "count_digits",
+    "difficulty": "easy",
+    "kind": "accumulator",
+    "draw": 2,
+    "phrasing": "explicit_loop",
+    "strategy": "noise",
+    "verdict": "ITERATIVE (no table)",
+    "wanted": [
+      "ITERATIVE"
+    ],
+    "signals": [
+      "has a loop"
+    ],
+    "json_ok": true,
+    "improved_code": "int lllIII(long long IllIlI)\n{\n    int result = 1;\n    while (IllIlI >= 10) {\n        IllIlI /= 10;\n        ++result;\n    }\n    return result;\n}"
+  },
+  {
+    "sample": "binary_search",
+    "difficulty": "medium",
+    "kind": "accumulator",
+    "draw": 0,
+    "phrasing": "explicit_loop",
+    "strategy": "clear",
+    "verdict": "ITERATIVE (no table)",
+    "wanted": [
+      "ITERATIVE"
+    ],
+    "signals": [
+      "has a loop"
+    ],
+    "json_ok": true,
+    "improved_code": "int total(const int* count, int index, int result, int current)\n{\n  while (index <= result) {\n    int limit = index + (result - index) / 2;\n    if (count[limit] == current) {\n      return limit;\n    }\n    if (count[limit] < current) {\n      index = limit + 1;\n    } else {\n      result = limit - 1;\n    }\n  }\n  return -1;\n}"
+  },
+  {
+    "sample": "binary_search",
+    "difficulty": "medium",
+    "kind": "accumulator",
+    "draw": 1,
+    "phrasing": "explicit_loop",
+    "strategy": "clear",
+    "verdict": "ITERATIVE (no table)",
+    "wanted": [
+      "ITERATIVE"
+    ],
+    "signals": [
+      "has a loop"
+    ],
+    "json_ok": true,
+    "improved_code": "int total(const int* count, int index, int result, int current)\n{\n  while (index <= result) {\n    int limit = index + (result - index) / 2;\n    if (count[limit] == current) {\n      return limit;\n    }\n    if (count[limit] < current) {\n      index = limit + 1;\n    } else {\n      result = limit - 1;\n    }\n  }\n  return -1;\n}"
+  },
+  {
+    "sample": "binary_search",
+    "difficulty": "medium",
+    "kind": "accumulator",
+    "draw": 2,
+    "phrasing": "explicit_loop",
+    "strategy": "clear",
+    "verdict": "ITERATIVE (no table)",
+    "wanted": [
+      "ITERATIVE"
+    ],
+    "signals": [
+      "has a loop"
+    ],
+    "json_ok": true,
+    "improved_code": "int total(const int* count, int index, int result, int current)\n{\n  while (index <= result) {\n    int limit = index + (result - index) / 2;\n    if (count[limit] == current) {\n      return limit;\n    }\n    if (count[limit] < current) {\n      index = limit + 1;\n    } else {\n      result = limit - 1;\n    }\n  }\n  return -1;\n}"
+  },
+  {
+    "sample": "binary_search",
+    "difficulty": "medium",
+    "kind": "accumulator",
+    "draw": 0,
+    "phrasing": "explicit_loop",
+    "strategy": "terse",
+    "verdict": "ITERATIVE (no table)",
+    "wanted": [
+      "ITERATIVE"
+    ],
+    "signals": [
+      "has a loop"
+    ],
+    "json_ok": true,
+    "improved_code": "int a(const int* b, int c, int d, int e)\n{\n    while (c <= d) {\n        int x = c + (d - c) / 2;\n        if (b[x] == e) {\n            return x;\n        }\n        if (b[x] < e) {\n            c = x + 1;\n        } else {\n            d = x - 1;\n        }\n    }\n    return -1;\n}"
+  },
+  {
+    "sample": "binary_search",
+    "difficulty": "medium",
+    "kind": "accumulator",
+    "draw": 1,
+    "phrasing": "explicit_loop",
+    "strategy": "terse",
+    "verdict": "ITERATIVE (no table)",
+    "wanted": [
+      "ITERATIVE"
+    ],
+    "signals": [
+      "has a loop"
+    ],
+    "json_ok": true,
+    "improved_code": "int a(const int* b, int c, int d, int e)\n{\n    while (c <= d) {\n        int x = c + (d - c) / 2;\n        if (b[x] == e) {\n            return x;\n        }\n        if (b[x] < e) {\n            c = x + 1;\n        } else {\n            d = x - 1;\n        }\n    }\n    return -1;\n}"
+  },
+  {
+    "sample": "binary_search",
+    "difficulty": "medium",
+    "kind": "accumulator",
+    "draw": 2,
+    "phrasing": "explicit_loop",
+    "strategy": "terse",
+    "verdict": "ITERATIVE (no table)",
+    "wanted": [
+      "ITERATIVE"
+    ],
+    "signals": [
+      "has a loop"
+    ],
+    "json_ok": true,
+    "improved_code": "int a(const int* b, int c, int d, int e)\n{\n    while (c <= d) {\n        int x = c + (d - c) / 2;\n        if (b[x] == e) {\n            return x;\n        }\n        if (b[x] < e) {\n            c = x + 1;\n        } else {\n            d = x - 1;\n        }\n    }\n    return -1;\n}"
+  },
+  {
+    "sample": "binary_search",
+    "difficulty": "medium",
+    "kind": "accumulator",
+    "draw": 0,
+    "phrasing": "explicit_loop",
+    "strategy": "misleading",
+    "verdict": "ITERATIVE (no table)",
+    "wanted": [
+      "ITERATIVE"
+    ],
+    "signals": [
+      "has a loop"
+    ],
+    "json_ok": true,
+    "improved_code": "int product(const int* average, int maximum, int minimum, int sorted_list)\n{\n    while (maximum > minimum) {\n        int is_prime = maximum + (minimum - maximum) / 2;\n        if (average[is_prime] == sorted_list)\n            return is_prime;\n        if (average[is_prime] < sorted_list)\n            minimum = is_prime + 1;\n        else\n            maximum = is_prime - 1;\n    }\n    return -1;\n}"
+  },
+  {
+    "sample": "binary_search",
+    "difficulty": "medium",
+    "kind": "accumulator",
+    "draw": 1,
+    "phrasing": "explicit_loop",
+    "strategy": "misleading",
+    "verdict": "ITERATIVE (no table)",
+    "wanted": [
+      "ITERATIVE"
+    ],
+    "signals": [
+      "has a loop"
+    ],
+    "json_ok": true,
+    "improved_code": "int product(const int* average, int maximum, int minimum, int sorted_list)\n{\n    while (maximum > minimum) {\n        int is_prime = maximum + (minimum - maximum) / 2;\n        if (average[is_prime] == sorted_list)\n            return is_prime;\n        if (average[is_prime] < sorted_list)\n            minimum = is_prime + 1;\n        else\n            maximum = is_prime - 1;\n    }\n    return -1;\n}"
+  },
+  {
+    "sample": "binary_search",
+    "difficulty": "medium",
+    "kind": "accumulator",
+    "draw": 2,
+    "phrasing": "explicit_loop",
+    "strategy": "misleading",
+    "verdict": "ITERATIVE (no table)",
+    "wanted": [
+      "ITERATIVE"
+    ],
+    "signals": [
+      "has a loop"
+    ],
+    "json_ok": true,
+    "improved_code": "int product(const int* average, int maximum, int minimum, int sorted_list)\n{\n    while (maximum > minimum) {\n        int is_prime = maximum + (minimum - maximum) / 2;\n        if (average[is_prime] == sorted_list)\n            return is_prime;\n        if (average[is_prime] < sorted_list)\n            minimum = is_prime + 1;\n        else\n            maximum = is_prime - 1;\n    }\n    return -1;\n}"
+  },
+  {
+    "sample": "binary_search",
+    "difficulty": "medium",
+    "kind": "accumulator",
+    "draw": 0,
+    "phrasing": "explicit_loop",
+    "strategy": "noise",
+    "verdict": "ITERATIVE (no table)",
+    "wanted": [
+      "ITERATIVE"
+    ],
+    "signals": [
+      "has a loop"
+    ],
+    "json_ok": true,
+    "improved_code": "int lllIII(const int* IllIlI, int l1lIl1, int O0OoO0, int oO0Oo0)\n{\n    while (l1lIl1 <= O0OoO0) {\n        int II1lI1 = l1lIl1 + (O0OoO0 - l1lIl1) / 2;\n        if (IllIlI[II1lI1] == oO0Oo0) {\n            return II1lI1;\n        }\n        if (IllIlI[II1lI1] < oO0Oo0) {\n            l1lIl1 = II1lI1 + 1;\n        } else {\n            O0OoO0 = II1lI1 - 1;\n        }\n    }\n    return -1;\n}"
+  },
+  {
+    "sample": "binary_search",
+    "difficulty": "medium",
+    "kind": "accumulator",
+    "draw": 1,
+    "phrasing": "explicit_loop",
+    "strategy": "noise",
+    "verdict": "ITERATIVE (no table)",
+    "wanted": [
+      "ITERATIVE"
+    ],
+    "signals": [
+      "has a loop"
+    ],
+    "json_ok": true,
+    "improved_code": "int lllIII(const int* IllIlI, int l1lIl1, int O0OoO0, int oO0Oo0)\n{\n    while (l1lIl1 <= O0OoO0) {\n        int II1lI1 = l1lIl1 + (O0OoO0 - l1lIl1) / 2;\n        if (IllIlI[II1lI1] == oO0Oo0) {\n            return II1lI1;\n        }\n        if (IllIlI[II1lI1] < oO0Oo0) {\n            l1lIl1 = II1lI1 + 1;\n        } else {\n            O0OoO0 = II1lI1 - 1;\n        }\n    }\n    return -1;\n}"
+  },
+  {
+    "sample": "binary_search",
+    "difficulty": "medium",
+    "kind": "accumulator",
+    "draw": 2,
+    "phrasing": "explicit_loop",
+    "strategy": "noise",
+    "verdict": "ITERATIVE (no table)",
+    "wanted": [
+      "ITERATIVE"
+    ],
+    "signals": [
+      "has a loop"
+    ],
+    "json_ok": true,
+    "improved_code": "int lllIII(const int* IllIlI, int l1lIl1, int O0OoO0, int oO0Oo0)\n{\n    while (l1lIl1 <= O0OoO0) {\n        int II1lI1 = l1lIl1 + (O0OoO0 - l1lIl1) / 2;\n        if (IllIlI[II1lI1] == oO0Oo0) {\n            return II1lI1;\n        }\n        if (IllIlI[II1lI1] < oO0Oo0) {\n            l1lIl1 = II1lI1 + 1;\n        } else {\n            O0OoO0 = II1lI1 - 1;\n        }\n    }\n    return -1;\n}"
+  },
+  {
+    "sample": "list_length",
+    "difficulty": "medium",
+    "kind": "accumulator",
+    "draw": 0,
+    "phrasing": "explicit_loop",
+    "strategy": "clear",
+    "verdict": "ITERATIVE (no table)",
+    "wanted": [
+      "ITERATIVE"
+    ],
+    "signals": [
+      "has a loop"
+    ],
+    "json_ok": true,
+    "improved_code": "int total(Node* count)\n{\n  int total = 0;\n  for (Node* node = count; node != nullptr; node = node->next)\n    ++total;\n  return total;\n}"
+  },
+  {
+    "sample": "list_length",
+    "difficulty": "medium",
+    "kind": "accumulator",
+    "draw": 1,
+    "phrasing": "explicit_loop",
+    "strategy": "clear",
+    "verdict": "ITERATIVE (no table)",
+    "wanted": [
+      "ITERATIVE"
+    ],
+    "signals": [
+      "has a loop"
+    ],
+    "json_ok": true,
+    "improved_code": "int total(Node* count)\n{\n  int total = 0;\n  for (Node* node = count; node != nullptr; node = node->next)\n    ++total;\n  return total;\n}"
+  },
+  {
+    "sample": "list_length",
+    "difficulty": "medium",
+    "kind": "accumulator",
+    "draw": 2,
+    "phrasing": "explicit_loop",
+    "strategy": "clear",
+    "verdict": "ITERATIVE (no table)",
+    "wanted": [
+      "ITERATIVE"
+    ],
+    "signals": [
+      "has a loop"
+    ],
+    "json_ok": true,
+    "improved_code": "int total(Node* count)\n{\n  int total = 0;\n  for (Node* node = count; node != nullptr; node = node->next)\n    ++total;\n  return total;\n}"
+  },
+  {
+    "sample": "list_length",
+    "difficulty": "medium",
+    "kind": "accumulator",
+    "draw": 0,
+    "phrasing": "explicit_loop",
+    "strategy": "terse",
+    "verdict": "ITERATIVE (no table)",
+    "wanted": [
+      "ITERATIVE"
+    ],
+    "signals": [
+      "has a loop"
+    ],
+    "json_ok": true,
+    "improved_code": "int a(Node* b)\n{\n  int sum = 0;\n  while (b != nullptr)\n  {\n    sum += 1;\n    b = b->next;\n  }\n  return sum;\n}"
+  },
+  {
+    "sample": "list_length",
+    "difficulty": "medium",
+    "kind": "accumulator",
+    "draw": 1,
+    "phrasing": "explicit_loop",
+    "strategy": "terse",
+    "verdict": "ITERATIVE (no table)",
+    "wanted": [
+      "ITERATIVE"
+    ],
+    "signals": [
+      "has a loop"
+    ],
+    "json_ok": true,
+    "improved_code": "int a(Node* b)\n{\n  int sum = 0;\n  while (b != nullptr)\n  {\n    sum += 1;\n    b = b->next;\n  }\n  return sum;\n}"
+  },
+  {
+    "sample": "list_length",
+    "difficulty": "medium",
+    "kind": "accumulator",
+    "draw": 2,
+    "phrasing": "explicit_loop",
+    "strategy": "terse",
+    "verdict": "ITERATIVE (no table)",
+    "wanted": [
+      "ITERATIVE"
+    ],
+    "signals": [
+      "has a loop"
+    ],
+    "json_ok": true,
+    "improved_code": "int a(Node* b)\n{\n  int sum = 0;\n  while (b != nullptr)\n  {\n    sum += 1;\n    b = b->next;\n  }\n  return sum;\n}"
+  },
+  {
+    "sample": "list_length",
+    "difficulty": "medium",
+    "kind": "accumulator",
+    "draw": 0,
+    "phrasing": "explicit_loop",
+    "strategy": "misleading",
+    "verdict": "ITERATIVE (no table)",
+    "wanted": [
+      "ITERATIVE"
+    ],
+    "signals": [
+      "has a loop"
+    ],
+    "json_ok": true,
+    "improved_code": "int product(Node* average)\n{\n  int result = 0;\n  for (Node* cur = average; cur != nullptr; cur = cur->next)\n    result = 1 + result;\n  return result;\n}"
+  },
+  {
+    "sample": "list_length",
+    "difficulty": "medium",
+    "kind": "accumulator",
+    "draw": 1,
+    "phrasing": "explicit_loop",
+    "strategy": "misleading",
+    "verdict": "ITERATIVE (no table)",
+    "wanted": [
+      "ITERATIVE"
+    ],
+    "signals": [
+      "has a loop"
+    ],
+    "json_ok": true,
+    "improved_code": "int product(Node* average)\n{\n  int result = 0;\n  for (Node* cur = average; cur != nullptr; cur = cur->next)\n    result = 1 + result;\n  return result;\n}"
+  },
+  {
+    "sample": "list_length",
+    "difficulty": "medium",
+    "kind": "accumulator",
+    "draw": 2,
+    "phrasing": "explicit_loop",
+    "strategy": "misleading",
+    "verdict": "ITERATIVE (no table)",
+    "wanted": [
+      "ITERATIVE"
+    ],
+    "signals": [
+      "has a loop"
+    ],
+    "json_ok": true,
+    "improved_code": "int product(Node* average)\n{\n  int result = 0;\n  for (Node* cur = average; cur != nullptr; cur = cur->next)\n    result = 1 + result;\n  return result;\n}"
+  },
+  {
+    "sample": "list_length",
+    "difficulty": "medium",
+    "kind": "accumulator",
+    "draw": 0,
+    "phrasing": "explicit_loop",
+    "strategy": "noise",
+    "verdict": "ITERATIVE (no table)",
+    "wanted": [
+      "ITERATIVE"
+    ],
+    "signals": [
+      "has a loop"
+    ],
+    "json_ok": true,
+    "improved_code": "int lllIII(Node* IllIlI)\n{\n  int sum = 0;\n  for (Node* cur = IllIlI; cur != nullptr; cur = cur->next)\n    sum += 1;\n  return sum;\n}"
+  },
+  {
+    "sample": "list_length",
+    "difficulty": "medium",
+    "kind": "accumulator",
+    "draw": 1,
+    "phrasing": "explicit_loop",
+    "strategy": "noise",
+    "verdict": "ITERATIVE (no table)",
+    "wanted": [
+      "ITERATIVE"
+    ],
+    "signals": [
+      "has a loop"
+    ],
+    "json_ok": true,
+    "improved_code": "int lllIII(Node* IllIlI)\n{\n  int sum = 0;\n  for (Node* cur = IllIlI; cur != nullptr; cur = cur->next)\n    sum += 1;\n  return sum;\n}"
+  },
+  {
+    "sample": "list_length",
+    "difficulty": "medium",
+    "kind": "accumulator",
+    "draw": 2,
+    "phrasing": "explicit_loop",
+    "strategy": "noise",
+    "verdict": "ITERATIVE (no table)",
+    "wanted": [
+      "ITERATIVE"
+    ],
+    "signals": [
+      "has a loop"
+    ],
+    "json_ok": true,
+    "improved_code": "int lllIII(Node* IllIlI)\n{\n  int sum = 0;\n  for (Node* cur = IllIlI; cur != nullptr; cur = cur->next)\n    sum += 1;\n  return sum;\n}"
+  },
+  {
+    "sample": "preorder_walk",
+    "difficulty": "hard",
+    "kind": "stack",
+    "draw": 0,
+    "phrasing": "explicit_loop",
+    "strategy": "clear",
+    "verdict": "unchanged algorithm",
+    "wanted": [
+      "ITERATIVE"
+    ],
+    "signals": [
+      "still recursive"
+    ],
+    "json_ok": true,
+    "improved_code": "void total(Node* count)\n{\n  if (count == nullptr)\n    return;\n\n  visit(count->value);\n  total(count->left);\n  total(count->right);\n}"
+  },
+  {
+    "sample": "preorder_walk",
+    "difficulty": "hard",
+    "kind": "stack",
+    "draw": 1,
+    "phrasing": "explicit_loop",
+    "strategy": "clear",
+    "verdict": "unchanged algorithm",
+    "wanted": [
+      "ITERATIVE"
+    ],
+    "signals": [
+      "still recursive"
+    ],
+    "json_ok": true,
+    "improved_code": "void total(Node* count)\n{\n  if (count == nullptr)\n    return;\n\n  visit(count->value);\n  total(count->left);\n  total(count->right);\n}"
+  },
+  {
+    "sample": "preorder_walk",
+    "difficulty": "hard",
+    "kind": "stack",
+    "draw": 2,
+    "phrasing": "explicit_loop",
+    "strategy": "clear",
+    "verdict": "unchanged algorithm",
+    "wanted": [
+      "ITERATIVE"
+    ],
+    "signals": [
+      "still recursive"
+    ],
+    "json_ok": true,
+    "improved_code": "void total(Node* count)\n{\n  if (count == nullptr)\n    return;\n\n  visit(count->value);\n  total(count->left);\n  total(count->right);\n}"
+  },
+  {
+    "sample": "preorder_walk",
+    "difficulty": "hard",
+    "kind": "stack",
+    "draw": 0,
+    "phrasing": "explicit_loop",
+    "strategy": "terse",
+    "verdict": "unchanged algorithm",
+    "wanted": [
+      "ITERATIVE"
+    ],
+    "signals": [
+      "still recursive"
+    ],
+    "json_ok": true,
+    "improved_code": "void a(Node* b)\n{\n  if (b == nullptr)\n    return;\n\n  visit(b->value);\n  a(b->left);\n  a(b->right);\n}"
+  },
+  {
+    "sample": "preorder_walk",
+    "difficulty": "hard",
+    "kind": "stack",
+    "draw": 1,
+    "phrasing": "explicit_loop",
+    "strategy": "terse",
+    "verdict": "unchanged algorithm",
+    "wanted": [
+      "ITERATIVE"
+    ],
+    "signals": [
+      "still recursive"
+    ],
+    "json_ok": true,
+    "improved_code": "void a(Node* b)\n{\n  if (b == nullptr)\n    return;\n\n  visit(b->value);\n  a(b->left);\n  a(b->right);\n}"
+  },
+  {
+    "sample": "preorder_walk",
+    "difficulty": "hard",
+    "kind": "stack",
+    "draw": 2,
+    "phrasing": "explicit_loop",
+    "strategy": "terse",
+    "verdict": "unchanged algorithm",
+    "wanted": [
+      "ITERATIVE"
+    ],
+    "signals": [
+      "still recursive"
+    ],
+    "json_ok": true,
+    "improved_code": "void a(Node* b)\n{\n  if (b == nullptr)\n    return;\n\n  visit(b->value);\n  a(b->left);\n  a(b->right);\n}"
+  },
+  {
+    "sample": "preorder_walk",
+    "difficulty": "hard",
+    "kind": "stack",
+    "draw": 0,
+    "phrasing": "explicit_loop",
+    "strategy": "misleading",
+    "verdict": "ITERATIVE (no table)",
+    "wanted": [
+      "ITERATIVE"
+    ],
+    "signals": [
+      "has a loop"
+    ],
+    "json_ok": true,
+    "improved_code": "void product(Node* average)\n{\n  if (average == nullptr)\n    return;\n\n  // Use a loop to avoid recursion overhead and potential stack overflow for large trees.\n  for (auto node = average; node != nullptr; node = node->parent) {\n    visit(node->value);\n  }\n}"
+  },
+  {
+    "sample": "preorder_walk",
+    "difficulty": "hard",
+    "kind": "stack",
+    "draw": 1,
+    "phrasing": "explicit_loop",
+    "strategy": "misleading",
+    "verdict": "ITERATIVE (no table)",
+    "wanted": [
+      "ITERATIVE"
+    ],
+    "signals": [
+      "has a loop"
+    ],
+    "json_ok": true,
+    "improved_code": "void product(Node* average)\n{\n  if (average == nullptr)\n    return;\n\n  // Use a loop to avoid recursion overhead and potential stack overflow for large trees.\n  for (auto node = average; node != nullptr; node = node->parent) {\n    visit(node->value);\n  }\n}"
+  },
+  {
+    "sample": "preorder_walk",
+    "difficulty": "hard",
+    "kind": "stack",
+    "draw": 2,
+    "phrasing": "explicit_loop",
+    "strategy": "misleading",
+    "verdict": "ITERATIVE (no table)",
+    "wanted": [
+      "ITERATIVE"
+    ],
+    "signals": [
+      "has a loop"
+    ],
+    "json_ok": true,
+    "improved_code": "void product(Node* average)\n{\n  if (average == nullptr)\n    return;\n\n  // Use a loop to avoid recursion overhead and potential stack overflow for large trees.\n  for (auto node = average; node != nullptr; node = node->parent) {\n    visit(node->value);\n  }\n}"
+  },
+  {
+    "sample": "preorder_walk",
+    "difficulty": "hard",
+    "kind": "stack",
+    "draw": 0,
+    "phrasing": "explicit_loop",
+    "strategy": "noise",
+    "verdict": "unchanged algorithm",
+    "wanted": [
+      "ITERATIVE"
+    ],
+    "signals": [
+      "still recursive"
+    ],
+    "json_ok": true,
+    "improved_code": "void lllIII(Node* IllIlI)\n{\n  if (IllIlI == nullptr)\n    return;\n\n  visit(IllIlI->value);\n  lllIII(IllIlI->left);\n  lllIII(IllIlI->right);\n}"
+  },
+  {
+    "sample": "preorder_walk",
+    "difficulty": "hard",
+    "kind": "stack",
+    "draw": 1,
+    "phrasing": "explicit_loop",
+    "strategy": "noise",
+    "verdict": "unchanged algorithm",
+    "wanted": [
+      "ITERATIVE"
+    ],
+    "signals": [
+      "still recursive"
+    ],
+    "json_ok": true,
+    "improved_code": "void lllIII(Node* IllIlI)\n{\n  if (IllIlI == nullptr)\n    return;\n\n  visit(IllIlI->value);\n  lllIII(IllIlI->left);\n  lllIII(IllIlI->right);\n}"
+  },
+  {
+    "sample": "preorder_walk",
+    "difficulty": "hard",
+    "kind": "stack",
+    "draw": 2,
+    "phrasing": "explicit_loop",
+    "strategy": "noise",
+    "verdict": "unchanged algorithm",
+    "wanted": [
+      "ITERATIVE"
+    ],
+    "signals": [
+      "still recursive"
+    ],
+    "json_ok": true,
+    "improved_code": "void lllIII(Node* IllIlI)\n{\n  if (IllIlI == nullptr)\n    return;\n\n  visit(IllIlI->value);\n  lllIII(IllIlI->left);\n  lllIII(IllIlI->right);\n}"
+  },
+  {
+    "sample": "tree_height",
+    "difficulty": "hard",
+    "kind": "stack",
+    "draw": 0,
+    "phrasing": "explicit_loop",
+    "strategy": "clear",
+    "verdict": "unchanged algorithm",
+    "wanted": [
+      "ITERATIVE"
+    ],
+    "signals": [
+      "has a loop",
+      "still recursive"
+    ],
+    "json_ok": true,
+    "improved_code": "int total(Node* count)\n{\n  int sum = 0;\n  for (Node* node = count; node != nullptr; node = node->right) {\n    sum += 1;\n    if (node->left != nullptr) {\n      sum += total(node->left);\n    }\n  }\n  return sum;\n}"
+  },
+  {
+    "sample": "tree_height",
+    "difficulty": "hard",
+    "kind": "stack",
+    "draw": 1,
+    "phrasing": "explicit_loop",
+    "strategy": "clear",
+    "verdict": "unchanged algorithm",
+    "wanted": [
+      "ITERATIVE"
+    ],
+    "signals": [
+      "has a loop",
+      "still recursive"
+    ],
+    "json_ok": true,
+    "improved_code": "int total(Node* count)\n{\n  int sum = 0;\n  for (Node* node = count; node != nullptr; node = node->right) {\n    sum += 1;\n    if (node->left != nullptr) {\n      sum += total(node->left);\n    }\n  }\n  return sum;\n}"
+  },
+  {
+    "sample": "tree_height",
+    "difficulty": "hard",
+    "kind": "stack",
+    "draw": 2,
+    "phrasing": "explicit_loop",
+    "strategy": "clear",
+    "verdict": "unchanged algorithm",
+    "wanted": [
+      "ITERATIVE"
+    ],
+    "signals": [
+      "has a loop",
+      "still recursive"
+    ],
+    "json_ok": true,
+    "improved_code": "int total(Node* count)\n{\n  int sum = 0;\n  for (Node* node = count; node != nullptr; node = node->right) {\n    sum += 1;\n    if (node->left != nullptr) {\n      sum += total(node->left);\n    }\n  }\n  return sum;\n}"
+  },
+  {
+    "sample": "tree_height",
+    "difficulty": "hard",
+    "kind": "stack",
+    "draw": 0,
+    "phrasing": "explicit_loop",
+    "strategy": "terse",
+    "verdict": "unchanged algorithm",
+    "wanted": [
+      "ITERATIVE"
+    ],
+    "signals": [
+      "still recursive"
+    ],
+    "json_ok": true,
+    "improved_code": "int a(Node* b)\n{\n  if (b == nullptr)\n    return 0;\n\n  int leftCount = a(b->left);\n  int rightCount = a(b->right);\n\n  return 1 + std::max(leftCount, rightCount);\n}"
+  },
+  {
+    "sample": "tree_height",
+    "difficulty": "hard",
+    "kind": "stack",
+    "draw": 1,
+    "phrasing": "explicit_loop",
+    "strategy": "terse",
+    "verdict": "unchanged algorithm",
+    "wanted": [
+      "ITERATIVE"
+    ],
+    "signals": [
+      "still recursive"
+    ],
+    "json_ok": true,
+    "improved_code": "int a(Node* b)\n{\n  if (b == nullptr)\n    return 0;\n\n  int leftCount = a(b->left);\n  int rightCount = a(b->right);\n\n  return 1 + std::max(leftCount, rightCount);\n}"
+  },
+  {
+    "sample": "tree_height",
+    "difficulty": "hard",
+    "kind": "stack",
+    "draw": 2,
+    "phrasing": "explicit_loop",
+    "strategy": "terse",
+    "verdict": "unchanged algorithm",
+    "wanted": [
+      "ITERATIVE"
+    ],
+    "signals": [
+      "still recursive"
+    ],
+    "json_ok": true,
+    "improved_code": "int a(Node* b)\n{\n  if (b == nullptr)\n    return 0;\n\n  int leftCount = a(b->left);\n  int rightCount = a(b->right);\n\n  return 1 + std::max(leftCount, rightCount);\n}"
+  },
+  {
+    "sample": "tree_height",
+    "difficulty": "hard",
+    "kind": "stack",
+    "draw": 0,
+    "phrasing": "explicit_loop",
+    "strategy": "misleading",
+    "verdict": "unchanged algorithm",
+    "wanted": [
+      "ITERATIVE"
+    ],
+    "signals": [
+      "has a loop",
+      "still recursive"
+    ],
+    "json_ok": true,
+    "improved_code": "int product(Node* average)\n{\n  int result = 0;\n  for (Node* node = average; node != nullptr; node = node->parent) {\n    result = 1 + std::max(result, product(node->left));\n    result = 1 + std::max(result, product(node->right));\n  }\n  return result;\n}"
+  },
+  {
+    "sample": "tree_height",
+    "difficulty": "hard",
+    "kind": "stack",
+    "draw": 1,
+    "phrasing": "explicit_loop",
+    "strategy": "misleading",
+    "verdict": "unchanged algorithm",
+    "wanted": [
+      "ITERATIVE"
+    ],
+    "signals": [
+      "has a loop",
+      "still recursive"
+    ],
+    "json_ok": true,
+    "improved_code": "int product(Node* average)\n{\n  int result = 0;\n  for (Node* node = average; node != nullptr; node = node->parent) {\n    result = 1 + std::max(result, product(node->left));\n    result = 1 + std::max(result, product(node->right));\n  }\n  return result;\n}"
+  },
+  {
+    "sample": "tree_height",
+    "difficulty": "hard",
+    "kind": "stack",
+    "draw": 2,
+    "phrasing": "explicit_loop",
+    "strategy": "misleading",
+    "verdict": "unchanged algorithm",
+    "wanted": [
+      "ITERATIVE"
+    ],
+    "signals": [
+      "has a loop",
+      "still recursive"
+    ],
+    "json_ok": true,
+    "improved_code": "int product(Node* average)\n{\n  int result = 0;\n  for (Node* node = average; node != nullptr; node = node->parent) {\n    result = 1 + std::max(result, product(node->left));\n    result = 1 + std::max(result, product(node->right));\n  }\n  return result;\n}"
+  },
+  {
+    "sample": "tree_height",
+    "difficulty": "hard",
+    "kind": "stack",
+    "draw": 0,
+    "phrasing": "explicit_loop",
+    "strategy": "noise",
+    "verdict": "unchanged algorithm",
+    "wanted": [
+      "ITERATIVE"
+    ],
+    "signals": [
+      "still recursive"
+    ],
+    "json_ok": true,
+    "improved_code": "int lllIII(Node* IllIlI)\n{\n  if (IllIlI == nullptr)\n    return 0;\n\n  int leftHeight = lllIII(IllIlI->left);\n  int rightHeight = lllIII(IllIlI->right);\n\n  return 1 + std::max(leftHeight, rightHeight);\n}"
+  },
+  {
+    "sample": "tree_height",
+    "difficulty": "hard",
+    "kind": "stack",
+    "draw": 1,
+    "phrasing": "explicit_loop",
+    "strategy": "noise",
+    "verdict": "unchanged algorithm",
+    "wanted": [
+      "ITERATIVE"
+    ],
+    "signals": [
+      "still recursive"
+    ],
+    "json_ok": true,
+    "improved_code": "int lllIII(Node* IllIlI)\n{\n  if (IllIlI == nullptr)\n    return 0;\n\n  int leftHeight = lllIII(IllIlI->left);\n  int rightHeight = lllIII(IllIlI->right);\n\n  return 1 + std::max(leftHeight, rightHeight);\n}"
+  },
+  {
+    "sample": "tree_height",
+    "difficulty": "hard",
+    "kind": "stack",
+    "draw": 2,
+    "phrasing": "explicit_loop",
+    "strategy": "noise",
+    "verdict": "unchanged algorithm",
+    "wanted": [
+      "ITERATIVE"
+    ],
+    "signals": [
+      "still recursive"
+    ],
+    "json_ok": true,
+    "improved_code": "int lllIII(Node* IllIlI)\n{\n  if (IllIlI == nullptr)\n    return 0;\n\n  int leftHeight = lllIII(IllIlI->left);\n  int rightHeight = lllIII(IllIlI->right);\n\n  return 1 + std::max(leftHeight, rightHeight);\n}"
+  },
+  {
+    "sample": "quicksort",
+    "difficulty": "hard",
+    "kind": "stack",
+    "draw": 0,
+    "phrasing": "explicit_loop",
+    "strategy": "clear",
+    "verdict": "unchanged algorithm",
+    "wanted": [
+      "ITERATIVE"
+    ],
+    "signals": [
+      "still recursive"
+    ],
+    "json_ok": true,
+    "improved_code": "void total(int* count, int index, int result)\n{\n  int current = partition(count, index, result);\n  if (current >= result)\n    return;\n  total(count, index, current - 1);\n  total(count, current + 1, result);\n}"
+  },
+  {
+    "sample": "quicksort",
+    "difficulty": "hard",
+    "kind": "stack",
+    "draw": 1,
+    "phrasing": "explicit_loop",
+    "strategy": "clear",
+    "verdict": "unchanged algorithm",
+    "wanted": [
+      "ITERATIVE"
+    ],
+    "signals": [
+      "still recursive"
+    ],
+    "json_ok": true,
+    "improved_code": "void total(int* count, int index, int result)\n{\n  int current = partition(count, index, result);\n  if (current >= result)\n    return;\n  total(count, index, current - 1);\n  total(count, current + 1, result);\n}"
+  },
+  {
+    "sample": "quicksort",
+    "difficulty": "hard",
+    "kind": "stack",
+    "draw": 2,
+    "phrasing": "explicit_loop",
+    "strategy": "clear",
+    "verdict": "unchanged algorithm",
+    "wanted": [
+      "ITERATIVE"
+    ],
+    "signals": [
+      "still recursive"
+    ],
+    "json_ok": true,
+    "improved_code": "void total(int* count, int index, int result)\n{\n  int current = partition(count, index, result);\n  if (current >= result)\n    return;\n  total(count, index, current - 1);\n  total(count, current + 1, result);\n}"
+  },
+  {
+    "sample": "quicksort",
+    "difficulty": "hard",
+    "kind": "stack",
+    "draw": 0,
+    "phrasing": "explicit_loop",
+    "strategy": "terse",
+    "verdict": "unchanged algorithm",
+    "wanted": [
+      "ITERATIVE"
+    ],
+    "signals": [
+      "has a loop",
+      "still recursive"
+    ],
+    "json_ok": true,
+    "improved_code": "void a(int* b, int c, int d)\n{\n    while (c < d)\n    {\n        int e = partition(b, c, d);\n        a(b, c, e - 1);\n        c = e + 1;\n    }\n}"
+  },
+  {
+    "sample": "quicksort",
+    "difficulty": "hard",
+    "kind": "stack",
+    "draw": 1,
+    "phrasing": "explicit_loop",
+    "strategy": "terse",
+    "verdict": "unchanged algorithm",
+    "wanted": [
+      "ITERATIVE"
+    ],
+    "signals": [
+      "has a loop",
+      "still recursive"
+    ],
+    "json_ok": true,
+    "improved_code": "void a(int* b, int c, int d)\n{\n    while (c < d)\n    {\n        int e = partition(b, c, d);\n        a(b, c, e - 1);\n        c = e + 1;\n    }\n}"
+  },
+  {
+    "sample": "quicksort",
+    "difficulty": "hard",
+    "kind": "stack",
+    "draw": 2,
+    "phrasing": "explicit_loop",
+    "strategy": "terse",
+    "verdict": "unchanged algorithm",
+    "wanted": [
+      "ITERATIVE"
+    ],
+    "signals": [
+      "has a loop",
+      "still recursive"
+    ],
+    "json_ok": true,
+    "improved_code": "void a(int* b, int c, int d)\n{\n    while (c < d)\n    {\n        int e = partition(b, c, d);\n        a(b, c, e - 1);\n        c = e + 1;\n    }\n}"
+  },
+  {
+    "sample": "quicksort",
+    "difficulty": "hard",
+    "kind": "stack",
+    "draw": 0,
+    "phrasing": "explicit_loop",
+    "strategy": "misleading",
+    "verdict": "unchanged algorithm",
+    "wanted": [
+      "ITERATIVE"
+    ],
+    "signals": [
+      "has a loop",
+      "still recursive"
+    ],
+    "json_ok": true,
+    "improved_code": "void product(int* average, int maximum, int minimum)\n{\n    while (maximum >= minimum)\n    {\n        int sorted_list = partition(average, maximum, minimum);\n        product(average, maximum, sorted_list - 1);\n        product(average, sorted_list + 1, minimum);\n    }\n}"
+  },
+  {
+    "sample": "quicksort",
+    "difficulty": "hard",
+    "kind": "stack",
+    "draw": 1,
+    "phrasing": "explicit_loop",
+    "strategy": "misleading",
+    "verdict": "unchanged algorithm",
+    "wanted": [
+      "ITERATIVE"
+    ],
+    "signals": [
+      "has a loop",
+      "still recursive"
+    ],
+    "json_ok": true,
+    "improved_code": "void product(int* average, int maximum, int minimum)\n{\n    while (maximum >= minimum)\n    {\n        int sorted_list = partition(average, maximum, minimum);\n        product(average, maximum, sorted_list - 1);\n        product(average, sorted_list + 1, minimum);\n    }\n}"
+  },
+  {
+    "sample": "quicksort",
+    "difficulty": "hard",
+    "kind": "stack",
+    "draw": 2,
+    "phrasing": "explicit_loop",
+    "strategy": "misleading",
+    "verdict": "unchanged algorithm",
+    "wanted": [
+      "ITERATIVE"
+    ],
+    "signals": [
+      "has a loop",
+      "still recursive"
+    ],
+    "json_ok": true,
+    "improved_code": "void product(int* average, int maximum, int minimum)\n{\n    while (maximum >= minimum)\n    {\n        int sorted_list = partition(average, maximum, minimum);\n        product(average, maximum, sorted_list - 1);\n        product(average, sorted_list + 1, minimum);\n    }\n}"
+  },
+  {
+    "sample": "quicksort",
+    "difficulty": "hard",
+    "kind": "stack",
+    "draw": 0,
+    "phrasing": "explicit_loop",
+    "strategy": "noise",
+    "verdict": "unchanged algorithm",
+    "wanted": [
+      "ITERATIVE"
+    ],
+    "signals": [
+      "has a loop",
+      "still recursive"
+    ],
+    "json_ok": true,
+    "improved_code": "void lllIII(int* IllIlI, int l1lIl1, int O0OoO0)\n{\n    while (l1lIl1 >= O0OoO0)\n        return;\n\n    int oO0Oo0 = partition(IllIlI, l1lIl1, O0OoO0);\n    lllIII(IllIlI, l1lIl1, oO0Oo0 - 1);\n    lllIII(IllIlI, oO0Oo0 + 1, O0OoO0);\n}"
+  },
+  {
+    "sample": "quicksort",
+    "difficulty": "hard",
+    "kind": "stack",
+    "draw": 1,
+    "phrasing": "explicit_loop",
+    "strategy": "noise",
+    "verdict": "unchanged algorithm",
+    "wanted": [
+      "ITERATIVE"
+    ],
+    "signals": [
+      "has a loop",
+      "still recursive"
+    ],
+    "json_ok": true,
+    "improved_code": "void lllIII(int* IllIlI, int l1lIl1, int O0OoO0)\n{\n    while (l1lIl1 >= O0OoO0)\n        return;\n\n    int oO0Oo0 = partition(IllIlI, l1lIl1, O0OoO0);\n    lllIII(IllIlI, l1lIl1, oO0Oo0 - 1);\n    lllIII(IllIlI, oO0Oo0 + 1, O0OoO0);\n}"
+  },
+  {
+    "sample": "quicksort",
+    "difficulty": "hard",
+    "kind": "stack",
+    "draw": 2,
+    "phrasing": "explicit_loop",
+    "strategy": "noise",
+    "verdict": "unchanged algorithm",
+    "wanted": [
+      "ITERATIVE"
+    ],
+    "signals": [
+      "has a loop",
+      "still recursive"
+    ],
+    "json_ok": true,
+    "improved_code": "void lllIII(int* IllIlI, int l1lIl1, int O0OoO0)\n{\n    while (l1lIl1 >= O0OoO0)\n        return;\n\n    int oO0Oo0 = partition(IllIlI, l1lIl1, O0OoO0);\n    lllIII(IllIlI, l1lIl1, oO0Oo0 - 1);\n    lllIII(IllIlI, oO0Oo0 + 1, O0OoO0);\n}"
+  },
+  {
+    "sample": "flood_fill",
+    "difficulty": "hard",
+    "kind": "stack",
+    "draw": 0,
+    "phrasing": "explicit_loop",
+    "strategy": "clear",
+    "verdict": "unchanged algorithm",
+    "wanted": [
+      "ITERATIVE"
+    ],
+    "signals": [
+      "has a loop",
+      "still recursive"
+    ],
+    "json_ok": true,
+    "improved_code": "void total(int** count, int index, int result, int current, int limit)\n{\n  // Base case: if the current value already matches the limit, we are done.\n  if (index < 0 || result < 0 || count[index][result] != current)\n    return;\n\n  // Mark the cell as fully filled.\n  count[index][result] = limit;\n\n  // Recurse over all four possible moves.\n  for (int i = -1; i <= 1; ++i) {\n    int nextIndex = index + i;\n    if (nextIndex >= 0 && nextIndex < 10) { // Assuming a 10x10 grid for simplicity.\n      for (int j = -1; j <= 1; ++j) {\n        int nextResult = result + j;\n        if (nextResult >= 0 && nextResult < 10) {\n          total(count, nextIndex, nextResult, current, limit);\n        }\n      }\n    }\n  }\n}"
+  },
+  {
+    "sample": "flood_fill",
+    "difficulty": "hard",
+    "kind": "stack",
+    "draw": 1,
+    "phrasing": "explicit_loop",
+    "strategy": "clear",
+    "verdict": "unchanged algorithm",
+    "wanted": [
+      "ITERATIVE"
+    ],
+    "signals": [
+      "has a loop",
+      "still recursive"
+    ],
+    "json_ok": true,
+    "improved_code": "void total(int** count, int index, int result, int current, int limit)\n{\n  // Base case: if the current value already matches the limit, we are done.\n  if (index < 0 || result < 0 || count[index][result] != current)\n    return;\n\n  // Mark the cell as fully filled.\n  count[index][result] = limit;\n\n  // Recurse over all four possible moves.\n  for (int i = -1; i <= 1; ++i) {\n    int nextIndex = index + i;\n    if (nextIndex >= 0 && nextIndex < 10) { // Assuming a 10x10 grid for simplicity.\n      for (int j = -1; j <= 1; ++j) {\n        int nextResult = result + j;\n        if (nextResult >= 0 && nextResult < 10) {\n          total(count, nextIndex, nextResult, current, limit);\n        }\n      }\n    }\n  }\n}"
+  },
+  {
+    "sample": "flood_fill",
+    "difficulty": "hard",
+    "kind": "stack",
+    "draw": 2,
+    "phrasing": "explicit_loop",
+    "strategy": "clear",
+    "verdict": "unchanged algorithm",
+    "wanted": [
+      "ITERATIVE"
+    ],
+    "signals": [
+      "has a loop",
+      "still recursive"
+    ],
+    "json_ok": true,
+    "improved_code": "void total(int** count, int index, int result, int current, int limit)\n{\n  // Base case: if the current value already matches the limit, we are done.\n  if (index < 0 || result < 0 || count[index][result] != current)\n    return;\n\n  // Mark the cell as fully filled.\n  count[index][result] = limit;\n\n  // Recurse over all four possible moves.\n  for (int i = -1; i <= 1; ++i) {\n    int nextIndex = index + i;\n    if (nextIndex >= 0 && nextIndex < 10) { // Assuming a 10x10 grid for simplicity.\n      for (int j = -1; j <= 1; ++j) {\n        int nextResult = result + j;\n        if (nextResult >= 0 && nextResult < 10) {\n          total(count, nextIndex, nextResult, current, limit);\n        }\n      }\n    }\n  }\n}"
+  },
+  {
+    "sample": "flood_fill",
+    "difficulty": "hard",
+    "kind": "stack",
+    "draw": 0,
+    "phrasing": "explicit_loop",
+    "strategy": "terse",
+    "verdict": "unchanged algorithm",
+    "wanted": [
+      "ITERATIVE"
+    ],
+    "signals": [
+      "still recursive"
+    ],
+    "json_ok": true,
+    "improved_code": "void a(int** b, int c, int d, int e, int x)\n{\n    // Guard against invalid indices or mismatched element.\n    if (c < 0 || d < 0 || !b[c] || b[c][d] != e)\n        return;\n\n    // Store the original value for later restoration.\n    const int original = b[c][d];\n\n    // Replace the target cell with the replacement value.\n    b[c][d] = x;\n\n    // Recursively explore all four orthogonal neighbors.\n    a(b, c + 1, d, e, x);\n    a(b, c - 1, d, e, x);\n    a(b, c, d + 1, e, x);\n    a(b, c, d - 1, e, x);\n\n    // Restore the original value to preserve the original matrix.\n    b[c][d] = original;\n}"
+  },
+  {
+    "sample": "flood_fill",
+    "difficulty": "hard",
+    "kind": "stack",
+    "draw": 1,
+    "phrasing": "explicit_loop",
+    "strategy": "terse",
+    "verdict": "unchanged algorithm",
+    "wanted": [
+      "ITERATIVE"
+    ],
+    "signals": [
+      "still recursive"
+    ],
+    "json_ok": true,
+    "improved_code": "void a(int** b, int c, int d, int e, int x)\n{\n    // Guard against invalid indices or mismatched element.\n    if (c < 0 || d < 0 || !b[c] || b[c][d] != e)\n        return;\n\n    // Store the original value for later restoration.\n    const int original = b[c][d];\n\n    // Replace the target cell with the replacement value.\n    b[c][d] = x;\n\n    // Recursively explore all four orthogonal neighbors.\n    a(b, c + 1, d, e, x);\n    a(b, c - 1, d, e, x);\n    a(b, c, d + 1, e, x);\n    a(b, c, d - 1, e, x);\n\n    // Restore the original value to preserve the original matrix.\n    b[c][d] = original;\n}"
+  },
+  {
+    "sample": "flood_fill",
+    "difficulty": "hard",
+    "kind": "stack",
+    "draw": 2,
+    "phrasing": "explicit_loop",
+    "strategy": "terse",
+    "verdict": "unchanged algorithm",
+    "wanted": [
+      "ITERATIVE"
+    ],
+    "signals": [
+      "still recursive"
+    ],
+    "json_ok": true,
+    "improved_code": "void a(int** b, int c, int d, int e, int x)\n{\n    // Guard against invalid indices or mismatched element.\n    if (c < 0 || d < 0 || !b[c] || b[c][d] != e)\n        return;\n\n    // Store the original value for later restoration.\n    const int original = b[c][d];\n\n    // Replace the target cell with the replacement value.\n    b[c][d] = x;\n\n    // Recursively explore all four orthogonal neighbors.\n    a(b, c + 1, d, e, x);\n    a(b, c - 1, d, e, x);\n    a(b, c, d + 1, e, x);\n    a(b, c, d - 1, e, x);\n\n    // Restore the original value to preserve the original matrix.\n    b[c][d] = original;\n}"
+  },
+  {
+    "sample": "flood_fill",
+    "difficulty": "hard",
+    "kind": "stack",
+    "draw": 0,
+    "phrasing": "explicit_loop",
+    "strategy": "misleading",
+    "verdict": "unchanged algorithm",
+    "wanted": [
+      "ITERATIVE"
+    ],
+    "signals": [
+      "still recursive"
+    ],
+    "json_ok": true,
+    "improved_code": "void product(int** average, int maximum, int minimum, int sorted_list, int is_prime)\n{\n  // Guard against invalid ranges or mismatched data.\n  if (maximum < 0 || minimum < 0 || average[maximum][minimum] != sorted_list)\n    return;\n\n  average[maximum][minimum] = is_prime;\n\n  // Recurse over all four orthogonal directions.\n  product(average, maximum + 1, minimum, sorted_list, is_prime);\n  product(average, maximum - 1, minimum, sorted_list, is_prime);\n  product(average, maximum, minimum + 1, sorted_list, is_prime);\n  product(average, maximum, minimum - 1, sorted_list, is_prime);\n}"
+  },
+  {
+    "sample": "flood_fill",
+    "difficulty": "hard",
+    "kind": "stack",
+    "draw": 1,
+    "phrasing": "explicit_loop",
+    "strategy": "misleading",
+    "verdict": "unchanged algorithm",
+    "wanted": [
+      "ITERATIVE"
+    ],
+    "signals": [
+      "still recursive"
+    ],
+    "json_ok": true,
+    "improved_code": "void product(int** average, int maximum, int minimum, int sorted_list, int is_prime)\n{\n  // Guard against invalid ranges or mismatched data.\n  if (maximum < 0 || minimum < 0 || average[maximum][minimum] != sorted_list)\n    return;\n\n  average[maximum][minimum] = is_prime;\n\n  // Recurse over all four orthogonal directions.\n  product(average, maximum + 1, minimum, sorted_list, is_prime);\n  product(average, maximum - 1, minimum, sorted_list, is_prime);\n  product(average, maximum, minimum + 1, sorted_list, is_prime);\n  product(average, maximum, minimum - 1, sorted_list, is_prime);\n}"
+  },
+  {
+    "sample": "flood_fill",
+    "difficulty": "hard",
+    "kind": "stack",
+    "draw": 2,
+    "phrasing": "explicit_loop",
+    "strategy": "misleading",
+    "verdict": "unchanged algorithm",
+    "wanted": [
+      "ITERATIVE"
+    ],
+    "signals": [
+      "still recursive"
+    ],
+    "json_ok": true,
+    "improved_code": "void product(int** average, int maximum, int minimum, int sorted_list, int is_prime)\n{\n  // Guard against invalid ranges or mismatched data.\n  if (maximum < 0 || minimum < 0 || average[maximum][minimum] != sorted_list)\n    return;\n\n  average[maximum][minimum] = is_prime;\n\n  // Recurse over all four orthogonal directions.\n  product(average, maximum + 1, minimum, sorted_list, is_prime);\n  product(average, maximum - 1, minimum, sorted_list, is_prime);\n  product(average, maximum, minimum + 1, sorted_list, is_prime);\n  product(average, maximum, minimum - 1, sorted_list, is_prime);\n}"
+  },
+  {
+    "sample": "flood_fill",
+    "difficulty": "hard",
+    "kind": "stack",
+    "draw": 0,
+    "phrasing": "explicit_loop",
+    "strategy": "noise",
+    "verdict": "unchanged algorithm",
+    "wanted": [
+      "ITERATIVE"
+    ],
+    "signals": [
+      "still recursive"
+    ],
+    "json_ok": true,
+    "improved_code": "void lllIII(int** IllIlI, int l1lIl1, int O0OoO0, int oO0Oo0, int II1lI1)\n{\n  // Guard against invalid indices or mismatched value.\n  if (l1lIl1 < 0 || O0OoO0 < 0 || IllIlI[l1lIl1][O0OoO0] != oO0Oo0)\n    return;\n\n  // Mark the cell as visited.\n  IllIlI[l1lIl1][O0OoO0] = II1lI1;\n\n  // Recursively explore all four adjacent cells.\n  lllIII(IllIlI, l1lIl1 + 1, O0OoO0, oO0Oo0, II1lI1);\n  lllIII(IllIlI, l1lIl1 - 1, O0OoO0, oO0Oo0, II1lI1);\n  lllIII(IllIlI, l1lIl1, O0OoO0 + 1, oO0Oo0, II1lI1);\n  lllIII(IllIlI, l1lIl1, O0OoO0 - 1, oO0Oo0, II1lI1);\n}"
+  },
+  {
+    "sample": "flood_fill",
+    "difficulty": "hard",
+    "kind": "stack",
+    "draw": 1,
+    "phrasing": "explicit_loop",
+    "strategy": "noise",
+    "verdict": "unchanged algorithm",
+    "wanted": [
+      "ITERATIVE"
+    ],
+    "signals": [
+      "still recursive"
+    ],
+    "json_ok": true,
+    "improved_code": "void lllIII(int** IllIlI, int l1lIl1, int O0OoO0, int oO0Oo0, int II1lI1)\n{\n  // Guard against invalid indices or mismatched value.\n  if (l1lIl1 < 0 || O0OoO0 < 0 || IllIlI[l1lIl1][O0OoO0] != oO0Oo0)\n    return;\n\n  // Mark the cell as visited.\n  IllIlI[l1lIl1][O0OoO0] = II1lI1;\n\n  // Recursively explore all four adjacent cells.\n  lllIII(IllIlI, l1lIl1 + 1, O0OoO0, oO0Oo0, II1lI1);\n  lllIII(IllIlI, l1lIl1 - 1, O0OoO0, oO0Oo0, II1lI1);\n  lllIII(IllIlI, l1lIl1, O0OoO0 + 1, oO0Oo0, II1lI1);\n  lllIII(IllIlI, l1lIl1, O0OoO0 - 1, oO0Oo0, II1lI1);\n}"
+  },
+  {
+    "sample": "flood_fill",
+    "difficulty": "hard",
+    "kind": "stack",
+    "draw": 2,
+    "phrasing": "explicit_loop",
+    "strategy": "noise",
+    "verdict": "unchanged algorithm",
+    "wanted": [
+      "ITERATIVE"
+    ],
+    "signals": [
+      "still recursive"
+    ],
+    "json_ok": true,
+    "improved_code": "void lllIII(int** IllIlI, int l1lIl1, int O0OoO0, int oO0Oo0, int II1lI1)\n{\n  // Guard against invalid indices or mismatched value.\n  if (l1lIl1 < 0 || O0OoO0 < 0 || IllIlI[l1lIl1][O0OoO0] != oO0Oo0)\n    return;\n\n  // Mark the cell as visited.\n  IllIlI[l1lIl1][O0OoO0] = II1lI1;\n\n  // Recursively explore all four adjacent cells.\n  lllIII(IllIlI, l1lIl1 + 1, O0OoO0, oO0Oo0, II1lI1);\n  lllIII(IllIlI, l1lIl1 - 1, O0OoO0, oO0Oo0, II1lI1);\n  lllIII(IllIlI, l1lIl1, O0OoO0 + 1, oO0Oo0, II1lI1);\n  lllIII(IllIlI, l1lIl1, O0OoO0 - 1, oO0Oo0, II1lI1);\n}"
+  }
+]
