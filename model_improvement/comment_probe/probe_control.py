@@ -8,7 +8,10 @@ If the comment follows the name it is now wrong, and wrong in a way that is
 checkable rather than arguable.
 """
 from __future__ import annotations
-import json, re, sys, urllib.request
+import json
+import re
+import sys
+import urllib.request
 from pathlib import Path
 sys.path.insert(0, str(Path("src").resolve()))
 from transformers import AutoTokenizer
@@ -91,8 +94,10 @@ def ask(code):
                                  headers={"Content-Type": "application/json"})
     with urllib.request.urlopen(req, timeout=900) as r:
         text = json.load(r)["content"]
-    try: return json.loads(text)
-    except json.JSONDecodeError: return None
+    try:
+        return json.loads(text)
+    except json.JSONDecodeError:
+        return None
 
 out = []
 for name, code, target, truth in CASES:

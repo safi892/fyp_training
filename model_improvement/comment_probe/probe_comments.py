@@ -13,7 +13,10 @@ Both are scored on the declaration/return line only, and every comment is
 printed so the score can be checked against the sentence that earned it.
 """
 from __future__ import annotations
-import json, re, sys, urllib.request
+import json
+import re
+import sys
+import urllib.request
 from pathlib import Path
 sys.path.insert(0, str(Path("src").resolve()))
 from transformers import AutoTokenizer
@@ -138,12 +141,12 @@ q2 = run(Q2, "Q2  a variable declared early, used for the result later", 2)
 print(f"\n{'='*78}\nSCORES\n{'='*78}")
 n = sum(1 for r in q1 if r["comment"] and LOGIC.search(r["comment"]))
 print(f"Q1  comment names the actual operation : {n}/{len(q1)}")
-f = sum(1 for r in q2 if r["comment"] and FORWARD.search(r["comment"]))
-l = sum(1 for r in q2 if r["comment"] and LOCAL_ONLY.search(r["comment"]))
+forward = sum(1 for r in q2 if r["comment"] and FORWARD.search(r["comment"]))
+local = sum(1 for r in q2 if r["comment"] and LOCAL_ONLY.search(r["comment"]))
 both = sum(1 for r in q2 if r["comment"] and FORWARD.search(r["comment"])
                                           and LOCAL_ONLY.search(r["comment"]))
-print(f"Q2  declaration comment says what it is FOR : {f}/{len(q2)}")
-print(f"Q2  declaration comment restates the statement : {l}/{len(q2)}")
+print(f"Q2  declaration comment says what it is FOR : {forward}/{len(q2)}")
+print(f"Q2  declaration comment restates the statement : {local}/{len(q2)}")
 print(f"Q2  says both (initialises X, to hold Y)       : {both}/{len(q2)}")
 Path("/tmp/claude-1000/-home-usama-Downloads-saffi-fyp-fyp-training/"
      "35610843-d5fd-4636-a739-e08b0471bd46/scratchpad/comment_probe.json"

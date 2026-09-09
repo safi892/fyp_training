@@ -11,7 +11,11 @@ name-reading, not difficulty. Each program declares what a correct comment has
 to say, and the sentence that scored is printed beside the score.
 """
 from __future__ import annotations
-import json, random, re, sys, urllib.request
+import json
+import random
+import re
+import sys
+import urllib.request
 from pathlib import Path
 sys.path.insert(0, str(Path("src").resolve()))
 from transformers import AutoTokenizer
@@ -122,8 +126,10 @@ def ask(code):
                                  headers={"Content-Type": "application/json"})
     with urllib.request.urlopen(req, timeout=900) as r:
         text = json.load(r)["content"]
-    try: return json.loads(text), text
-    except json.JSONDecodeError: return None, text
+    try:
+        return json.loads(text), text
+    except json.JSONDecodeError:
+        return None, text
 
 rows = []
 for strategy in ("original", "terse", "noise"):
@@ -133,9 +139,10 @@ for strategy in ("original", "terse", "noise"):
         parsed, raw = ask(shown)
         anchors = (parsed or {}).get("line_comments") or []
         blob = " ".join((a.get("comment") or "") for a in anchors)
-        core = bool(core_re.search(blob)); detail = bool(detail_re.search(blob))
+        core = bool(core_re.search(blob))
+        detail = bool(detail_re.search(blob))
         # every anchor must quote a line that is actually in the file
-        lines = {l.strip() for l in shown.split("\n")}
+        lines = {line.strip() for line in shown.split("\n")}
         bad = [a for a in anchors if (a.get("code") or "").strip() not in lines]
         rows.append({"program": name, "strategy": strategy, "json_ok": parsed is not None,
                      "core": core, "detail": detail, "anchors": len(anchors),
