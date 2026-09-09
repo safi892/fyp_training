@@ -1,0 +1,624 @@
+[
+  {
+    "program": "sum_even",
+    "strategy": "original",
+    "json_ok": true,
+    "core": true,
+    "detail": true,
+    "anchors": 5,
+    "unquotable": 0,
+    "truth": "adds up the even elements",
+    "code_shown": "int sumEven(const std::vector<int>& values) {\n    int total = 0;\n    for (int value : values) {\n        if (value % 2 == 0) {\n            total += value;\n        }\n    }\n    return total;\n}",
+    "comments": [
+      {
+        "code": "int total = 0;",
+        "comment": "accumulator for the sum of even numbers"
+      },
+      {
+        "code": "for (int value : values) {",
+        "comment": "iterate over each element in the input vector"
+      },
+      {
+        "code": "if (value % 2 == 0) {",
+        "comment": "only add even numbers to the total"
+      },
+      {
+        "code": "total += value;",
+        "comment": "accumulate the even number"
+      },
+      {
+        "code": "return total;",
+        "comment": "return the computed sum"
+      }
+    ]
+  },
+  {
+    "program": "largest",
+    "strategy": "original",
+    "json_ok": true,
+    "core": true,
+    "detail": false,
+    "anchors": 3,
+    "unquotable": 0,
+    "truth": "returns the maximum",
+    "code_shown": "int largest(const std::vector<int>& values) {\n    int best = values[0];\n    for (std::size_t i = 1; i < values.size(); ++i) {\n        if (values[i] > best) {\n            best = values[i];\n        }\n    }\n    return best;\n}",
+    "comments": [
+      {
+        "code": "int best = values[0];",
+        "comment": "Initialize best with the first element; it will be the largest encountered."
+      },
+      {
+        "code": "if (values[i] > best) {",
+        "comment": "Compare current element with the current best; if larger, update best."
+      },
+      {
+        "code": "return best;",
+        "comment": "Return the largest value found."
+      }
+    ]
+  },
+  {
+    "program": "count_positive",
+    "strategy": "original",
+    "json_ok": true,
+    "core": true,
+    "detail": true,
+    "anchors": 5,
+    "unquotable": 0,
+    "truth": "counts elements greater than zero",
+    "code_shown": "int countPositive(const std::vector<int>& values) {\n    int hits = 0;\n    for (int value : values) {\n        if (value > 0) {\n            ++hits;\n        }\n    }\n    return hits;\n}",
+    "comments": [
+      {
+        "code": "int hits = 0;",
+        "comment": "accumulator for positive numbers"
+      },
+      {
+        "code": "for (int value : values) {",
+        "comment": "iterate over each element in the vector"
+      },
+      {
+        "code": "if (value > 0) {",
+        "comment": "count only positive values"
+      },
+      {
+        "code": "++hits;",
+        "comment": "increment hit counter"
+      },
+      {
+        "code": "return hits;",
+        "comment": "return total count of positive numbers"
+      }
+    ]
+  },
+  {
+    "program": "reverse_string",
+    "strategy": "original",
+    "json_ok": true,
+    "core": true,
+    "detail": true,
+    "anchors": 6,
+    "unquotable": 0,
+    "truth": "reverses in place with two pointers",
+    "code_shown": "void reverseString(std::string& text) {\n    std::size_t left = 0;\n    std::size_t right = text.size() - 1;\n    while (left < right) {\n        std::swap(text[left], text[right]);\n        ++left;\n        --right;\n    }\n}",
+    "comments": [
+      {
+        "code": "std::size_t left = 0;",
+        "comment": "start of the string"
+      },
+      {
+        "code": "std::size_t right = text.size() - 1;",
+        "comment": "end of the string"
+      },
+      {
+        "code": "while (left < right) {",
+        "comment": "swap characters from both ends moving inward"
+      },
+      {
+        "code": "std::swap(text[left], text[right]);",
+        "comment": "swap characters at positions left and right"
+      },
+      {
+        "code": "++left;",
+        "comment": "advance left pointer"
+      },
+      {
+        "code": "--right;",
+        "comment": "decrement right pointer"
+      }
+    ]
+  },
+  {
+    "program": "binary_search",
+    "strategy": "original",
+    "json_ok": true,
+    "core": true,
+    "detail": false,
+    "anchors": 10,
+    "unquotable": 0,
+    "truth": "binary search; requires sorted input",
+    "code_shown": "int binarySearch(const std::vector<int>& values, int target) {\n    int low = 0;\n    int high = static_cast<int>(values.size()) - 1;\n    while (low <= high) {\n        int mid = low + (high - low) / 2;\n        if (values[mid] == target) {\n            return mid;\n        }\n        if (values[mid] < target) {\n            low = mid + 1;\n        } else {\n            high = mid - 1;\n        }\n    }\n    return -1;\n}",
+    "comments": [
+      {
+        "code": "int low = 0;",
+        "comment": "start of search interval"
+      },
+      {
+        "code": "int high = static_cast<int>(values.size()) - 1;",
+        "comment": "end of search interval"
+      },
+      {
+        "code": "while (low <= high) {",
+        "comment": "continue while there is a valid search range"
+      },
+      {
+        "code": "int mid = low + (high - low) / 2;",
+        "comment": "compute middle index safely"
+      },
+      {
+        "code": "if (values[mid] == target) {",
+        "comment": "target found at mid"
+      },
+      {
+        "code": "return mid;",
+        "comment": "return index of target"
+      },
+      {
+        "code": "if (values[mid] < target) {",
+        "comment": "target lies in the right half"
+      },
+      {
+        "code": "low = mid + 1;",
+        "comment": "discard left half"
+      },
+      {
+        "code": "high = mid - 1;",
+        "comment": "discard right half"
+      },
+      {
+        "code": "return -1;",
+        "comment": "target not present in the array"
+      }
+    ]
+  },
+  {
+    "program": "factorial",
+    "strategy": "original",
+    "json_ok": true,
+    "core": true,
+    "detail": true,
+    "anchors": 2,
+    "unquotable": 0,
+    "truth": "recursive factorial with a base case",
+    "code_shown": "long factorial(int number) {\n    if (number <= 1) {\n        return 1;\n    }\n    return number * factorial(number - 1);\n}",
+    "comments": [
+      {
+        "code": "return 1;",
+        "comment": "Base case: factorial of 0 or 1 is defined as 1"
+      },
+      {
+        "code": "return number * factorial(number - 1);",
+        "comment": "Recursive case: multiply current number by factorial of (number\u20111)"
+      }
+    ]
+  },
+  {
+    "program": "sum_even",
+    "strategy": "terse",
+    "json_ok": true,
+    "core": true,
+    "detail": true,
+    "anchors": 5,
+    "unquotable": 0,
+    "truth": "adds up the even elements",
+    "code_shown": "int a(const std::vector<int>& d) {\n    int b = 0;\n    for (int c : d) {\n        if (c % 2 == 0) {\n            b += c;\n        }\n    }\n    return b;\n}",
+    "comments": [
+      {
+        "code": "int b = 0;",
+        "comment": "accumulator for the sum of even numbers"
+      },
+      {
+        "code": "for (int c : d) {",
+        "comment": "iterate over each element in the input vector"
+      },
+      {
+        "code": "if (c % 2 == 0) {",
+        "comment": "only add even numbers to the accumulator"
+      },
+      {
+        "code": "b += c;",
+        "comment": "accumulate the even value"
+      },
+      {
+        "code": "return b;",
+        "comment": "return the total sum of even elements"
+      }
+    ]
+  },
+  {
+    "program": "largest",
+    "strategy": "terse",
+    "json_ok": true,
+    "core": true,
+    "detail": true,
+    "anchors": 5,
+    "unquotable": 0,
+    "truth": "returns the maximum",
+    "code_shown": "int a(const std::vector<int>& d) {\n    int b = d[0];\n    for (std::size_t c = 1; c < d.size(); ++c) {\n        if (d[c] > b) {\n            b = d[c];\n        }\n    }\n    return b;\n}",
+    "comments": [
+      {
+        "code": "int b = d[0];",
+        "comment": "start with the first element as the best candidate"
+      },
+      {
+        "code": "for (std::size_t c = 1; c < d.size(); ++c) {",
+        "comment": "iterate from the second element to find the maximum"
+      },
+      {
+        "code": "if (d[c] > b) {",
+        "comment": "if the current element is larger than the current best, update it"
+      },
+      {
+        "code": "b = d[c];",
+        "comment": "new maximum found"
+      },
+      {
+        "code": "return b;",
+        "comment": "return the maximum value"
+      }
+    ]
+  },
+  {
+    "program": "count_positive",
+    "strategy": "terse",
+    "json_ok": true,
+    "core": true,
+    "detail": true,
+    "anchors": 5,
+    "unquotable": 0,
+    "truth": "counts elements greater than zero",
+    "code_shown": "int a(const std::vector<int>& d) {\n    int b = 0;\n    for (int c : d) {\n        if (c > 0) {\n            ++b;\n        }\n    }\n    return b;\n}",
+    "comments": [
+      {
+        "code": "int b = 0;",
+        "comment": "initialize counter for positive numbers"
+      },
+      {
+        "code": "for (int c : d) {",
+        "comment": "iterate over each element in the vector"
+      },
+      {
+        "code": "if (c > 0) {",
+        "comment": "increment counter only when the element is positive"
+      },
+      {
+        "code": "++b;",
+        "comment": "positive value contributes to the count"
+      },
+      {
+        "code": "return b;",
+        "comment": "return the total count of positive numbers"
+      }
+    ]
+  },
+  {
+    "program": "reverse_string",
+    "strategy": "terse",
+    "json_ok": true,
+    "core": true,
+    "detail": true,
+    "anchors": 6,
+    "unquotable": 0,
+    "truth": "reverses in place with two pointers",
+    "code_shown": "void a(std::string& b) {\n    std::size_t c = 0;\n    std::size_t d = b.size() - 1;\n    while (c < d) {\n        std::swap(b[c], b[d]);\n        ++c;\n        --d;\n    }\n}",
+    "comments": [
+      {
+        "code": "std::size_t c = 0;",
+        "comment": "start at the first character"
+      },
+      {
+        "code": "std::size_t d = b.size() - 1;",
+        "comment": "start at the last character"
+      },
+      {
+        "code": "while (c < d) {",
+        "comment": "swap characters from both ends moving inward"
+      },
+      {
+        "code": "std::swap(b[c], b[d]);",
+        "comment": "swap current and mirrored character"
+      },
+      {
+        "code": "++c;",
+        "comment": "advance left pointer"
+      },
+      {
+        "code": "--d;",
+        "comment": "decrement right pointer"
+      }
+    ]
+  },
+  {
+    "program": "binary_search",
+    "strategy": "terse",
+    "json_ok": true,
+    "core": true,
+    "detail": false,
+    "anchors": 9,
+    "unquotable": 0,
+    "truth": "binary search; requires sorted input",
+    "code_shown": "int a(const std::vector<int>& values, int b) {\n    int c = 0;\n    int d = static_cast<int>(values.size()) - 1;\n    while (c <= d) {\n        int e = c + (d - c) / 2;\n        if (values[e] == b) {\n            return e;\n        }\n        if (values[e] < b) {\n            c = e + 1;\n        } else {\n            d = e - 1;\n        }\n    }\n    return -1;\n}",
+    "comments": [
+      {
+        "code": "int c = 0;",
+        "comment": "start of search interval"
+      },
+      {
+        "code": "int d = static_cast<int>(values.size()) - 1;",
+        "comment": "end of search interval"
+      },
+      {
+        "code": "while (c <= d) {",
+        "comment": "binary search loop"
+      },
+      {
+        "code": "int e = c + (d - c) / 2;",
+        "comment": "compute middle index safely"
+      },
+      {
+        "code": "if (values[e] == b) {",
+        "comment": "exact match found"
+      },
+      {
+        "code": "return e;",
+        "comment": "return index of the first occurrence"
+      },
+      {
+        "code": "c = e + 1;",
+        "comment": "value is larger, discard left half"
+      },
+      {
+        "code": "d = e - 1;",
+        "comment": "value is smaller, discard right half"
+      },
+      {
+        "code": "return -1;",
+        "comment": "not found"
+      }
+    ]
+  },
+  {
+    "program": "factorial",
+    "strategy": "terse",
+    "json_ok": true,
+    "core": true,
+    "detail": true,
+    "anchors": 3,
+    "unquotable": 0,
+    "truth": "recursive factorial with a base case",
+    "code_shown": "long a(int b) {\n    if (b <= 1) {\n        return 1;\n    }\n    return b * a(b - 1);\n}",
+    "comments": [
+      {
+        "code": "if (b <= 1) {",
+        "comment": "Base case: for non\u2011positive arguments the factorial is defined as 1."
+      },
+      {
+        "code": "return 1;",
+        "comment": "Return 1 for b <= 1."
+      },
+      {
+        "code": "return b * a(b - 1);",
+        "comment": "Recursive step: multiply b by the factorial of (b\u20111). This leads to an exponential stack growth for large b."
+      }
+    ]
+  },
+  {
+    "program": "sum_even",
+    "strategy": "noise",
+    "json_ok": true,
+    "core": true,
+    "detail": true,
+    "anchors": 5,
+    "unquotable": 0,
+    "truth": "adds up the even elements",
+    "code_shown": "int lllIII(const std::vector<int>& O0OoO0) {\n    int IllIlI = 0;\n    for (int l1lIl1 : O0OoO0) {\n        if (l1lIl1 % 2 == 0) {\n            IllIlI += l1lIl1;\n        }\n    }\n    return IllIlI;\n}",
+    "comments": [
+      {
+        "code": "int IllIlI = 0;",
+        "comment": "accumulator for the sum of even numbers"
+      },
+      {
+        "code": "for (int l1lIl1 : O0OoO0) {",
+        "comment": "iterate over each element; O(n) time, O(1) extra space"
+      },
+      {
+        "code": "if (l1lIl1 % 2 == 0) {",
+        "comment": "only add even numbers"
+      },
+      {
+        "code": "IllIlI += l1lIl1;",
+        "comment": "accumulate the even value"
+      },
+      {
+        "code": "return IllIlI;",
+        "comment": "return the total sum of even elements"
+      }
+    ]
+  },
+  {
+    "program": "largest",
+    "strategy": "noise",
+    "json_ok": true,
+    "core": true,
+    "detail": true,
+    "anchors": 4,
+    "unquotable": 0,
+    "truth": "returns the maximum",
+    "code_shown": "int lllIII(const std::vector<int>& O0OoO0) {\n    int IllIlI = O0OoO0[0];\n    for (std::size_t l1lIl1 = 1; l1lIl1 < O0OoO0.size(); ++l1lIl1) {\n        if (O0OoO0[l1lIl1] > IllIlI) {\n            IllIlI = O0OoO0[l1lIl1];\n        }\n    }\n    return IllIlI;\n}",
+    "comments": [
+      {
+        "code": "int IllIlI = O0OoO0[0];",
+        "comment": "Initialize the maximum value with the first element of the vector."
+      },
+      {
+        "code": "for (std::size_t l1lIl1 = 1; l1lIl1 < O0OoO0.size(); ++l1lIl1) {",
+        "comment": "Iterate over the remaining elements to find the maximum."
+      },
+      {
+        "code": "if (O0OoO0[l1lIl1] > IllIlI) {",
+        "comment": "If the current element is greater than the current maximum, update it."
+      },
+      {
+        "code": "return IllIlI;",
+        "comment": "Return the maximum value found."
+      }
+    ]
+  },
+  {
+    "program": "count_positive",
+    "strategy": "noise",
+    "json_ok": true,
+    "core": true,
+    "detail": true,
+    "anchors": 5,
+    "unquotable": 0,
+    "truth": "counts elements greater than zero",
+    "code_shown": "int lllIII(const std::vector<int>& O0OoO0) {\n    int IllIlI = 0;\n    for (int l1lIl1 : O0OoO0) {\n        if (l1lIl1 > 0) {\n            ++IllIlI;\n        }\n    }\n    return IllIlI;\n}",
+    "comments": [
+      {
+        "code": "int IllIlI = 0;",
+        "comment": "accumulator for positive numbers"
+      },
+      {
+        "code": "for (int l1lIl1 : O0OoO0) {",
+        "comment": "iterate over each element; O0OoO0 is read\u2011only"
+      },
+      {
+        "code": "if (l1lIl1 > 0) {",
+        "comment": "count only positive values"
+      },
+      {
+        "code": "++IllIlI;",
+        "comment": "increment when element is positive"
+      },
+      {
+        "code": "return IllIlI;",
+        "comment": "return total count of positive numbers"
+      }
+    ]
+  },
+  {
+    "program": "reverse_string",
+    "strategy": "noise",
+    "json_ok": true,
+    "core": true,
+    "detail": true,
+    "anchors": 6,
+    "unquotable": 0,
+    "truth": "reverses in place with two pointers",
+    "code_shown": "void lllIII(std::string& IllIlI) {\n    std::size_t l1lIl1 = 0;\n    std::size_t O0OoO0 = IllIlI.size() - 1;\n    while (l1lIl1 < O0OoO0) {\n        std::swap(IllIlI[l1lIl1], IllIlI[O0OoO0]);\n        ++l1lIl1;\n        --O0OoO0;\n    }\n}",
+    "comments": [
+      {
+        "code": "std::size_t l1lIl1 = 0;",
+        "comment": "start index from the front"
+      },
+      {
+        "code": "std::size_t O0OoO0 = IllIlI.size() - 1;",
+        "comment": "end index from the back"
+      },
+      {
+        "code": "while (l1lIl1 < O0OoO0) {",
+        "comment": "swap adjacent characters until the middle is reached"
+      },
+      {
+        "code": "std::swap(IllIlI[l1lIl1], IllIlI[O0OoO0]);",
+        "comment": "swap current and mirrored character"
+      },
+      {
+        "code": "++l1lIl1;",
+        "comment": "move towards the centre"
+      },
+      {
+        "code": "--O0OoO0;",
+        "comment": "move towards the centre"
+      }
+    ]
+  },
+  {
+    "program": "binary_search",
+    "strategy": "noise",
+    "json_ok": true,
+    "core": true,
+    "detail": false,
+    "anchors": 10,
+    "unquotable": 0,
+    "truth": "binary search; requires sorted input",
+    "code_shown": "int lllIII(const std::vector<int>& values, int IllIlI) {\n    int l1lIl1 = 0;\n    int O0OoO0 = static_cast<int>(values.size()) - 1;\n    while (l1lIl1 <= O0OoO0) {\n        int oO0Oo0 = l1lIl1 + (O0OoO0 - l1lIl1) / 2;\n        if (values[oO0Oo0] == IllIlI) {\n            return oO0Oo0;\n        }\n        if (values[oO0Oo0] < IllIlI) {\n            l1lIl1 = oO0Oo0 + 1;\n        } else {\n            O0OoO0 = oO0Oo0 - 1;\n        }\n    }\n    return -1;\n}",
+    "comments": [
+      {
+        "code": "int l1lIl1 = 0;",
+        "comment": "leftmost index of the current search interval"
+      },
+      {
+        "code": "int O0OoO0 = static_cast<int>(values.size()) - 1;",
+        "comment": "rightmost index (inclusive)"
+      },
+      {
+        "code": "while (l1lIl1 <= O0OoO0) {",
+        "comment": "binary search loop: shrink interval until it becomes empty"
+      },
+      {
+        "code": "int oO0Oo0 = l1lIl1 + (O0OoO0 - l1lIl1) / 2;",
+        "comment": "compute middle index (rounds down for odd sizes)"
+      },
+      {
+        "code": "if (values[oO0Oo0] == IllIlI) {",
+        "comment": "target found"
+      },
+      {
+        "code": "return oO0Oo0;",
+        "comment": "return the index"
+      },
+      {
+        "code": "if (values[oO0Oo0] < IllIlI) {",
+        "comment": "target lies in the upper half"
+      },
+      {
+        "code": "l1lIl1 = oO0Oo0 + 1;",
+        "comment": "discard lower half"
+      },
+      {
+        "code": "O0OoO0 = oO0Oo0 - 1;",
+        "comment": "discard upper half"
+      },
+      {
+        "code": "return -1;",
+        "comment": "target not present"
+      }
+    ]
+  },
+  {
+    "program": "factorial",
+    "strategy": "noise",
+    "json_ok": true,
+    "core": true,
+    "detail": true,
+    "anchors": 3,
+    "unquotable": 0,
+    "truth": "recursive factorial with a base case",
+    "code_shown": "long lllIII(int IllIlI) {\n    if (IllIlI <= 1) {\n        return 1;\n    }\n    return IllIlI * lllIII(IllIlI - 1);\n}",
+    "comments": [
+      {
+        "code": "if (IllIlI <= 1) {",
+        "comment": "Base case: for non\u2011positive n the factorial is defined as 1."
+      },
+      {
+        "code": "return 1;",
+        "comment": "Return 1 for n \u2264 1."
+      },
+      {
+        "code": "return IllIlI * lllIII(IllIlI - 1);",
+        "comment": "Recursive step: multiply n by the factorial of (n\u20111). This is the standard iterative factorial implementation."
+      }
+    ]
+  }
+]
