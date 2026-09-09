@@ -1,0 +1,146 @@
+[
+  {
+    "name": "A_neutral_name",
+    "target": "int q = 0;",
+    "truth": "sums even values",
+    "comment": "accumulator for the sum of even numbers",
+    "anchors": [
+      {
+        "code": "int q = 0;",
+        "comment": "accumulator for the sum of even numbers"
+      },
+      {
+        "code": "for (int x : v) {",
+        "comment": "iterate over each element; x is a copy of the vector element"
+      },
+      {
+        "code": "if (x % 2 == 0) {",
+        "comment": "only add even numbers to the accumulator"
+      },
+      {
+        "code": "q += x;",
+        "comment": "accumulate the even value"
+      },
+      {
+        "code": "return q;",
+        "comment": "return the total sum of even elements"
+      }
+    ]
+  },
+  {
+    "name": "B_neutral_name_max",
+    "target": "int z = v[0];",
+    "truth": "holds the running maximum",
+    "comment": "start with the first element as the best candidate",
+    "anchors": [
+      {
+        "code": "int z = v[0];",
+        "comment": "start with the first element as the best candidate"
+      },
+      {
+        "code": "for (std::size_t i = 1; i < v.size(); ++i) {",
+        "comment": "iterate from the second element to find the maximum"
+      },
+      {
+        "code": "if (v[i] > z) {",
+        "comment": "if the current element is larger, update the best value"
+      },
+      {
+        "code": "return z;",
+        "comment": "after the loop, z holds the maximum value"
+      }
+    ]
+  },
+  {
+    "name": "C_misleading_count_is_sum",
+    "target": "int count = 0;",
+    "truth": "adds values - it is a SUM, not a count",
+    "comment": "accumulator for the sum of all elements",
+    "anchors": [
+      {
+        "code": "int count = 0;",
+        "comment": "accumulator for the sum of all elements"
+      },
+      {
+        "code": "for (int x : v) {",
+        "comment": "iterate over each element; assumes v is non\u2011empty"
+      },
+      {
+        "code": "count += x;",
+        "comment": "accumulate the current value"
+      },
+      {
+        "code": "}",
+        "comment": "note: if v is empty, the loop body never runs and count stays 0"
+      },
+      {
+        "code": "return count;",
+        "comment": "return the total sum (or 0 for empty input)"
+      }
+    ]
+  },
+  {
+    "name": "D_misleading_sum_is_count",
+    "target": "int sum = 0;",
+    "truth": "counts elements > 10 - it is a COUNT, not a sum",
+    "comment": "accumulator for the count of elements greater than 10",
+    "anchors": [
+      {
+        "code": "int sum = 0;",
+        "comment": "accumulator for the count of elements greater than 10"
+      },
+      {
+        "code": "for (int x : v) {",
+        "comment": "iterate over each element in the input vector"
+      },
+      {
+        "code": "if (x > 10) {",
+        "comment": "increment the counter only when the element exceeds 10"
+      },
+      {
+        "code": "sum += 1;",
+        "comment": "counting a single element"
+      },
+      {
+        "code": "return sum;",
+        "comment": "return the total number of elements > 10"
+      }
+    ]
+  },
+  {
+    "name": "E_scratch_not_result",
+    "target": "int answer = -1;",
+    "truth": "sentinel: -1 means 'no gap found'",
+    "comment": "will hold the first gap position if found",
+    "anchors": [
+      {
+        "code": "int prev = v[0];",
+        "comment": "start with the first element as the previous value"
+      },
+      {
+        "code": "int answer = -1;",
+        "comment": "will hold the first gap position if found"
+      },
+      {
+        "code": "for (std::size_t i = 1; i < v.size(); ++i) {",
+        "comment": "iterate from the second element to detect gaps"
+      },
+      {
+        "code": "if (v[i] - prev > 1 && answer == -1) {",
+        "comment": "if the current element differs by more than one and no gap was previously recorded"
+      },
+      {
+        "code": "answer = prev + 1;",
+        "comment": "record the gap position as the next integer after prev"
+      },
+      {
+        "code": "}",
+        "comment": "otherwise, advance prev to the current element"
+      },
+      {
+        "code": "return answer;",
+        "comment": "return the gap position or -1 if none exists"
+      }
+    ]
+  }
+]

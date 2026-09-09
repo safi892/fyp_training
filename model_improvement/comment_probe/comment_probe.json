@@ -1,0 +1,174 @@
+{
+  "q1": [
+    {
+      "name": "add_plain",
+      "json_ok": true,
+      "target": "return a + b;",
+      "comment": "Purpose: Adds two integers and returns the result.  \nInput: Two integers `a` and `b`.  \nOutput: An integer representing the sum of `a` and `b`.  \nAlgorithm: Simply adds the two operands and returns the sum. No special handling for overflow or edge cases.",
+      "anchors": 1,
+      "all": [
+        {
+          "code": "return a + b;",
+          "comment": "Purpose: Adds two integers and returns the result.  \nInput: Two integers `a` and `b`.  \nOutput: An integer representing the sum of `a` and `b`.  \nAlgorithm: Simply adds the two operands and returns the sum. No special handling for overflow or edge cases."
+        }
+      ]
+    },
+    {
+      "name": "average_overflow_safe",
+      "json_ok": true,
+      "target": "return a + (b - a) / 2;",
+      "comment": "Compute the arithmetic mean of two integers using integer arithmetic. The expression (b - a) yields the range, and dividing by 2 yields the midpoint. The result is an integer, which may be truncated if either a or b is negative.",
+      "anchors": 1,
+      "all": [
+        {
+          "code": "return a + (b - a) / 2;",
+          "comment": "Compute the arithmetic mean of two integers using integer arithmetic. The expression (b - a) yields the range, and dividing by 2 yields the midpoint. The result is an integer, which may be truncated if either a or b is negative."
+        }
+      ]
+    },
+    {
+      "name": "sum_of_squares",
+      "json_ok": true,
+      "target": "return a * a + b * b;",
+      "comment": "Purpose: Compute the sum of the squares of two integers.  \nInput: two integers `a` and `b`.  \nOutput: an integer representing `a\u00b2 + b\u00b2`.  \nAlgorithm: Multiply each integer by itself and add the results. No special handling for overflow or negative inputs is performed.",
+      "anchors": 1,
+      "all": [
+        {
+          "code": "return a * a + b * b;",
+          "comment": "Purpose: Compute the sum of the squares of two integers.  \nInput: two integers `a` and `b`.  \nOutput: an integer representing `a\u00b2 + b\u00b2`.  \nAlgorithm: Multiply each integer by itself and add the results. No special handling for overflow or negative inputs is performed."
+        }
+      ]
+    },
+    {
+      "name": "weighted",
+      "json_ok": true,
+      "target": "return 0.7 * a + 0.3 * b;",
+      "comment": "Computes a weighted average: 0.7 * a + 0.3 * b. The weights sum to 1, so the result lies between a and b.",
+      "anchors": 1,
+      "all": [
+        {
+          "code": "return 0.7 * a + 0.3 * b;",
+          "comment": "Computes a weighted average: 0.7 * a + 0.3 * b. The weights sum to 1, so the result lies between a and b."
+        }
+      ]
+    }
+  ],
+  "q2": [
+    {
+      "name": "accumulate_total",
+      "json_ok": true,
+      "target": "int total = 0;",
+      "comment": "accumulator for the sum of even numbers",
+      "anchors": 5,
+      "all": [
+        {
+          "code": "int total = 0;",
+          "comment": "accumulator for the sum of even numbers"
+        },
+        {
+          "code": "for (int x : v) {",
+          "comment": "iterate over each element; x is a copy of the vector element"
+        },
+        {
+          "code": "if (x % 2 == 0) {",
+          "comment": "only add even numbers to the total"
+        },
+        {
+          "code": "total += x;",
+          "comment": "accumulate the even value"
+        },
+        {
+          "code": "return total;",
+          "comment": "return the sum of all even numbers (or 0 if none)"
+        }
+      ]
+    },
+    {
+      "name": "running_max",
+      "json_ok": true,
+      "target": "int best = v[0];",
+      "comment": "Initialize best with the first element of the vector; this is the candidate for the maximum.",
+      "anchors": 4,
+      "all": [
+        {
+          "code": "int best = v[0];",
+          "comment": "Initialize best with the first element of the vector; this is the candidate for the maximum."
+        },
+        {
+          "code": "for (std::size_t i = 1; i < v.size(); ++i) {",
+          "comment": "Iterate from the second element to the end, comparing each element with the current best."
+        },
+        {
+          "code": "if (v[i] > best) {",
+          "comment": "If the current element is larger than the best so far, update best."
+        },
+        {
+          "code": "return best;",
+          "comment": "After the loop, best holds the largest value; return it."
+        }
+      ]
+    },
+    {
+      "name": "build_string",
+      "json_ok": true,
+      "target": "std::string out;",
+      "comment": "accumulator for the final result",
+      "anchors": 6,
+      "all": [
+        {
+          "code": "std::string out;",
+          "comment": "accumulator for the final result"
+        },
+        {
+          "code": "for (const std::string& p : parts) {",
+          "comment": "iterate over each part; the loop body is executed for each element"
+        },
+        {
+          "code": "out += p;",
+          "comment": "append the current part to the accumulator"
+        },
+        {
+          "code": "out += \",\";",
+          "comment": "append a comma separator after each part"
+        },
+        {
+          "code": "}",
+          "comment": "note: no explicit handling of the last element; the trailing comma is omitted"
+        },
+        {
+          "code": "return out;",
+          "comment": "return the concatenated string"
+        }
+      ]
+    },
+    {
+      "name": "count_matches",
+      "json_ok": true,
+      "target": "int hits = 0;",
+      "comment": "accumulator for positive numbers",
+      "anchors": 5,
+      "all": [
+        {
+          "code": "int hits = 0;",
+          "comment": "accumulator for positive numbers"
+        },
+        {
+          "code": "for (int x : v) {",
+          "comment": "iterate over each element; x is a copy of the vector element"
+        },
+        {
+          "code": "if (x > 0) {",
+          "comment": "count only positive values"
+        },
+        {
+          "code": "++hits;",
+          "comment": "increment hit counter"
+        },
+        {
+          "code": "return hits;",
+          "comment": "return total count of positive numbers"
+        }
+      ]
+    }
+  ]
+}
