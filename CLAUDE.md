@@ -389,6 +389,31 @@ Loose ends, all outside the report:
 
 ## What not to try again, with the number that closed it
 
+- **Public datasets as the fix for accuracy.** Surveyed 2026-09-15 on real
+  rows pulled from each source, not on their descriptions:
+
+  | dataset | what the rows actually are |
+  | --- | --- |
+  | PIE, C++ train | 88,136 pairs; recursion removed in **7.6%**, not the 34% quoted. 91.6% are whole programs, slow side p50 **89 lines** against this corpus's 14 |
+  | PIE, the `stack` gap | 442 pairs, but **397 switch to BFS** with a different algorithm; 48 use `std::stack`, **28 fit v3's 1,024-token window**, and of two read one was a false positive (a stack used only to rebuild an LCS string) |
+  | CodeXGLUE refinement | **Java**, identifiers abstracted to `VAR_1`/`TYPE_1` |
+  | CodeXGLUE defect (Devign) | C from qemu + FFmpeg only; one bool per function, no line, no description |
+  | DiverseVul | 10% vulnerable in a 1,000-row sample; 38 of 100 vulnerable rows carry no CWE; the only explanation is the commit message |
+  | CodeReviewer | 17% C/C++; comments review PR diffs ("can we also test for `transport=rest`?"), 31% are questions |
+  | CodeNet (HF mirror) | 3.7 GB, a `Text` column only, first row Common Lisp; PIE is already its curated pair subset |
+  | ERUPD | already in `urdu/ERUPD_NMT.csv` and trained into stage 1 |
+  | `Alisaeed001/...roman-urdu-finetune` | the dataset is empty |
+  | Roman Urdu Alpaca | 1,489 rows of general chat; the Urdu model is a translator |
+
+  Two reasons close it beyond the table. The label shapes do not match the
+  output: a bool per function cannot teach a line comment to *name* a defect,
+  which is the capability `Defect blindness` above says is missing. And PIE is
+  more verified pairs, which 159 → 253 already showed does not move the probe
+  (p = 1.0000). Its roughly one or two dozen genuine same-algorithm
+  `std::stack` rewrites are the only rows aimed at the 3/20 gap, and the
+  pre-registered `--repeat 30` share experiment tests that question without a
+  download.
+
 - **Generating tree or linked-list pairs from this corpus.** 20 tree functions,
   0 linked-list, among 582 drivable.
 - **A bigger teacher for recursion→iteration.** Four proposers on the same 40
