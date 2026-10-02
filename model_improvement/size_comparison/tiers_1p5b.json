@@ -1,0 +1,308 @@
+[
+  {
+    "tier": "easy",
+    "name": "sum_array",
+    "model": "1p5b",
+    "json_ok": 2,
+    "truncated": false,
+    "found": 2,
+    "of": 2,
+    "missed": [],
+    "evidence": [
+      "purpose: computes the sum of all integers in a given vector.   input: ",
+      "  algorithm: initializes a running total to zero, then iterates over each element, adding it to the total. f"
+    ],
+    "said_something_false": false,
+    "false_phrase": null,
+    "anchors_total": 5,
+    "anchors_exact": 0,
+    "anchors_repaired": 5,
+    "anchors_dropped": 0,
+    "claim_objections": [],
+    "raw": {
+      "line_comments": "{\n  \"line_comments\": [\n    {\n      \"line\": 3,\n      \"code\": \"int total = 0;\",\n      \"comment\": \"accumulator for the sum\"\n    },\n    {\n      \"line\": 4,\n      \"code\": \"for (int value : values) {\",\n      \"comment\": \"iterate over each element in the vector\"\n    },\n    {\n      \"line\": 5,\n      \"code\": \"total += value;\",\n      \"comment\": \"accumulate the current element\"\n    },\n    {\n      \"line\": 6,\n      \"code\": \"}\",\n      \"comment\": \"NOTE: if the vector is empty, the loop body never executes and total remains 0\"\n    },\n    {\n      \"line\": 7,\n      \"code\": \"return total;\",\n      \"comment\": \"return the computed sum\"\n    }\n  ]\n}",
+      "explanation": "{\n  \"explanation\": \"Purpose: Computes the sum of all integers in a given vector.  \\nInput: const std::vector<int>& values \u2013 a read\u2011only reference to a vector containing integers.  \\nOutput: int \u2013 the total sum of the vector elements.  \\nAlgorithm: Initializes a running total to zero, then iterates over each element, adding it to the total. Finally, returns the accumulated sum. Edge cases such as an empty vector yield zero.\"\n}"
+    }
+  },
+  {
+    "tier": "easy",
+    "name": "max_of_three",
+    "model": "1p5b",
+    "json_ok": 2,
+    "truncated": false,
+    "found": 2,
+    "of": 2,
+    "missed": [],
+    "evidence": [
+      "purpose: returns the largest of three integers.   input: three integers\u202f`",
+      "e three.   algorithm: initialise `best` with `a`, then compare `b` and `c` against `best` using conditional"
+    ],
+    "said_something_false": false,
+    "false_phrase": null,
+    "anchors_total": 4,
+    "anchors_exact": 0,
+    "anchors_repaired": 4,
+    "anchors_dropped": 0,
+    "claim_objections": [],
+    "raw": {
+      "line_comments": "{\n  \"line_comments\": [\n    {\n      \"line\": 3,\n      \"code\": \"int best = a;\",\n      \"comment\": \"Initialize best with the first argument; it will be updated later.\"\n    },\n    {\n      \"line\": 4,\n      \"code\": \"if (b > best) best = b;\",\n      \"comment\": \"If the second argument is larger, replace best with it.\"\n    },\n    {\n      \"line\": 5,\n      \"code\": \"if (c > best) best = c;\",\n      \"comment\": \"If the third argument is larger, replace best with it.\"\n    },\n    {\n      \"line\": 6,\n      \"code\": \"return best;\",\n      \"comment\": \"Return the maximum value found.\"\n    }\n  ]\n}",
+      "explanation": "{\n  \"explanation\": \"Purpose: Returns the largest of three integers.  \\nInput: Three integers\u202f`a`, `b`, `c`.  \\nOutput: An `int` representing the maximum value among the three.  \\nAlgorithm: Initialise `best` with `a`, then compare `b` and `c` against `best` using conditional assignment; finally return `best`. This yields O(1) time and O(1) extra space.\"\n}"
+    }
+  },
+  {
+    "tier": "easy",
+    "name": "count_vowels",
+    "model": "1p5b",
+    "json_ok": 2,
+    "truncated": false,
+    "found": 2,
+    "of": 2,
+    "missed": [],
+    "evidence": [
+      "purpose: counts the number of vowels in a given string.   input: const std::stri",
+      "purpose: counts the number of vowels in a given string.   in"
+    ],
+    "said_something_false": false,
+    "false_phrase": null,
+    "anchors_total": 4,
+    "anchors_exact": 3,
+    "anchors_repaired": 1,
+    "anchors_dropped": 0,
+    "claim_objections": [],
+    "raw": {
+      "line_comments": "{\n  \"line_comments\": [\n    {\n      \"line\": 3,\n      \"code\": \"for (char c : text) {\",\n      \"comment\": \"Iterate over each character in the input string.\"\n    },\n    {\n      \"line\": 4,\n      \"code\": \"if (c == 'a' || c == 'e' || c == 'i' || c == 'o' || c == 'u') {\",\n      \"comment\": \"Increment the vowel counter only if the character is a lowercase vowel.\"\n    },\n    {\n      \"line\": 5,\n      \"code\": \"++count;\",\n      \"comment\": \"Vowel found: count it.\"\n    },\n    {\n      \"line\": 7,\n      \"code\": \"return count;\",\n      \"comment\": \"Return the total number of vowels in the string.\"\n    }\n  ]\n}",
+      "explanation": "{\n  \"explanation\": \"Purpose: Counts the number of vowels in a given string.  \\nInput: const std::string& text \u2013 the string to examine.  \\nOutput: int \u2013 the total count of vowels found.  \\nAlgorithm: Initializes a counter to zero, then iterates over each character, incrementing the counter whenever the character matches one of the five vowels. The final counter value is returned.\"\n}"
+    }
+  },
+  {
+    "tier": "easy",
+    "name": "swap_values",
+    "model": "1p5b",
+    "json_ok": 2,
+    "truncated": false,
+    "found": 2,
+    "of": 2,
+    "missed": [],
+    "evidence": [
+      "purpose: swaps the values of two integers. input: two integ",
+      "fies the input parameters in place). algorithm: uses a temporary variable to hold one value, then assigns the"
+    ],
+    "said_something_false": false,
+    "false_phrase": null,
+    "anchors_total": 3,
+    "anchors_exact": 0,
+    "anchors_repaired": 3,
+    "anchors_dropped": 0,
+    "claim_objections": [],
+    "raw": {
+      "line_comments": "{\n  \"line_comments\": [\n    {\n      \"line\": 3,\n      \"code\": \"int temp = a;\",\n      \"comment\": \"store the current value of a so we can restore it later\"\n    },\n    {\n      \"line\": 4,\n      \"code\": \"a = b;\",\n      \"comment\": \"overwrite a with the value of b\"\n    },\n    {\n      \"line\": 5,\n      \"code\": \"b = temp;\",\n      \"comment\": \"restore the original value of a\"\n    }\n  ]\n}",
+      "explanation": "{\n  \"explanation\": \"Purpose: Swaps the values of two integers.\\nInput: Two integer references (`a` and `b`).\\nOutput: None (the function modifies the input parameters in place).\\nAlgorithm: Uses a temporary variable to hold one value, then assigns the other value to the first, and finally assigns the temporary value to the second.\"\n}"
+    }
+  },
+  {
+    "tier": "easy",
+    "name": "square_all",
+    "model": "1p5b",
+    "json_ok": 2,
+    "truncated": false,
+    "found": 2,
+    "of": 2,
+    "missed": [],
+    "evidence": [
+      "purpose: squares each element in a vector of integers in plac",
+      "purpose: squares each element in a vector of integers in place.   input: a"
+    ],
+    "said_something_false": false,
+    "false_phrase": null,
+    "anchors_total": 2,
+    "anchors_exact": 0,
+    "anchors_repaired": 2,
+    "anchors_dropped": 0,
+    "claim_objections": [],
+    "raw": {
+      "line_comments": "{\n  \"line_comments\": [\n    {\n      \"line\": 3,\n      \"code\": \"for (std::size_t i = 0; i < values.size(); ++i) {\",\n      \"comment\": \"Iterate over each element in the vector.\"\n    },\n    {\n      \"line\": 4,\n      \"code\": \"values[i] = values[i] * values[i];\",\n      \"comment\": \"Square the current element in\u2011place; this mutates the input vector.\"\n    }\n  ]\n}",
+      "explanation": "{\n  \"explanation\": \"Purpose: Squares each element in a vector of integers in place.  \\nInput: A reference to a std::vector<int> containing the numbers to be squared.  \\nOutput: The same vector, now with each element replaced by its square.  \\nAlgorithm: Iterate over the vector with a size_t index, multiply the current element by itself, and store the result back into the vector. No special handling for negative values or overflow is performed.\"\n}"
+    }
+  },
+  {
+    "tier": "easy",
+    "name": "is_divisible",
+    "model": "1p5b",
+    "json_ok": 2,
+    "truncated": false,
+    "found": 2,
+    "of": 2,
+    "missed": [],
+    "evidence": [
+      "purpose: determines whether a given integer is divisible by another integer.   input: `int value` \u2013 t",
+      "est; `int divisor` \u2013 the potential divisor.   output: `bool` \u2013 true if `value` is divisible by `divisor`"
+    ],
+    "said_something_false": false,
+    "false_phrase": null,
+    "anchors_total": 1,
+    "anchors_exact": 1,
+    "anchors_repaired": 0,
+    "anchors_dropped": 0,
+    "claim_objections": [],
+    "raw": {
+      "line_comments": "{\n  \"line_comments\": [\n    {\n      \"line\": 2,\n      \"code\": \"return value % divisor == 0;\",\n      \"comment\": \"Returns true if the remainder of value divided by divisor is zero, indicating divisibility.\"\n    }\n  ]\n}",
+      "explanation": "{\n  \"explanation\": \"Purpose: Determines whether a given integer is divisible by another integer.  \\nInput: `int value` \u2013 the number to test; `int divisor` \u2013 the potential divisor.  \\nOutput: `bool` \u2013 true if `value` is divisible by `divisor`, false otherwise.  \\nAlgorithm: Performs a modulo operation (`value % divisor`) and returns the result as a boolean. The expression `value % divisor == 0` yields true only when the remainder is zero.\"\n}"
+    }
+  },
+  {
+    "tier": "medium",
+    "name": "binary_search",
+    "model": "1p5b",
+    "json_ok": 2,
+    "truncated": false,
+    "found": 3,
+    "of": 3,
+    "missed": [],
+    "evidence": [
+      "st match, or -1 if not present.   algorithm: perform a binary search, narrowing the search interval each iteratio",
+      "se: locate the first occurrence of a target value in a sorted integer vector.   input: const std::vector<i",
+      "arch for.   output: int \u2013 index of the first match, or -1 if not present.   algorithm: perform a binar"
+    ],
+    "said_something_false": false,
+    "false_phrase": null,
+    "anchors_total": 10,
+    "anchors_exact": 1,
+    "anchors_repaired": 9,
+    "anchors_dropped": 0,
+    "claim_objections": [],
+    "raw": {
+      "line_comments": "{\n  \"line_comments\": [\n    {\n      \"line\": 3,\n      \"code\": \"int low = 0;\",\n      \"comment\": \"start of search interval\"\n    },\n    {\n      \"line\": 4,\n      \"code\": \"int high = static_cast<int>(values.size()) - 1;\",\n      \"comment\": \"end of search interval\"\n    },\n    {\n      \"line\": 5,\n      \"code\": \"while (low <= high) {\",\n      \"comment\": \"continue while there is a valid search range\"\n    },\n    {\n      \"line\": 6,\n      \"code\": \"int mid = low + (high - low) / 2;\",\n      \"comment\": \"compute middle index safely\"\n    },\n    {\n      \"line\": 7,\n      \"code\": \"if (values[mid] == target) {\",\n      \"comment\": \"target found at mid\"\n    },\n    {\n      \"line\": 8,\n      \"code\": \"return mid;\",\n      \"comment\": \"return index of target\"\n    },\n    {\n      \"line\": 10,\n      \"code\": \"if (values[mid] < target) {\",\n      \"comment\": \"target lies in the right half\"\n    },\n    {\n      \"line\": 11,\n      \"code\": \"low = mid + 1;\",\n      \"comment\": \"discard left half\"\n    },\n    {\n      \"line\": 13,\n      \"code\": \"high = mid - 1;\",\n      \"comment\": \"discard right half\"\n    },\n    {\n      \"line\": 15,\n      \"code\": \"return -1;\",\n      \"comment\": \"target not present in the array\"\n    }\n  ]\n}",
+      "explanation": "{\n  \"explanation\": \"Purpose: Locate the first occurrence of a target value in a sorted integer vector.  \\nInput: const std::vector<int>& values \u2013 sorted ascending sequence; int target \u2013 value to search for.  \\nOutput: int \u2013 index of the first match, or -1 if not present.  \\nAlgorithm: Perform a binary search, narrowing the search interval each iteration. When the middle element equals the target, return its index; otherwise, discard the half containing the target and continue. The loop terminates when the interval collapses, signaling failure.\"\n}"
+    }
+  },
+  {
+    "tier": "medium",
+    "name": "bubble_sort",
+    "model": "1p5b",
+    "json_ok": 2,
+    "truncated": false,
+    "found": 3,
+    "of": 3,
+    "missed": [],
+    "evidence": [
+      "purpose: sorts a vector of integers in ascending order usin",
+      "orithm: repeatedly iterates over the vector, comparing adjacent elements and swapping them if they are in th",
+      "t to avoid unnecessary swaps. this bubble\u2011sort runs in o(n\u00b2) time and is inefficient for large datasets. "
+    ],
+    "said_something_false": false,
+    "false_phrase": null,
+    "anchors_total": 4,
+    "anchors_exact": 1,
+    "anchors_repaired": 3,
+    "anchors_dropped": 0,
+    "claim_objections": [],
+    "raw": {
+      "line_comments": "{\n  \"line_comments\": [\n    {\n      \"line\": 3,\n      \"code\": \"for (std::size_t i = 0; i + 1 < values.size(); ++i) {\",\n      \"comment\": \"Outer loop: each pass places the next largest element into its final position.\"\n    },\n    {\n      \"line\": 4,\n      \"code\": \"for (std::size_t j = 0; j + 1 < values.size() - i; ++j) {\",\n      \"comment\": \"Inner loop: compare adjacent elements and swap if they are out of order.\"\n    },\n    {\n      \"line\": 5,\n      \"code\": \"if (values[j] > values[j + 1]) {\",\n      \"comment\": \"If the current element is greater than the next, swap them.\"\n    },\n    {\n      \"line\": 8,\n      \"code\": \"}\",\n      \"comment\": \"No action needed when the elements are already in order.\"\n    }\n  ]\n}",
+      "explanation": "{\n  \"explanation\": \"Purpose: Sorts a vector of integers in ascending order using the bubble sort algorithm.  \\nInput: A std::vector<int>& containing the elements to be sorted.  \\nOutput: The same vector is sorted in place; no return value.  \\nAlgorithm: Repeatedly iterates over the vector, comparing adjacent elements and swapping them if they are in the wrong order. The outer loop repeats for each element, while the inner loop stops before the last element to avoid unnecessary swaps. This bubble\u2011sort runs in O(n\u00b2) time and is inefficient for large datasets.\"\n}"
+    }
+  },
+  {
+    "tier": "medium",
+    "name": "is_palindrome",
+    "model": "1p5b",
+    "json_ok": 2,
+    "truncated": false,
+    "found": 1,
+    "of": 2,
+    "missed": [
+      "both ends|two[- ]pointer|left and right|toward\\w* (?:the )?(?:middle|centre|center)"
+    ],
+    "evidence": [
+      "purpose: determines whether a given string reads the same forwards and backwards.   input: const std::"
+    ],
+    "said_something_false": false,
+    "false_phrase": null,
+    "anchors_total": 8,
+    "anchors_exact": 0,
+    "anchors_repaired": 8,
+    "anchors_dropped": 0,
+    "claim_objections": [],
+    "raw": {
+      "line_comments": "{\n  \"line_comments\": [\n    {\n      \"line\": 3,\n      \"code\": \"std::size_t left = 0;\",\n      \"comment\": \"start from the first character\"\n    },\n    {\n      \"line\": 4,\n      \"code\": \"std::size_t right = text.size() - 1;\",\n      \"comment\": \"start from the last character\"\n    },\n    {\n      \"line\": 5,\n      \"code\": \"while (left < right) {\",\n      \"comment\": \"continue while the left index is still before the right\"\n    },\n    {\n      \"line\": 6,\n      \"code\": \"if (text[left] != text[right]) {\",\n      \"comment\": \"characters differ \u2192 not a palindrome\"\n    },\n    {\n      \"line\": 7,\n      \"code\": \"return false;\",\n      \"comment\": \"early exit on mismatch\"\n    },\n    {\n      \"line\": 9,\n      \"code\": \"++left;\",\n      \"comment\": \"move left index forward\"\n    },\n    {\n      \"line\": 10,\n      \"code\": \"--right;\",\n      \"comment\": \"move right index backward\"\n    },\n    {\n      \"line\": 12,\n      \"code\": \"return true;\",\n      \"comment\": \"all corresponding characters matched\"\n    }\n  ]\n}",
+      "explanation": "{\n  \"explanation\": \"Purpose: Determines whether a given string reads the same forwards and backwards.  \\nInput: const std::string& text \u2013 the string to examine.  \\nOutput: bool \u2013 true if the string is a palindrome, false otherwise.  \\nAlgorithm: Two indices start at the front and back of the string, moving inward while comparing characters. If any pair differs, the function returns false immediately; otherwise it returns true after the loop completes.\"\n}"
+    }
+  },
+  {
+    "tier": "medium",
+    "name": "remove_duplicates",
+    "model": "1p5b",
+    "json_ok": 2,
+    "truncated": false,
+    "found": 3,
+    "of": 3,
+    "missed": [],
+    "evidence": [
+      "f integers.   output: std::vector<int> \u2013 a vector with unique elements in the original order.   algorithm:",
+      "purpose: returns a vector containing only the first occurrence of each distinct integer from the input.   i",
+      "or that collects elements that have not been seen yet. for each element, scan the collected vector to detect"
+    ],
+    "said_something_false": false,
+    "false_phrase": null,
+    "anchors_total": 10,
+    "anchors_exact": 0,
+    "anchors_repaired": 10,
+    "anchors_dropped": 0,
+    "claim_objections": [],
+    "raw": {
+      "line_comments": "{\n  \"line_comments\": [\n    {\n      \"line\": 3,\n      \"code\": \"std::vector<int> out;\",\n      \"comment\": \"result vector holds unique elements\"\n    },\n    {\n      \"line\": 4,\n      \"code\": \"for (int value : values) {\",\n      \"comment\": \"iterate over input values\"\n    },\n    {\n      \"line\": 5,\n      \"code\": \"bool seen = false;\",\n      \"comment\": \"flag to detect duplicates\"\n    },\n    {\n      \"line\": 6,\n      \"code\": \"for (int kept : out) {\",\n      \"comment\": \"compare with previously seen elements\"\n    },\n    {\n      \"line\": 7,\n      \"code\": \"if (kept == value) {\",\n      \"comment\": \"duplicate found\"\n    },\n    {\n      \"line\": 8,\n      \"code\": \"seen = true;\",\n      \"comment\": \"mark as seen\"\n    },\n    {\n      \"line\": 9,\n      \"code\": \"break;\",\n      \"comment\": \"stop inner loop\"\n    },\n    {\n      \"line\": 12,\n      \"code\": \"if (!seen) {\",\n      \"comment\": \"value not seen before\"\n    },\n    {\n      \"line\": 13,\n      \"code\": \"out.push_back(value);\",\n      \"comment\": \"keep it\"\n    },\n    {\n      \"line\": 16,\n      \"code\": \"return out;\",\n      \"comment\": \"return the deduplicated vector\"\n    }\n  ]\n}",
+      "explanation": "{\n  \"explanation\": \"Purpose: Returns a vector containing only the first occurrence of each distinct integer from the input.  \\nInput: const std::vector<int>& values \u2013 the source sequence of integers.  \\nOutput: std::vector<int> \u2013 a vector with unique elements in the original order.  \\nAlgorithm: Iterate over the input, maintaining a separate vector that collects elements that have not been seen yet. For each element, scan the collected vector to detect a duplicate; if none is found, append the element to the collected vector. The final collected vector is returned.\"\n}"
+    }
+  },
+  {
+    "tier": "medium",
+    "name": "matrix_row_sums",
+    "model": "1p5b",
+    "json_ok": 2,
+    "truncated": false,
+    "found": 3,
+    "of": 3,
+    "missed": [],
+    "evidence": [
+      "purpose: compute the sum of each row in a 2\u2011d integer matrix.   input: const std:",
+      "purpose: compute the sum of each row in a 2\u2011d integer matrix.   input",
+      "purpose: compute the sum of each row in a 2\u2011d integer matrix.   input: const std:"
+    ],
+    "said_something_false": false,
+    "false_phrase": null,
+    "anchors_total": 5,
+    "anchors_exact": 5,
+    "anchors_repaired": 0,
+    "anchors_dropped": 0,
+    "claim_objections": [],
+    "raw": {
+      "line_comments": "{\n  \"line_comments\": [\n    {\n      \"line\": 3,\n      \"code\": \"for (const std::vector<int>& row : grid) {\",\n      \"comment\": \"Iterate over each row of the grid.\"\n    },\n    {\n      \"line\": 4,\n      \"code\": \"int total = 0;\",\n      \"comment\": \"Accumulate the sum of the current row.\"\n    },\n    {\n      \"line\": 5,\n      \"code\": \"for (int cell : row) {\",\n      \"comment\": \"Add each element to the running total.\"\n    },\n    {\n      \"line\": 8,\n      \"code\": \"sums.push_back(total);\",\n      \"comment\": \"Store the computed row sum.\"\n    },\n    {\n      \"line\": 10,\n      \"code\": \"return sums;\",\n      \"comment\": \"Return the vector containing the row\u2011wise sums.\"\n    }\n  ]\n}",
+      "explanation": "{\n  \"explanation\": \"Purpose: Compute the sum of each row in a 2\u2011D integer matrix.  \\nInput: const std::vector<std::vector<int>>& grid \u2013 a rectangular grid where each inner vector represents a row.  \\nOutput: std::vector<int> \u2013 a vector containing the total of each row in the same order as the input.  \\nAlgorithm: Iterate over each row, initialize a running total to zero, then iterate over the cells of that row, adding each cell to the total. After processing a row, append the total to the result vector. The loop naturally handles empty rows by producing a zero sum.\"\n}"
+    }
+  },
+  {
+    "tier": "medium",
+    "name": "merge_sorted",
+    "model": "1p5b",
+    "json_ok": 2,
+    "truncated": false,
+    "found": 3,
+    "of": 3,
+    "missed": [],
+    "evidence": [
+      "purpose: merge two sorted integer vectors into a single sor",
+      "purpose: merge two sorted integer vectors into a single sorted vector.",
+      " advancing the index. after the first loop, append any remaining elements from the longer vector. this yields"
+    ],
+    "said_something_false": false,
+    "false_phrase": null,
+    "anchors_total": 10,
+    "anchors_exact": 0,
+    "anchors_repaired": 10,
+    "anchors_dropped": 0,
+    "claim_objections": [],
+    "raw": {
+      "line_comments": "{\n  \"line_comments\": [\n    {\n      \"line\": 3,\n      \"code\": \"std::vector<int> out;\",\n      \"comment\": \"result container\"\n    },\n    {\n      \"line\": 4,\n      \"code\": \"std::size_t i = 0;\",\n      \"comment\": \"iterator for first vector\"\n    },\n    {\n      \"line\": 5,\n      \"code\": \"std::size_t j = 0;\",\n      \"comment\": \"iterator for second vector\"\n    },\n    {\n      \"line\": 6,\n      \"code\": \"while (i < a.size() && j < b.size()) {\",\n      \"comment\": \"merge while both vectors have elements left\"\n    },\n    {\n      \"line\": 7,\n      \"code\": \"if (a[i] <= b[j]) {\",\n      \"comment\": \"pick the smaller element and advance the iterator\"\n    },\n    {\n      \"line\": 10,\n      \"code\": \"out.push_back(b[j++]);\",\n      \"comment\": \"b[j] is smaller, take it\"\n    },\n    {\n      \"line\": 13,\n      \"code\": \"out.push_back(a[i++]);\",\n      \"comment\": \"a[i] is smaller, take it\"\n    },\n    {\n      \"line\": 16,\n      \"code\": \"while (i < a.size()) out.push_back(a[i++]);\",\n      \"comment\": \"append remaining elements of a\"\n    },\n    {\n      \"line\": 17,\n      \"code\": \"while (j < b.size()) out.push_back(b[j++]);\",\n      \"comment\": \"append remaining elements of b\"\n    },\n    {\n      \"line\": 18,\n      \"code\": \"return out;\",\n      \"comment\": \"return the merged sorted vector\"\n    }\n  ]\n}",
+      "explanation": "{\n  \"explanation\": \"Purpose: Merge two sorted integer vectors into a single sorted vector.  \\nInput: const std::vector<int>& a \u2013 first sorted vector; const std::vector<int>& b \u2013 second sorted vector.  \\nOutput: std::vector<int> \u2013 a new vector containing all elements from a and b in ascending order.  \\nAlgorithm: Use two indices to walk through both vectors, appending the smaller element to the result while advancing the index. After the first loop, append any remaining elements from the longer vector. This yields a fully sorted merge.\"\n}"
+    }
+  }
+]

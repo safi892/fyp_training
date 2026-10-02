@@ -1,0 +1,152 @@
+[
+  {
+    "name": "tree_inorder",
+    "is_recursive": true,
+    "json_ok": true,
+    "truncated": false,
+    "anchors_total": 15,
+    "anchors_exact": 0,
+    "anchors_repaired": 13,
+    "anchors_dropped": 2,
+    "containers_present": [],
+    "has_container": false,
+    "container_named": false,
+    "container_evidence": [],
+    "wrong_container_evidence": [],
+    "false_recursion_claim": false,
+    "recursion_evidence": [],
+    "prose": "Create the binary tree: 8 (root) \u2192 3 \u2192 1 \u2192 6 \u2192 4 \u2192 7 \u2192 10 \u2192 13 \u2192 14 left subtree: 3 \u2192 1 \u2192 6 \u2192 4 \u2192 7 right subtree: 10 \u2192 13 \u2192 14 left\u2011left subtree: 1 left\u2011right subtree: 6 \u2192 4 \u2192 7 left\u2011right\u2011left subtree: 4 left\u2011right\u2011right subtree: 7 right\u2011right subtree: 13 \u2192 14 right\u2011right\u2011left subtree: 13 Base case: stop recursion when reaching a null pointer Visit left subtree first (in\u2011order traversal) Output current node's value Visit right subtree next Build the sample tree Perform inorder traversal and output result Purpose: Prints the values of a binary tree in in\u2011order traversal.  \nInput: Node* root \u2013 pointer to the root of the binary tree (or nullptr).  \nOutput: void \u2013 writes the inorder sequence to standard output followed by a newline.  \nAlgorithm: Recursively visits the left subtree, outputs the current node\u2019s value, then visits the right subtree. The recursion stops when a null pointer is encountered.",
+    "raw": {
+      "line_comments": "{\n  \"line_comments\": [\n    {\n      \"line\": 10,\n      \"code\": \"Node* root = new Node(8);\",\n      \"comment\": \"Create the binary tree: 8 (root) \u2192 3 \u2192 1 \u2192 6 \u2192 4 \u2192 7 \u2192 10 \u2192 13 \u2192 14\"\n    },\n    {\n      \"line\": 11,\n      \"code\": \"root->left = new Node(3);\",\n      \"comment\": \"left subtree: 3 \u2192 1 \u2192 6 \u2192 4 \u2192 7\"\n    },\n    {\n      \"line\": 12,\n      \"code\": \"root->right = new Node(10);\",\n      \"comment\": \"right subtree: 10 \u2192 13 \u2192 14\"\n    },\n    {\n      \"line\": 13,\n      \"code\": \"root->left->left = new Node(1);\",\n      \"comment\": \"left\u2011left subtree: 1\"\n    },\n    {\n      \"line\": 14,\n      \"code\": \"root->left->right = new Node(6);\",\n      \"comment\": \"left\u2011right subtree: 6 \u2192 4 \u2192 7\"\n    },\n    {\n      \"line\": 15,\n      \"code\": \"root->left->right->left = new Node(4);\",\n      \"comment\": \"left\u2011right\u2011left subtree: 4\"\n    },\n    {\n      \"line\": 16,\n      \"code\": \"root->left->right->right = new Node(7);\",\n      \"comment\": \"left\u2011right\u2011right subtree: 7\"\n    },\n    {\n      \"line\": 17,\n      \"code\": \"root->right->right = new Node(14);\",\n      \"comment\": \"right\u2011right subtree: 13 \u2192 14\"\n    },\n    {\n      \"line\": 18,\n      \"code\": \"root->right->right->left = new Node(13);\",\n      \"comment\": \"right\u2011right\u2011left subtree: 13\"\n    },\n    {\n      \"line\": 21,\n      \"code\": \"if (node == nullptr) return;\",\n      \"comment\": \"Base case: stop recursion when reaching a null pointer\"\n    },\n    {\n      \"line\": 22,\n      \"code\": \"inorder(node->left);\",\n      \"comment\": \"Visit left subtree first (in\u2011order traversal)\"\n    },\n    {\n      \"line\": 23,\n      \"code\": \"cout << node->value << \\\" \\\";\",\n      \"comment\": \"Output current node's value\"\n    },\n    {\n      \"line\": 24,\n      \"code\": \"inorder(node->right);\",\n      \"comment\": \"Visit right subtree next\"\n    },\n    {\n      \"line\": 27,\n      \"code\": \"Node* root = sample();\",\n      \"comment\": \"Build the sample tree\"\n    },\n    {\n      \"line\": 28,\n      \"code\": \"inorder(sample()); cout << \\\"\\\\n\\\";\",\n      \"comment\": \"Perform inorder traversal and output result\"\n    }\n  ]\n}",
+      "explanation": "{\n  \"explanation\": \"Purpose: Prints the values of a binary tree in in\u2011order traversal.  \\nInput: Node* root \u2013 pointer to the root of the binary tree (or nullptr).  \\nOutput: void \u2013 writes the inorder sequence to standard output followed by a newline.  \\nAlgorithm: Recursively visits the left subtree, outputs the current node\u2019s value, then visits the right subtree. The recursion stops when a null pointer is encountered.\"\n}"
+    }
+  },
+  {
+    "name": "tree_inorder",
+    "is_recursive": false,
+    "json_ok": true,
+    "truncated": false,
+    "anchors_total": 20,
+    "anchors_exact": 1,
+    "anchors_repaired": 18,
+    "anchors_dropped": 1,
+    "containers_present": [
+      "stack"
+    ],
+    "has_container": true,
+    "container_named": true,
+    "container_evidence": [
+      "Create the binary tree: 8 (root) \u2192 3 \u2192 1 \u2192 6 \u2192 4 \u2192 7 \u2192 10 \u2192 13 \u2192 14 left subtree: 3 \u2192 1 \u2192 6 \u2192 4 \u2192 7 right subtree: 10 \u2192 13 \u2192 14 left\u2011left: 1 left\u2011right: 6 left\u2011right\u2011left: 4 left\u2011right\u2011right: 7 right\u2011right: 14 right\u2011right\u2011left: 13 Iterative inorder traversal using a stack Continue until all nodes are processed Reach the leftmost node of the current subtree Push the current node onto the stack Move to the left child Pop the node from the stack Remove the node from the stack Output the node's value Move to the right child If the stack is empty, we have processed the entire tree main function Purpose: Perform an in\u2011order traversal of a binary tree and print node values.",
+      "Algorithm: Initialize a stack and repeatedly push nodes onto it while they have left children, then pop the top node, output its value, and push its right child."
+    ],
+    "wrong_container_evidence": [],
+    "false_recursion_claim": false,
+    "recursion_evidence": [],
+    "prose": "Create the binary tree: 8 (root) \u2192 3 \u2192 1 \u2192 6 \u2192 4 \u2192 7 \u2192 10 \u2192 13 \u2192 14 left subtree: 3 \u2192 1 \u2192 6 \u2192 4 \u2192 7 right subtree: 10 \u2192 13 \u2192 14 left\u2011left: 1 left\u2011right: 6 left\u2011right\u2011left: 4 left\u2011right\u2011right: 7 right\u2011right: 14 right\u2011right\u2011left: 13 Iterative inorder traversal using a stack Continue until all nodes are processed Reach the leftmost node of the current subtree Push the current node onto the stack Move to the left child Pop the node from the stack Remove the node from the stack Output the node's value Move to the right child If the stack is empty, we have processed the entire tree main function Purpose: Perform an in\u2011order traversal of a binary tree and print node values.  \nInput: Node* root \u2013 pointer to the root of the binary tree (sample() builds a predefined tree).  \nOutput: void \u2013 writes the inorder traversal to standard output followed by a newline.  \nAlgorithm: Initialize a stack and repeatedly push nodes onto it while they have left children, then pop the top node, output its value, and push its right child. Continue until the stack is empty and the current node is null.",
+    "raw": {
+      "line_comments": "{\n  \"line_comments\": [\n    {\n      \"line\": 10,\n      \"code\": \"Node* root = new Node(8);\",\n      \"comment\": \"Create the binary tree: 8 (root) \u2192 3 \u2192 1 \u2192 6 \u2192 4 \u2192 7 \u2192 10 \u2192 13 \u2192 14\"\n    },\n    {\n      \"line\": 11,\n      \"code\": \"root->left = new Node(3);\",\n      \"comment\": \"left subtree: 3 \u2192 1 \u2192 6 \u2192 4 \u2192 7\"\n    },\n    {\n      \"line\": 12,\n      \"code\": \"root->right = new Node(10);\",\n      \"comment\": \"right subtree: 10 \u2192 13 \u2192 14\"\n    },\n    {\n      \"line\": 13,\n      \"code\": \"root->left->left = new Node(1);\",\n      \"comment\": \"left\u2011left: 1\"\n    },\n    {\n      \"line\": 14,\n      \"code\": \"root->left->right = new Node(6);\",\n      \"comment\": \"left\u2011right: 6\"\n    },\n    {\n      \"line\": 15,\n      \"code\": \"root->left->right->left = new Node(4);\",\n      \"comment\": \"left\u2011right\u2011left: 4\"\n    },\n    {\n      \"line\": 16,\n      \"code\": \"root->left->right->right = new Node(7);\",\n      \"comment\": \"left\u2011right\u2011right: 7\"\n    },\n    {\n      \"line\": 17,\n      \"code\": \"root->right->right = new Node(14);\",\n      \"comment\": \"right\u2011right: 14\"\n    },\n    {\n      \"line\": 18,\n      \"code\": \"root->right->right->left = new Node(13);\",\n      \"comment\": \"right\u2011right\u2011left: 13\"\n    },\n    {\n      \"line\": 21,\n      \"code\": \"stack<Node*> pending;\",\n      \"comment\": \"Iterative inorder traversal using a stack\"\n    },\n    {\n      \"line\": 22,\n      \"code\": \"while (node != nullptr || !pending.empty()) {\",\n      \"comment\": \"Continue until all nodes are processed\"\n    },\n    {\n      \"line\": 23,\n      \"code\": \"while (node != nullptr) {\",\n      \"comment\": \"Reach the leftmost node of the current subtree\"\n    },\n    {\n      \"line\": 24,\n      \"code\": \"pending.push(node);\",\n      \"comment\": \"Push the current node onto the stack\"\n    },\n    {\n      \"line\": 25,\n      \"code\": \"node = node->left;\",\n      \"comment\": \"Move to the left child\"\n    },\n    {\n      \"line\": 27,\n      \"code\": \"node = pending.top();\",\n      \"comment\": \"Pop the node from the stack\"\n    },\n    {\n      \"line\": 28,\n      \"code\": \"pending.pop();\",\n      \"comment\": \"Remove the node from the stack\"\n    },\n    {\n      \"line\": 29,\n      \"code\": \"cout << node->value << \\\" \\\";\",\n      \"comment\": \"Output the node's value\"\n    },\n    {\n      \"line\": 30,\n      \"code\": \"node = node->right;\",\n      \"comment\": \"Move to the right child\"\n    },\n    {\n      \"line\": 32,\n      \"code\": \"}\",\n      \"comment\": \"If the stack is empty, we have processed the entire tree\"\n    },\n    {\n      \"line\": 34,\n      \"code\": \"return 0;\",\n      \"comment\": \"main function\"\n    }\n  ]\n}",
+      "explanation": "{\n  \"explanation\": \"Purpose: Perform an in\u2011order traversal of a binary tree and print node values.  \\nInput: Node* root \u2013 pointer to the root of the binary tree (sample() builds a predefined tree).  \\nOutput: void \u2013 writes the inorder traversal to standard output followed by a newline.  \\nAlgorithm: Initialize a stack and repeatedly push nodes onto it while they have left children, then pop the top node, output its value, and push its right child. Continue until the stack is empty and the current node is null.\"\n}"
+    }
+  },
+  {
+    "name": "tree_height",
+    "is_recursive": true,
+    "json_ok": true,
+    "truncated": false,
+    "anchors_total": 14,
+    "anchors_exact": 0,
+    "anchors_repaired": 13,
+    "anchors_dropped": 1,
+    "containers_present": [],
+    "has_container": false,
+    "container_named": false,
+    "container_evidence": [],
+    "wrong_container_evidence": [],
+    "false_recursion_claim": false,
+    "recursion_evidence": [],
+    "prose": "Create the binary tree: 8 (root) \u2192 3 \u2192 10 \u2192 1 \u2192 6 \u2192 4 \u2192 7 \u2192 14 \u2192 13 left child of 8 right child of 8 left child of 3 right child of 3 left child of 6 right child of 6 right child of 10 left child of 14 Base case: empty subtree has height 0 Recursively compute height of left subtree Recursively compute height of right subtree Return 1 plus the larger of the two heights Print the height of the constructed tree Purpose: Compute the height of a binary tree.  \nInput: Node* root \u2013 pointer to the root of the tree (or nullptr for an empty tree).  \nOutput: int \u2013 the maximum depth of the tree (0 for an empty tree).  \nAlgorithm: Perform a post\u2011order traversal, recursively calculating the height of each subtree and returning the larger of the two heights plus one. The recursion stops when a null pointer is encountered.",
+    "raw": {
+      "line_comments": "{\n  \"line_comments\": [\n    {\n      \"line\": 10,\n      \"code\": \"Node* root = new Node(8);\",\n      \"comment\": \"Create the binary tree: 8 (root) \u2192 3 \u2192 10 \u2192 1 \u2192 6 \u2192 4 \u2192 7 \u2192 14 \u2192 13\"\n    },\n    {\n      \"line\": 11,\n      \"code\": \"root->left = new Node(3);\",\n      \"comment\": \"left child of 8\"\n    },\n    {\n      \"line\": 12,\n      \"code\": \"root->right = new Node(10);\",\n      \"comment\": \"right child of 8\"\n    },\n    {\n      \"line\": 13,\n      \"code\": \"root->left->left = new Node(1);\",\n      \"comment\": \"left child of 3\"\n    },\n    {\n      \"line\": 14,\n      \"code\": \"root->left->right = new Node(6);\",\n      \"comment\": \"right child of 3\"\n    },\n    {\n      \"line\": 15,\n      \"code\": \"root->left->right->left = new Node(4);\",\n      \"comment\": \"left child of 6\"\n    },\n    {\n      \"line\": 16,\n      \"code\": \"root->left->right->right = new Node(7);\",\n      \"comment\": \"right child of 6\"\n    },\n    {\n      \"line\": 17,\n      \"code\": \"root->right->right = new Node(14);\",\n      \"comment\": \"right child of 10\"\n    },\n    {\n      \"line\": 18,\n      \"code\": \"root->right->right->left = new Node(13);\",\n      \"comment\": \"left child of 14\"\n    },\n    {\n      \"line\": 21,\n      \"code\": \"if (node == nullptr) return 0;\",\n      \"comment\": \"Base case: empty subtree has height 0\"\n    },\n    {\n      \"line\": 22,\n      \"code\": \"int left = height(node->left);\",\n      \"comment\": \"Recursively compute height of left subtree\"\n    },\n    {\n      \"line\": 23,\n      \"code\": \"int right = height(node->right);\",\n      \"comment\": \"Recursively compute height of right subtree\"\n    },\n    {\n      \"line\": 24,\n      \"code\": \"return 1 + (left > right ? left : right);\",\n      \"comment\": \"Return 1 plus the larger of the two heights\"\n    },\n    {\n      \"line\": 27,\n      \"code\": \"cout << height(sample()) << \\\"\\\\n\\\";\",\n      \"comment\": \"Print the height of the constructed tree\"\n    }\n  ]\n}",
+      "explanation": "{\n  \"explanation\": \"Purpose: Compute the height of a binary tree.  \\nInput: Node* root \u2013 pointer to the root of the tree (or nullptr for an empty tree).  \\nOutput: int \u2013 the maximum depth of the tree (0 for an empty tree).  \\nAlgorithm: Perform a post\u2011order traversal, recursively calculating the height of each subtree and returning the larger of the two heights plus one. The recursion stops when a null pointer is encountered.\"\n}"
+    }
+  },
+  {
+    "name": "tree_height",
+    "is_recursive": false,
+    "json_ok": true,
+    "truncated": false,
+    "anchors_total": 23,
+    "anchors_exact": 0,
+    "anchors_repaired": 22,
+    "anchors_dropped": 1,
+    "containers_present": [
+      "queue"
+    ],
+    "has_container": true,
+    "container_named": true,
+    "container_evidence": [
+      "Create the binary tree structure: 8 (root) \u2192 3 \u2192 10 \u2192 1 \u2192 6 \u2192 4 \u2192 7 \u2192 14 \u2192 13 left child of 8 right child of 8 left child of 3 right child of 3 left child of 6 right child of 6 right child of 10 left child of 14 Base case: an empty subtree has height 0 BFS traversal queue start BFS from the root counter for the number of levels continue until all levels are processed number of nodes in the current BFS level process each node in the current level front node of the queue remove the front node from the queue enqueue left child if it exists enqueue right child if it exists increment level counter total number of levels in the tree Print the height of the constructed tree Purpose: Compute the maximum number of nodes at any depth in a binary tree.",
+      "Algorithm: Perform a breadth\u2011first traversal using a queue, counting nodes per level until the queue becomes empty."
+    ],
+    "wrong_container_evidence": [],
+    "false_recursion_claim": false,
+    "recursion_evidence": [],
+    "prose": "Create the binary tree structure: 8 (root) \u2192 3 \u2192 10 \u2192 1 \u2192 6 \u2192 4 \u2192 7 \u2192 14 \u2192 13 left child of 8 right child of 8 left child of 3 right child of 3 left child of 6 right child of 6 right child of 10 left child of 14 Base case: an empty subtree has height 0 BFS traversal queue start BFS from the root counter for the number of levels continue until all levels are processed number of nodes in the current BFS level process each node in the current level front node of the queue remove the front node from the queue enqueue left child if it exists enqueue right child if it exists increment level counter total number of levels in the tree Print the height of the constructed tree Purpose: Compute the maximum number of nodes at any depth in a binary tree.  \nInput: Node* root \u2013 pointer to the root of the binary tree (or nullptr for an empty tree).  \nOutput: int \u2013 height of the tree (0 for an empty tree).  \nAlgorithm: Perform a breadth\u2011first traversal using a queue, counting nodes per level until the queue becomes empty. Each time the queue size changes, increment the depth counter. The final counter value is the height.",
+    "raw": {
+      "line_comments": "{\n  \"line_comments\": [\n    {\n      \"line\": 10,\n      \"code\": \"Node* root = new Node(8);\",\n      \"comment\": \"Create the binary tree structure: 8 (root) \u2192 3 \u2192 10 \u2192 1 \u2192 6 \u2192 4 \u2192 7 \u2192 14 \u2192 13\"\n    },\n    {\n      \"line\": 11,\n      \"code\": \"root->left = new Node(3);\",\n      \"comment\": \"left child of 8\"\n    },\n    {\n      \"line\": 12,\n      \"code\": \"root->right = new Node(10);\",\n      \"comment\": \"right child of 8\"\n    },\n    {\n      \"line\": 13,\n      \"code\": \"root->left->left = new Node(1);\",\n      \"comment\": \"left child of 3\"\n    },\n    {\n      \"line\": 14,\n      \"code\": \"root->left->right = new Node(6);\",\n      \"comment\": \"right child of 3\"\n    },\n    {\n      \"line\": 15,\n      \"code\": \"root->left->right->left = new Node(4);\",\n      \"comment\": \"left child of 6\"\n    },\n    {\n      \"line\": 16,\n      \"code\": \"root->left->right->right = new Node(7);\",\n      \"comment\": \"right child of 6\"\n    },\n    {\n      \"line\": 17,\n      \"code\": \"root->right->right = new Node(14);\",\n      \"comment\": \"right child of 10\"\n    },\n    {\n      \"line\": 18,\n      \"code\": \"root->right->right->left = new Node(13);\",\n      \"comment\": \"left child of 14\"\n    },\n    {\n      \"line\": 21,\n      \"code\": \"if (node == nullptr) return 0;\",\n      \"comment\": \"Base case: an empty subtree has height 0\"\n    },\n    {\n      \"line\": 22,\n      \"code\": \"queue<Node*> level;\",\n      \"comment\": \"BFS traversal queue\"\n    },\n    {\n      \"line\": 23,\n      \"code\": \"level.push(node);\",\n      \"comment\": \"start BFS from the root\"\n    },\n    {\n      \"line\": 24,\n      \"code\": \"int levels = 0;\",\n      \"comment\": \"counter for the number of levels\"\n    },\n    {\n      \"line\": 25,\n      \"code\": \"while (!level.empty()) {\",\n      \"comment\": \"continue until all levels are processed\"\n    },\n    {\n      \"line\": 26,\n      \"code\": \"int width = level.size();\",\n      \"comment\": \"number of nodes in the current BFS level\"\n    },\n    {\n      \"line\": 27,\n      \"code\": \"for (int i = 0; i < width; i++) {\",\n      \"comment\": \"process each node in the current level\"\n    },\n    {\n      \"line\": 28,\n      \"code\": \"Node* current = level.front();\",\n      \"comment\": \"front node of the queue\"\n    },\n    {\n      \"line\": 29,\n      \"code\": \"level.pop();\",\n      \"comment\": \"remove the front node from the queue\"\n    },\n    {\n      \"line\": 30,\n      \"code\": \"if (current->left) level.push(current->left);\",\n      \"comment\": \"enqueue left child if it exists\"\n    },\n    {\n      \"line\": 31,\n      \"code\": \"if (current->right) level.push(current->right);\",\n      \"comment\": \"enqueue right child if it exists\"\n    },\n    {\n      \"line\": 33,\n      \"code\": \"levels++;\",\n      \"comment\": \"increment level counter\"\n    },\n    {\n      \"line\": 36,\n      \"code\": \"return levels;\",\n      \"comment\": \"total number of levels in the tree\"\n    },\n    {\n      \"line\": 40,\n      \"code\": \"cout << height(sample()) << \\\"\\\\n\\\";\",\n      \"comment\": \"Print the height of the constructed tree\"\n    }\n  ]\n}",
+      "explanation": "{\n  \"explanation\": \"Purpose: Compute the maximum number of nodes at any depth in a binary tree.  \\nInput: Node* root \u2013 pointer to the root of the binary tree (or nullptr for an empty tree).  \\nOutput: int \u2013 height of the tree (0 for an empty tree).  \\nAlgorithm: Perform a breadth\u2011first traversal using a queue, counting nodes per level until the queue becomes empty. Each time the queue size changes, increment the depth counter. The final counter value is the height.\"\n}"
+    }
+  },
+  {
+    "name": "quicksort_ranges",
+    "is_recursive": true,
+    "json_ok": true,
+    "truncated": false,
+    "anchors_total": 8,
+    "anchors_exact": 0,
+    "anchors_repaired": 7,
+    "anchors_dropped": 1,
+    "containers_present": [],
+    "has_container": false,
+    "container_named": false,
+    "container_evidence": [],
+    "wrong_container_evidence": [],
+    "false_recursion_claim": false,
+    "recursion_evidence": [],
+    "prose": "Base case: if the sub\u2011array is empty or a single element, it is already sorted. Locate the pivot position using the Lomuto partition scheme. Recursively sort the left partition. Recursively sort the right partition. Initial sample data; the algorithm will sort this array. Sort the entire vector in\u2011place. Output the sorted array. Ensure a newline after the output. Purpose: Sorts a vector of integers in ascending order using the quicksort algorithm.  \nInput:\u202f`vector<int>& values` \u2013 the mutable list to be sorted; `int low` and `int high` \u2013 inclusive indices defining the current sub\u2011range.  \nOutput:\u202f`void` \u2013 the vector `values` is reordered in\u2011place; `int` \u2013 the pivot index after partitioning.  \nAlgorithm: Recursively selects a pivot element from the last element, partitions the remaining elements into two groups (elements \u2264 pivot and elements > pivot), and swaps the pivot into its final position. The recursion continues on the left and right partitions until the sub\u2011range is empty.",
+    "raw": {
+      "line_comments": "{\n  \"line_comments\": [\n    {\n      \"line\": 10,\n      \"code\": \"if (low >= high) return;\",\n      \"comment\": \"Base case: if the sub\u2011array is empty or a single element, it is already sorted.\"\n    },\n    {\n      \"line\": 11,\n      \"code\": \"int split = partition(values, low, high);\",\n      \"comment\": \"Locate the pivot position using the Lomuto partition scheme.\"\n    },\n    {\n      \"line\": 12,\n      \"code\": \"quicksort(values, low, split - 1);\",\n      \"comment\": \"Recursively sort the left partition.\"\n    },\n    {\n      \"line\": 13,\n      \"code\": \"quicksort(values, split + 1, high);\",\n      \"comment\": \"Recursively sort the right partition.\"\n    },\n    {\n      \"line\": 16,\n      \"code\": \"vector<int> values = {9, 4, 17, 3, 8, 1, 12, 5, 20, 2, 11};\",\n      \"comment\": \"Initial sample data; the algorithm will sort this array.\"\n    },\n    {\n      \"line\": 17,\n      \"code\": \"quicksort(values, 0, values.size() - 1);\",\n      \"comment\": \"Sort the entire vector in\u2011place.\"\n    },\n    {\n      \"line\": 18,\n      \"code\": \"for (int v : values) cout << v << \\\" \\\";\",\n      \"comment\": \"Output the sorted array.\"\n    },\n    {\n      \"line\": 19,\n      \"code\": \"cout << '\\\\n';\",\n      \"comment\": \"Ensure a newline after the output.\"\n    }\n  ]\n}",
+      "explanation": "{\n  \"explanation\": \"Purpose: Sorts a vector of integers in ascending order using the quicksort algorithm.  \\nInput:\u202f`vector<int>& values` \u2013 the mutable list to be sorted; `int low` and `int high` \u2013 inclusive indices defining the current sub\u2011range.  \\nOutput:\u202f`void` \u2013 the vector `values` is reordered in\u2011place; `int` \u2013 the pivot index after partitioning.  \\nAlgorithm: Recursively selects a pivot element from the last element, partitions the remaining elements into two groups (elements \u2264 pivot and elements > pivot), and swaps the pivot into its final position. The recursion continues on the left and right partitions until the sub\u2011range is empty.\"\n}"
+    }
+  },
+  {
+    "name": "quicksort_ranges",
+    "is_recursive": false,
+    "json_ok": true,
+    "truncated": false,
+    "anchors_total": 11,
+    "anchors_exact": 3,
+    "anchors_repaired": 7,
+    "anchors_dropped": 1,
+    "containers_present": [
+      "stack"
+    ],
+    "has_container": true,
+    "container_named": true,
+    "container_evidence": [
+      "Algorithm: Uses a stack to perform a depth\u2011first traversal of the range, applying the `partition` helper to locate the pivot and split the range.",
+      "After each recursive call, the left and right sub\u2011ranges are pushed onto the stack, ensuring the entire range is processed."
+    ],
+    "wrong_container_evidence": [],
+    "false_recursion_claim": true,
+    "recursion_evidence": [
+      "Place pivot at its final position Return index of pivot after partition Recursively sort left sub\u2011array Recursively sort right sub\u2011array Base case: empty or single element range Select pivot and partition Push left sub\u2011range for further recursion Push right sub\u2011range for further recursion Print sorted array Add newline for clarity Success Purpose: Sorts a vector of integers in ascending order using the quicksort algorithm.",
+      "After each recursive call, the left and right sub\u2011ranges are pushed onto the stack, ensuring the entire range is processed."
+    ],
+    "prose": "Place pivot at its final position Return index of pivot after partition Recursively sort left sub\u2011array Recursively sort right sub\u2011array Base case: empty or single element range Select pivot and partition Push left sub\u2011range for further recursion Push right sub\u2011range for further recursion Print sorted array Add newline for clarity Success Purpose: Sorts a vector of integers in ascending order using the quicksort algorithm.  \nInput: `vector<int>& values` \u2013 the mutable list to be sorted; `int low` and `int high` \u2013 inclusive indices defining the current sub\u2011range.  \nOutput: The same vector `values` is reordered in\u2011place; the function returns `void`.  \nAlgorithm: Uses a stack to perform a depth\u2011first traversal of the range, applying the `partition` helper to locate the pivot and split the range. After each recursive call, the left and right sub\u2011ranges are pushed onto the stack, ensuring the entire range is processed. The main loop terminates when the stack is empty.",
+    "raw": {
+      "line_comments": "{\n  \"line_comments\": [\n    {\n      \"line\": 10,\n      \"code\": \"swap(values[boundary + 1], values[high]);\",\n      \"comment\": \"Place pivot at its final position\"\n    },\n    {\n      \"line\": 11,\n      \"code\": \"return boundary + 1;\",\n      \"comment\": \"Return index of pivot after partition\"\n    },\n    {\n      \"line\": 16,\n      \"code\": \"ranges.push({low, split - 1});\",\n      \"comment\": \"Recursively sort left sub\u2011array\"\n    },\n    {\n      \"line\": 17,\n      \"code\": \"ranges.push({split + 1, range.second});\",\n      \"comment\": \"Recursively sort right sub\u2011array\"\n    },\n    {\n      \"line\": 21,\n      \"code\": \"if (range.first >= range.second) continue;\",\n      \"comment\": \"Base case: empty or single element range\"\n    },\n    {\n      \"line\": 23,\n      \"code\": \"int split = partition(values, range.first, range.second);\",\n      \"comment\": \"Select pivot and partition\"\n    },\n    {\n      \"line\": 24,\n      \"code\": \"ranges.push({range.first, split - 1});\",\n      \"comment\": \"Push left sub\u2011range for further recursion\"\n    },\n    {\n      \"line\": 25,\n      \"code\": \"ranges.push({split + 1, range.second});\",\n      \"comment\": \"Push right sub\u2011range for further recursion\"\n    },\n    {\n      \"line\": 29,\n      \"code\": \"for (int v : values) cout << v << \\\" \\\";\",\n      \"comment\": \"Print sorted array\"\n    },\n    {\n      \"line\": 30,\n      \"code\": \"cout << \\\"\\\\n\\\";\",\n      \"comment\": \"Add newline for clarity\"\n    },\n    {\n      \"line\": 32,\n      \"code\": \"return 0;\",\n      \"comment\": \"Success\"\n    }\n  ]\n}",
+      "explanation": "{\n  \"explanation\": \"Purpose: Sorts a vector of integers in ascending order using the quicksort algorithm.  \\nInput: `vector<int>& values` \u2013 the mutable list to be sorted; `int low` and `int high` \u2013 inclusive indices defining the current sub\u2011range.  \\nOutput: The same vector `values` is reordered in\u2011place; the function returns `void`.  \\nAlgorithm: Uses a stack to perform a depth\u2011first traversal of the range, applying the `partition` helper to locate the pivot and split the range. After each recursive call, the left and right sub\u2011ranges are pushed onto the stack, ensuring the entire range is processed. The main loop terminates when the stack is empty.\"\n}"
+    }
+  }
+]
