@@ -1,0 +1,153 @@
+[
+  {
+    "name": "tree_inorder",
+    "is_recursive": true,
+    "json_ok": true,
+    "truncated": false,
+    "anchors_total": 3,
+    "anchors_exact": 0,
+    "anchors_repaired": 2,
+    "anchors_dropped": 1,
+    "containers_present": [],
+    "has_container": false,
+    "container_named": false,
+    "container_evidence": [],
+    "wrong_container_evidence": [
+      "Algorithm: The function performs an iterative in\u2011order traversal using a stack; it pushes nodes onto the stack while descending left, then visits them when no more left children exist, and finally pops nodes to visit right children."
+    ],
+    "false_recursion_claim": false,
+    "recursion_evidence": [],
+    "prose": "Build a simple binary tree for testing:          8               / \\             3   10            / \\ / \\           1   6     14  / \\            4   7 Visit left subtree, then current node, then right subtree Perform an in\u2011order traversal of the sample tree and print each node's value Purpose: Prints the values of a binary tree in in\u2011order traversal.  \nInput: A pointer to the root of a binary tree (Node*).  \nOutput: Writes each node's value to standard output, separated by spaces; returns void.  \nAlgorithm: The function performs an iterative in\u2011order traversal using a stack; it pushes nodes onto the stack while descending left, then visits them when no more left children exist, and finally pops nodes to visit right children. The recursion version is equivalent but uses explicit call frames.",
+    "raw": {
+      "line_comments": "{\n  \"line_comments\": [\n    {\n      \"line\": 12,\n      \"code\": \"Node* root = new Node(8);\",\n      \"comment\": \"Build a simple binary tree for testing:          8               / \\\\             3   10            / \\\\ / \\\\           1   6     14  / \\\\            4   7\"\n    },\n    {\n      \"line\": 20,\n      \"code\": \"cout << node->value << \\\" \\\";\",\n      \"comment\": \"Visit left subtree, then current node, then right subtree\"\n    },\n    {\n      \"line\": 23,\n      \"code\": \"inorder(sample()); cout << \\\"\\\\n\\\";\",\n      \"comment\": \"Perform an in\u2011order traversal of the sample tree and print each node's value\"\n    }\n  ]\n}",
+      "explanation": "{\n  \"explanation\": \"Purpose: Prints the values of a binary tree in in\u2011order traversal.  \\nInput: A pointer to the root of a binary tree (Node*).  \\nOutput: Writes each node's value to standard output, separated by spaces; returns void.  \\nAlgorithm: The function performs an iterative in\u2011order traversal using a stack; it pushes nodes onto the stack while descending left, then visits them when no more left children exist, and finally pops nodes to visit right children. The recursion version is equivalent but uses explicit call frames.\"\n}"
+    }
+  },
+  {
+    "name": "tree_inorder",
+    "is_recursive": false,
+    "json_ok": true,
+    "truncated": false,
+    "anchors_total": 5,
+    "anchors_exact": 0,
+    "anchors_repaired": 5,
+    "anchors_dropped": 0,
+    "containers_present": [
+      "stack"
+    ],
+    "has_container": true,
+    "container_named": true,
+    "container_evidence": [
+      "Iterative inorder traversal using a stack Push current node onto the stack and move to its left subtree Pop the last pushed node (the next inorder node) Visit the node Move to the right subtree for further inorder traversal Purpose: Prints the values of a binary tree in in\u2011order traversal.",
+      "Algorithm: Uses an explicit stack to simulate recursive left\u2011traversal while pushing nodes onto the stack."
+    ],
+    "wrong_container_evidence": [],
+    "false_recursion_claim": true,
+    "recursion_evidence": [
+      "When a node has no left child, it is popped from the stack and its value printed; then the right subtree is processed recursively."
+    ],
+    "prose": "Iterative inorder traversal using a stack Push current node onto the stack and move to its left subtree Pop the last pushed node (the next inorder node) Visit the node Move to the right subtree for further inorder traversal Purpose: Prints the values of a binary tree in in\u2011order traversal.  \nInput: A pointer to the root of a binary tree (Node*).  \nOutput: Writes each node's value to standard output, separated by spaces; returns void.  \nAlgorithm: Uses an explicit stack to simulate recursive left\u2011traversal while pushing nodes onto the stack. When a node has no left child, it is popped from the stack and its value printed; then the right subtree is processed recursively. The loop terminates when both the current node and the stack are empty.",
+    "raw": {
+      "line_comments": "{\n  \"line_comments\": [\n    {\n      \"line\": 12,\n      \"code\": \"while (node != nullptr || !pending.empty()) {\",\n      \"comment\": \"Iterative inorder traversal using a stack\"\n    },\n    {\n      \"line\": 14,\n      \"code\": \"pending.push(node);\",\n      \"comment\": \"Push current node onto the stack and move to its left subtree\"\n    },\n    {\n      \"line\": 18,\n      \"code\": \"node = pending.top();\",\n      \"comment\": \"Pop the last pushed node (the next inorder node)\"\n    },\n    {\n      \"line\": 20,\n      \"code\": \"cout << node->value << \\\" \\\";\",\n      \"comment\": \"Visit the node\"\n    },\n    {\n      \"line\": 21,\n      \"code\": \"node = node->right;\",\n      \"comment\": \"Move to the right subtree for further inorder traversal\"\n    }\n  ]\n}",
+      "explanation": "{\n  \"explanation\": \"Purpose: Prints the values of a binary tree in in\u2011order traversal.  \\nInput: A pointer to the root of a binary tree (Node*).  \\nOutput: Writes each node's value to standard output, separated by spaces; returns void.  \\nAlgorithm: Uses an explicit stack to simulate recursive left\u2011traversal while pushing nodes onto the stack. When a node has no left child, it is popped from the stack and its value printed; then the right subtree is processed recursively. The loop terminates when both the current node and the stack are empty.\"\n}"
+    }
+  },
+  {
+    "name": "tree_height",
+    "is_recursive": true,
+    "json_ok": true,
+    "truncated": false,
+    "anchors_total": 4,
+    "anchors_exact": 0,
+    "anchors_repaired": 4,
+    "anchors_dropped": 0,
+    "containers_present": [],
+    "has_container": false,
+    "container_named": false,
+    "container_evidence": [],
+    "wrong_container_evidence": [],
+    "false_recursion_claim": false,
+    "recursion_evidence": [],
+    "prose": "Build a simple binary tree for testing Recursively compute heights of sub\u2011trees Choose the larger height to determine current depth Add one for the current node Purpose: Compute the height of a binary tree.  \nInput: Node* node \u2013 pointer to the root of the binary tree (may be nullptr).  \nOutput: int \u2013 the number of edges on the longest path from the root to a leaf.  \nAlgorithm: Perform a depth\u2011first traversal; for each node, recursively compute the heights of its left and right sub\u2011trees, then return 1 plus the larger of those two heights. The recursion stops when a null pointer is encountered (height\u202f0).",
+    "raw": {
+      "line_comments": "{\n  \"line_comments\": [\n    {\n      \"line\": 12,\n      \"code\": \"Node* root = new Node(8);\",\n      \"comment\": \"Build a simple binary tree for testing\"\n    },\n    {\n      \"line\": 15,\n      \"code\": \"int left = height(node->left);\",\n      \"comment\": \"Recursively compute heights of sub\u2011trees\"\n    },\n    {\n      \"line\": 16,\n      \"code\": \"int right = height(node->right);\",\n      \"comment\": \"Choose the larger height to determine current depth\"\n    },\n    {\n      \"line\": 17,\n      \"code\": \"return 1 + (left > right ? left : right);\",\n      \"comment\": \"Add one for the current node\"\n    }\n  ]\n}",
+      "explanation": "{\n  \"explanation\": \"Purpose: Compute the height of a binary tree.  \\nInput: Node* node \u2013 pointer to the root of the binary tree (may be nullptr).  \\nOutput: int \u2013 the number of edges on the longest path from the root to a leaf.  \\nAlgorithm: Perform a depth\u2011first traversal; for each node, recursively compute the heights of its left and right sub\u2011trees, then return 1 plus the larger of those two heights. The recursion stops when a null pointer is encountered (height\u202f0).\"\n}"
+    }
+  },
+  {
+    "name": "tree_height",
+    "is_recursive": false,
+    "json_ok": true,
+    "truncated": false,
+    "anchors_total": 13,
+    "anchors_exact": 0,
+    "anchors_repaired": 13,
+    "anchors_dropped": 0,
+    "containers_present": [
+      "queue"
+    ],
+    "has_container": true,
+    "container_named": true,
+    "container_evidence": [
+      "Build a simple binary tree for testing BFS to count levels start from root number of BFS passes each iteration processes one level nodes at current depth process all nodes in this level current node to examine remove from queue enqueue left child if present enqueue right child if present one more level processed total number of levels Purpose: Compute the number of levels in a binary tree (its height).",
+      "Algorithm: Perform a breadth\u2011first traversal using a queue; each level is processed until the queue empties, counting how many levels were visited."
+    ],
+    "wrong_container_evidence": [],
+    "false_recursion_claim": false,
+    "recursion_evidence": [],
+    "prose": "Build a simple binary tree for testing BFS to count levels start from root number of BFS passes each iteration processes one level nodes at current depth process all nodes in this level current node to examine remove from queue enqueue left child if present enqueue right child if present one more level processed total number of levels Purpose: Compute the number of levels in a binary tree (its height).  \nInput: Node* node \u2013 pointer to the root of the binary tree.  \nOutput: int \u2013 the height of the tree (number of edges on the longest root\u2011to\u2011leaf path).  \nAlgorithm: Perform a breadth\u2011first traversal using a queue; each level is processed until the queue empties, counting how many levels were visited. The function returns the total count.",
+    "raw": {
+      "line_comments": "{\n  \"line_comments\": [\n    {\n      \"line\": 13,\n      \"code\": \"Node* root = new Node(8);\",\n      \"comment\": \"Build a simple binary tree for testing\"\n    },\n    {\n      \"line\": 24,\n      \"code\": \"queue<Node*> level;\",\n      \"comment\": \"BFS to count levels\"\n    },\n    {\n      \"line\": 25,\n      \"code\": \"level.push(node);\",\n      \"comment\": \"start from root\"\n    },\n    {\n      \"line\": 26,\n      \"code\": \"int levels = 0;\",\n      \"comment\": \"number of BFS passes\"\n    },\n    {\n      \"line\": 27,\n      \"code\": \"while (!level.empty()) {\",\n      \"comment\": \"each iteration processes one level\"\n    },\n    {\n      \"line\": 28,\n      \"code\": \"int width = level.size();\",\n      \"comment\": \"nodes at current depth\"\n    },\n    {\n      \"line\": 29,\n      \"code\": \"for (int i = 0; i < width; i++) {\",\n      \"comment\": \"process all nodes in this level\"\n    },\n    {\n      \"line\": 30,\n      \"code\": \"Node* current = level.front();\",\n      \"comment\": \"current node to examine\"\n    },\n    {\n      \"line\": 31,\n      \"code\": \"level.pop();\",\n      \"comment\": \"remove from queue\"\n    },\n    {\n      \"line\": 32,\n      \"code\": \"if (current->left) level.push(current->left);\",\n      \"comment\": \"enqueue left child if present\"\n    },\n    {\n      \"line\": 33,\n      \"code\": \"if (current->right) level.push(current->right);\",\n      \"comment\": \"enqueue right child if present\"\n    },\n    {\n      \"line\": 35,\n      \"code\": \"levels++;\",\n      \"comment\": \"one more level processed\"\n    },\n    {\n      \"line\": 37,\n      \"code\": \"return levels;\",\n      \"comment\": \"total number of levels\"\n    }\n  ]\n}",
+      "explanation": "{\n  \"explanation\": \"Purpose: Compute the number of levels in a binary tree (its height).  \\nInput: Node* node \u2013 pointer to the root of the binary tree.  \\nOutput: int \u2013 the height of the tree (number of edges on the longest root\u2011to\u2011leaf path).  \\nAlgorithm: Perform a breadth\u2011first traversal using a queue; each level is processed until the queue empties, counting how many levels were visited. The function returns the total count.\"\n}"
+    }
+  },
+  {
+    "name": "quicksort_ranges",
+    "is_recursive": true,
+    "json_ok": true,
+    "truncated": false,
+    "anchors_total": 13,
+    "anchors_exact": 0,
+    "anchors_repaired": 13,
+    "anchors_dropped": 0,
+    "containers_present": [],
+    "has_container": false,
+    "container_named": false,
+    "container_evidence": [],
+    "wrong_container_evidence": [],
+    "false_recursion_claim": false,
+    "recursion_evidence": [],
+    "prose": "Choose the last element as the pivot Boundary separates elements <= pivot from > pivot Scan all elements except the pivot Move smaller or equal element to the left side of boundary Place pivot at its final position Index of the pivot after partitioning Base case: empty or single\u2011element subarray Partition and obtain pivot index Recursively sort left subarray Recursively sort right subarray Initial data to be sorted Sort the entire vector in place Output sorted sequence Purpose: Sorts a vector of integers in ascending order using the quicksort algorithm.\nInput: A reference to a vector of integers and two integers representing the start and end indices of the subarray to be sorted.\nOutput: None (the vector is sorted in place).\nAlgorithm: The function selects a pivot element from the array and partitions the other elements into two sub-arrays, according to whether they are less than or greater than the pivot. The sub-arrays are then recursively sorted.",
+    "raw": {
+      "line_comments": "{\n  \"line_comments\": [\n    {\n      \"line\": 4,\n      \"code\": \"int pivot = values[high];\",\n      \"comment\": \"Choose the last element as the pivot\"\n    },\n    {\n      \"line\": 5,\n      \"code\": \"int boundary = low - 1;\",\n      \"comment\": \"Boundary separates elements <= pivot from > pivot\"\n    },\n    {\n      \"line\": 6,\n      \"code\": \"for (int i = low; i < high; i++)\",\n      \"comment\": \"Scan all elements except the pivot\"\n    },\n    {\n      \"line\": 7,\n      \"code\": \"if (values[i] <= pivot) swap(values[++boundary], values[i]);\",\n      \"comment\": \"Move smaller or equal element to the left side of boundary\"\n    },\n    {\n      \"line\": 9,\n      \"code\": \"swap(values[boundary + 1], values[high]);\",\n      \"comment\": \"Place pivot at its final position\"\n    },\n    {\n      \"line\": 10,\n      \"code\": \"return boundary + 1;\",\n      \"comment\": \"Index of the pivot after partitioning\"\n    },\n    {\n      \"line\": 13,\n      \"code\": \"if (low >= high) return;\",\n      \"comment\": \"Base case: empty or single\u2011element subarray\"\n    },\n    {\n      \"line\": 14,\n      \"code\": \"int split = partition(values, low, high);\",\n      \"comment\": \"Partition and obtain pivot index\"\n    },\n    {\n      \"line\": 15,\n      \"code\": \"quicksort(values, low, split - 1);\",\n      \"comment\": \"Recursively sort left subarray\"\n    },\n    {\n      \"line\": 16,\n      \"code\": \"quicksort(values, split + 1, high);\",\n      \"comment\": \"Recursively sort right subarray\"\n    },\n    {\n      \"line\": 20,\n      \"code\": \"vector<int> values = {9, 4, 17, 3, 8, 1, 12, 5, 20, 2, 11};\",\n      \"comment\": \"Initial data to be sorted\"\n    },\n    {\n      \"line\": 21,\n      \"code\": \"quicksort(values, 0, values.size() - 1);\",\n      \"comment\": \"Sort the entire vector in place\"\n    },\n    {\n      \"line\": 22,\n      \"code\": \"for (int v : values) cout << v << \\\" \\\";\",\n      \"comment\": \"Output sorted sequence\"\n    }\n  ]\n}",
+      "explanation": "{\n  \"explanation\": \"Purpose: Sorts a vector of integers in ascending order using the quicksort algorithm.\\nInput: A reference to a vector of integers and two integers representing the start and end indices of the subarray to be sorted.\\nOutput: None (the vector is sorted in place).\\nAlgorithm: The function selects a pivot element from the array and partitions the other elements into two sub-arrays, according to whether they are less than or greater than the pivot. The sub-arrays are then recursively sorted.\"\n}"
+    }
+  },
+  {
+    "name": "quicksort_ranges",
+    "is_recursive": false,
+    "json_ok": true,
+    "truncated": false,
+    "anchors_total": 14,
+    "anchors_exact": 0,
+    "anchors_repaired": 14,
+    "anchors_dropped": 0,
+    "containers_present": [
+      "stack"
+    ],
+    "has_container": true,
+    "container_named": true,
+    "container_evidence": [
+      "pivot chosen as the last element boundary index for elements <= pivot iterate over all but the pivot element move smaller or equal element to left side place pivot at its final position index of the pivot after partitioning push current sub\u2011array onto stack process sub\u2011arrays until stack empty top of the stack is the next sub\u2011array remove processed sub\u2011array empty or invalid sub\u2011array partition and get pivot index push left half for further processing push right half for further processing Purpose: Sorts a vector of integers in ascending order using the quicksort algorithm.",
+      "Algorithm: The function uses a stack to implement an iterative version of quicksort."
+    ],
+    "wrong_container_evidence": [],
+    "false_recursion_claim": false,
+    "recursion_evidence": [],
+    "prose": "pivot chosen as the last element boundary index for elements <= pivot iterate over all but the pivot element move smaller or equal element to left side place pivot at its final position index of the pivot after partitioning push current sub\u2011array onto stack process sub\u2011arrays until stack empty top of the stack is the next sub\u2011array remove processed sub\u2011array empty or invalid sub\u2011array partition and get pivot index push left half for further processing push right half for further processing Purpose: Sorts a vector of integers in ascending order using the quicksort algorithm.\nInput: A vector of integers and two indices representing the current subarray to be sorted.\nOutput: None (the vector is sorted in place).\nAlgorithm: The function uses a stack to implement an iterative version of quicksort. It repeatedly partitions the array and pushes the subarrays that need further sorting onto the stack until all subarrays are processed.",
+    "raw": {
+      "line_comments": "{\n  \"line_comments\": [\n    {\n      \"line\": 5,\n      \"code\": \"int pivot = values[high];\",\n      \"comment\": \"pivot chosen as the last element\"\n    },\n    {\n      \"line\": 6,\n      \"code\": \"int boundary = low - 1;\",\n      \"comment\": \"boundary index for elements <= pivot\"\n    },\n    {\n      \"line\": 7,\n      \"code\": \"for (int i = low; i < high; i++)\",\n      \"comment\": \"iterate over all but the pivot element\"\n    },\n    {\n      \"line\": 8,\n      \"code\": \"if (values[i] <= pivot) swap(values[++boundary], values[i]);\",\n      \"comment\": \"move smaller or equal element to left side\"\n    },\n    {\n      \"line\": 10,\n      \"code\": \"swap(values[boundary + 1], values[high]);\",\n      \"comment\": \"place pivot at its final position\"\n    },\n    {\n      \"line\": 12,\n      \"code\": \"return boundary + 1;\",\n      \"comment\": \"index of the pivot after partitioning\"\n    },\n    {\n      \"line\": 15,\n      \"code\": \"ranges.push({low, high});\",\n      \"comment\": \"push current sub\u2011array onto stack\"\n    },\n    {\n      \"line\": 16,\n      \"code\": \"while (!ranges.empty()) {\",\n      \"comment\": \"process sub\u2011arrays until stack empty\"\n    },\n    {\n      \"line\": 17,\n      \"code\": \"pair<int, int> range = ranges.top();\",\n      \"comment\": \"top of the stack is the next sub\u2011array\"\n    },\n    {\n      \"line\": 18,\n      \"code\": \"ranges.pop();\",\n      \"comment\": \"remove processed sub\u2011array\"\n    },\n    {\n      \"line\": 19,\n      \"code\": \"if (range.first >= range.second) continue;\",\n      \"comment\": \"empty or invalid sub\u2011array\"\n    },\n    {\n      \"line\": 20,\n      \"code\": \"int split = partition(values, range.first, range.second);\",\n      \"comment\": \"partition and get pivot index\"\n    },\n    {\n      \"line\": 21,\n      \"code\": \"ranges.push({range.first, split - 1});\",\n      \"comment\": \"push left half for further processing\"\n    },\n    {\n      \"line\": 22,\n      \"code\": \"ranges.push({split + 1, range.second});\",\n      \"comment\": \"push right half for further processing\"\n    }\n  ]\n}",
+      "explanation": "{\n  \"explanation\": \"Purpose: Sorts a vector of integers in ascending order using the quicksort algorithm.\\nInput: A vector of integers and two indices representing the current subarray to be sorted.\\nOutput: None (the vector is sorted in place).\\nAlgorithm: The function uses a stack to implement an iterative version of quicksort. It repeatedly partitions the array and pushes the subarrays that need further sorting onto the stack until all subarrays are processed.\"\n}"
+    }
+  }
+]
