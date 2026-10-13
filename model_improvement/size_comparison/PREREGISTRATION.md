@@ -81,3 +81,13 @@ reported as "no detectable difference", never as "no difference".
 - The 3B may have been trained on different data, not merely more parameters.
   Without its config, "3B is better" and "its mixture was better" cannot be
   separated. Any conclusion has to say so.
+
+
+
+
+
+
+
+
+
+
